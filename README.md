@@ -22,18 +22,16 @@ python3 build.py preview preview
 
 Then open `preview/index.html` in a browser.
 
-## Cloudflare Pages settings
+## Cloudflare settings
 
-Connect the project to this repo (Workers & Pages, Create, Pages, Connect to Git) with:
+The site runs as a Cloudflare Worker that only serves static files (free). `wrangler.jsonc` tells Cloudflare to serve the `dist` folder and use `404.html` for missing pages. When connecting the repo (Workers & Pages, Create, import a repository), use:
 
 | Setting | Value |
 |---|---|
-| Production branch | `main` |
-| Framework preset | None |
 | Build command | `python3 build.py` |
-| Build output directory | `dist` |
+| Deploy command | `npx wrangler deploy` |
 
-Then add `moon5h1n3.dev` under Custom domains, and switch on Web Analytics.
+Then add `moon5h1n3.dev` under the Worker's Settings, Domains & Routes, and switch on Web Analytics.
 
 ## Getting found
 

@@ -1,0 +1,9 @@
+// Cloudflare settings: serve the built site in dist/ as static files.
+{
+  "name": "moon5h1n3-dev",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
