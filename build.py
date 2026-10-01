@@ -8,6 +8,7 @@ uppercase marquee moments, IBM Plex Sans and Mono, amber marquee and velvet, the
 Usage: python3 build.py [OUT_DIR] [prod|preview]   (defaults: dist prod)
 """
 import pathlib
+import shutil
 import sys
 
 from common import (code, esc, faq_html, fill, head, install_html, jsonld_app, jsonld_site,
@@ -35,6 +36,25 @@ def ticket_mark(size=30, fill_var="var(--marquee)", cls="stub"):
     return (f'<svg class="{cls}" width="{size}" height="{h:.0f}" viewBox="0 0 50 30" aria-hidden="true">'
             f'<path fill-rule="evenodd" fill="{fill_var}" d="M4 0h42a4 4 0 0 1 4 4v7a4 4 0 0 0 0 8v7a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4v-7a4 4 0 0 0 0-8V4a4 4 0 0 1 4-4z'
             f'M15 5h5v20h-5zM24 12h5v13h-5zM33 19h5v6h-5z"/></svg>')
+
+
+def stamp_mark(size=34):
+    """A round passport stamp: double ring and a star."""
+    return (f'<svg width="{size}" height="{size}" viewBox="0 0 34 34" aria-hidden="true" fill="none" stroke="currentColor">'
+            '<circle cx="17" cy="17" r="15" stroke-width="2"/><circle cx="17" cy="17" r="11" stroke-width="1" stroke-dasharray="2 2"/>'
+            '<path d="M17 11.5l1.6 3.4 3.7.4-2.8 2.5.8 3.6-3.3-1.9-3.3 1.9.8-3.6-2.8-2.5 3.7-.4z" fill="currentColor" stroke="none"/></svg>')
+
+
+# Ready-made apps served as they are, from apps/<folder>/. Each one is copied into the
+# built site unchanged and gets a card on the home page.
+EXTRA_APPS = [
+    {"folder": "stamp-passport", "name": "Heritage Stamp Passport",
+     "summary": "A stamp passport for the heritage places you visit. Works offline, installs on your phone, and keeps your stamps on your own device.",
+     "cta": "Open the app"},
+]
+
+
+APPS_DIR = pathlib.Path(__file__).resolve().parent / "apps"
 
 
 # ---------------------------------------------------------------- Unbinge
@@ -362,6 +382,9 @@ a{color:inherit}
 .app.ub h2{font:italic 600 1.55rem/1.2 "Fraunces",Georgia,serif}
 .app.ls h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
 .app p{margin:4px 0 0;color:var(--ink-muted)}
+.app.sp .mk{color:#2f6a4f}
+.app .cta{grid-column:2;color:var(--ink);font-weight:600}
+@media (prefers-color-scheme:dark){.app.sp .mk{color:#8fc7a8}}
 .app:hover{border-color:var(--ink-muted)}
 footer{margin-top:36px;color:var(--ink-muted);font-size:.92rem}
 """
@@ -374,7 +397,12 @@ def home_page(L):
     s.append(f'<body><main class="wrap"><h1>{SITE["domain"]}</h1><p class="intro">{SITE["intro"]} {SITE["honesty"]}</p>')
     s.append(f'<a class="app ub" href="{L["unbinge"]}"><span class="mk">{release_ring(32)}</span><h2>Unbinge</h2><p>{UNBINGE["summary"]}</p></a>')
     s.append(f'<a class="app ls" href="{L["last"]}"><span class="mk">{ticket_mark(36)}</span><h2>Last Showing</h2><p>{LAST["summary"]}</p></a>')
-    s.append(f'<footer>Code on <a href="{SITE["github"]}">GitHub</a>. Both apps are MIT licensed and run in Docker.</footer></main></body></html>')
+    up = "" if L["home"] == "/" else L["home"].replace("index.html", "")
+    for app in EXTRA_APPS:
+        if (APPS_DIR / app["folder"] / "index.html").exists():
+            href = f'/{app["folder"]}/' if L["home"] == "/" else f'{up}{app["folder"]}/index.html'
+            s.append(f'<a class="app sp" href="{href}"><span class="mk">{stamp_mark()}</span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
+    s.append(f'<footer>Code on <a href="{SITE["github"]}">GitHub</a>. Unbinge and Last Showing are MIT licensed and run in Docker.</footer></main></body></html>')
     return "\n".join(s)
 
 
@@ -392,6 +420,11 @@ def build(out, mode):
     (out / "unbinge/index.html").write_text(ub_page(links(1, mode)))
     (out / "last-showing/index.html").write_text(ls_page(links(1, mode)))
     write_extras(out, mode)
+    for app in EXTRA_APPS:
+        src = APPS_DIR / app["folder"]
+        if src.exists():
+            shutil.copytree(src, out / app["folder"], dirs_exist_ok=True,
+                            ignore=shutil.ignore_patterns("README*", ".DS_Store"))
     if mode == "prod":
         (out / "404.html").write_text(NOT_FOUND)
 
