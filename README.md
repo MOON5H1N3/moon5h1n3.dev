@@ -38,3 +38,9 @@ Then add `moon5h1n3.dev` under the Worker's Settings, Domains & Routes, and swit
 - Add the site to [Google Search Console](https://search.google.com/search-console) and [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit `https://moon5h1n3.dev/sitemap.xml`. Bing feeds Copilot and ChatGPT search.
 - Keep the app repos public and set each one's "Website" field to its page.
 - When you change a page, update its date in `common.py` (search for `lastmod`) so search engines know to look again.
+
+## Apps served as they are
+
+Folders in `apps/` are copied onto the site unchanged and get a card on the home page (see `EXTRA_APPS` in `build.py`).
+
+- `apps/waystamp/` is a copy of [MOON5H1N3/waystamp](https://github.com/MOON5H1N3/waystamp). Fix things there, then copy the files into this folder to release them. Remember to bump `VERSION` in `sw.js` so installed copies update.

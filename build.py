@@ -50,7 +50,7 @@ def stamp_mark(size=34):
 EXTRA_APPS = [
     {"folder": "waystamp", "name": "Waystamp", "icon": "icons/icon-192.png",
      "summary": "Collect an illustrated stamp for every heritage place, summit and trail you visit. Works offline, installs on your phone, and keeps your stamps on your own device.",
-     "cta": "Open the app"},
+     "cta": "Open the app", "repo": "https://github.com/MOON5H1N3/waystamp"},
 ]
 
 
@@ -404,7 +404,9 @@ def home_page(L):
             href = f'/{app["folder"]}/' if L["home"] == "/" else f'{up}{app["folder"]}/index.html'
             icon = href.replace("index.html", "") + app["icon"]
             s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
-    s.append(f'<footer>Code on <a href="{SITE["github"]}">GitHub</a>. Unbinge and Last Showing are MIT licensed and run in Docker.</footer></main></body></html>')
+    code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>'] + [
+        f'<a href="{a["repo"]}">{a["name"]}</a>' for a in EXTRA_APPS if (APPS_DIR / a["folder"] / "index.html").exists()]
+    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed. Unbinge and Last Showing run in Docker; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
     return "\n".join(s)
 
 
