@@ -11,10 +11,10 @@ FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><style>pa
 def links(depth, mode):
     """Page links. prod = clean URLs for GitHub Pages; preview = relative files that work anywhere."""
     if mode == "prod":
-        return {"home": "/", "unbinge": "/unbinge/", "last": "/last-showing/", "favicon": "/favicon.svg"}
+        return {"home": "/", "unbinge": "/unbinge/", "last": "/last-showing/", "worth": "/worth-keeping/", "favicon": "/favicon.svg"}
     up = "../" * depth
     return {"home": up + "index.html", "unbinge": up + "unbinge/index.html",
-            "last": up + "last-showing/index.html", "favicon": up + "favicon.svg"}
+            "last": up + "last-showing/index.html", "worth": up + "worth-keeping/index.html", "favicon": up + "favicon.svg"}
 
 
 def fill(s, L):
@@ -60,19 +60,22 @@ def head(*, title, description, canonical, L, theme, fonts, css, extra=""):
 def jsonld_app(app):
     url = SITE["url"] + app["slug"] + "/"
     author = {"@type": "Person", "name": SITE["author"], "url": SITE["github"]}
+    lic = app.get("license", "https://opensource.org/licenses/MIT")
     graph = [
         {"@type": "SoftwareApplication", "@id": url + "#app", "name": app["name"],
          "description": app["description"], "url": url,
          "applicationCategory": app["category"], "operatingSystem": "Docker (Linux, Windows, macOS)",
-         "softwareRequirements": "Docker with Compose", "license": "https://opensource.org/licenses/MIT",
+         "softwareRequirements": "Docker with Compose",
          "isAccessibleForFree": True, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"},
          "author": author, "sameAs": [app["repo"]], "keywords": app["keywords"]},
         {"@type": "SoftwareSourceCode", "name": app["name"], "codeRepository": app["repo"],
-         "programmingLanguage": "Python", "license": "https://opensource.org/licenses/MIT", "author": author},
+         "programmingLanguage": "Python", "author": author},
         {"@type": "FAQPage", "@id": url + "#faq", "mainEntity": [
             {"@type": "Question", "name": text(q), "acceptedAnswer": {"@type": "Answer", "text": text(a)}}
             for q, a in app["faq"]]},
     ]
+    if lic:
+        graph[0]["license"] = graph[1]["license"] = lic
     return ('<script type="application/ld+json">\n'
             + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=1)
             + "\n</script>\n")

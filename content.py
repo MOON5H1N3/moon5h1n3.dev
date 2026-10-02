@@ -11,7 +11,7 @@ SITE = {
     "author": "MOON5H1N3",
     "github": "https://github.com/MOON5H1N3",
     "title": "moon5h1n3.dev: small self-hosted apps",
-    "description": "Free, open-source, self-hosted Docker apps by MOON5H1N3: Unbinge releases Plex shows weekly, and Last Showing plans your Monzo Vue tickets with Letterboxd.",
+    "description": "Small apps by MOON5H1N3, with the code on GitHub: Unbinge releases Plex shows weekly, Last Showing plans your Monzo Vue tickets with Letterboxd, Worth Keeping checks physical media in shops, and Waystamp collects heritage stamps.",
     "intro": "Small apps I built to fix my own problems, now open source for anyone with the same ones.",
     "honesty": "They're vibe coded: written with AI coding tools and tested by hand on my own setup. I'd rather say that up front.",
 }
@@ -235,4 +235,112 @@ LAST = {
     "sibling": ("unbinge", "Unbinge", "releases your Plex shows a few episodes at a time"),
 }
 
-APPS = [UNBINGE, LAST]
+
+
+WORTH = {
+    "slug": "worth-keeping",
+    "name": "Worth Keeping",
+    "repo": "https://github.com/MOON5H1N3/worth-keeping",
+    "license": None,  # no LICENSE file in the repo yet
+    "category": "LifestyleApplication",
+    "keywords": "physical media, barcode scanner, Discogs, Letterboxd, Blu-ray, vinyl, books, collection tracker, self-hosted, Docker, Plex",
+    "title": "Worth Keeping: scan a barcode, know if it's worth buying",
+    "description": "Worth Keeping is a free, self-hosted Docker app for physical media collectors. Scan a book, DVD, Blu-ray, CD or record in a shop to see if you already own it, whether it fits your taste, and whether the price is a good find in the UK.",
+    "lede": "Know if it's worth keeping before you buy it.",
+    "summary": "Scan a book, film or record in a shop and see if you already own it, whether it's your taste, and whether the price is a good find.",
+    "intro": "A free, self-hosted Docker app for anyone who collects books, DVDs and Blu-rays, CDs and vinyl. Scan a barcode in a charity shop and it tells you whether it's already on your shelf, how it fits your Letterboxd, book app and Plex taste, and whether the price is fair for the UK.",
+    "honesty": "I built Worth Keeping with AI coding tools and use it every time I'm in a charity shop. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
+    "why": {
+        "h": "Is it a find, or a second copy?",
+        "p": [
+            "Charity shops and record fairs are full of things you might want, and some you already own. Standing in the aisle, it's hard to remember whether that Blu-ray is on your shelf, whether you liked the film, or whether £4 is a bargain.",
+            "Worth Keeping answers all three from one scan, using your own shelf and your own ratings. It works with no signal too, because your phone keeps a copy of your shelf.",
+        ],
+    },
+    "how": {
+        "h": "How a scan works",
+        "intro": "Point your phone at the barcode, add the shop price if you like, and you get one plain verdict.",
+        "steps": [
+            ("Scan", "Use your phone's camera, or type the barcode. Batch mode scans a whole shelf in one go."),
+            ("Look it up", "Books come from Open Library, CDs and records from Discogs, and films and everything else from UPCitemdb."),
+            ("Check your taste", "Your Letterboxd rating or watchlist, your book app rating or to-read list, and whether it's already on your Plex."),
+            ("Get a verdict", "Good find, Fair price, Too much, Upgrade, or On your shelf. Tap Bought it and it's added, with what you paid and where."),
+        ],
+    },
+    "table": {
+        "h": "The verdicts",
+        "cols": ("Verdict", "What it means"),
+        "rows": [
+            ("Good find", "Cheaper than it usually sells for. Music is priced against Discogs; books and films against eBay UK listings."),
+            ("Fair price", "About what it usually goes for"),
+            ("Too much", "You'd usually pay less elsewhere"),
+            ("Upgrade", "You own another edition or a lesser format, such as the DVD of a Blu-ray in your hand"),
+            ("On your shelf", "You already have this one"),
+        ],
+        "after": "Scans that match your Discogs wantlist say so. The <b>Hunt</b> page lists things you love that you don't own physically yet: anything rated 4★ or more, or on a watchlist or to-read list, plus your Discogs wantlist.",
+    },
+    "features_h": "What else it does",
+    "features": [
+        "A shelf of everything you own, as covers or a list, searchable and filterable by format",
+        "Upgrade spotting, with the option to take the old copy off your shelf",
+        "No-signal mode: \"do I own it?\" still works, and anything else is checked when you're back online",
+        "Stats by format and decade, monthly spending, favourite shops, and what Discogs says your collection is worth",
+        "A nightly refresh of Discogs and Plex, and covers found for anything missing one",
+        "Find duplicates, and download your shelf as a spreadsheet",
+        "Imports from Letterboxd, Pagebound, Goodreads or StoryGraph, plus Discogs and Plex connections",
+        "One database file, with a backup download in Settings",
+    ],
+    "install": {
+        "h": "Install with Docker",
+        "intro": "You need Docker with Compose. Discogs, Letterboxd, a book app and Plex are all optional, and you can connect them later in Settings.",
+        "steps": [
+            {"h": "Get the code", "code": "git clone https://github.com/MOON5H1N3/worth-keeping.git\ncd worth-keeping"},
+            {"h": "Start it", "code": "docker compose up -d --build",
+             "after": ["Open <code>http://localhost:8787</code>. Your shelf and settings live in the <code>data</code> folder next to it, and updates never touch it."]},
+            {"h": "On Windows, update with one click",
+             "p": ["Put the folder in <code>C:\\docker\\worth-keeping</code> and double-click <code>update.bat</code>. It pulls the latest version, rebuilds the container and starts it. Run it again whenever there's a new version."]},
+            {"h": "Use it on your phone",
+             "p": ["Phones only allow the camera on https addresses. Install <a href=\"https://tailscale.com/download\">Tailscale</a> on your computer and phone, turn on MagicDNS and HTTPS certificates in its admin page, then run this on the computer:"],
+             "code": "tailscale serve --bg 8787",
+             "after": ["Open the https address it prints on your phone and add it to your home screen."]},
+        ],
+    },
+    "options": {
+        "h": "Optional connections",
+        "rows": [
+            ("Discogs", "Your collection, wantlist and music prices"),
+            ("Letterboxd", "Upload your export and tick which lists are physical copies you own"),
+            ("Book app", "A Pagebound, Goodreads or StoryGraph CSV, with the shelves that mean you own a copy"),
+            ("Plex", "Shows whether you already have a film digitally"),
+            ("eBay and TMDB", "Free developer keys for book and film prices, and film posters"),
+        ],
+        "after": "All of these are set up on the Settings page.",
+    },
+    "faq": [
+        ("How do I check if I already own a DVD or record while I'm in a shop?",
+         "Scan its barcode with Worth Keeping on your phone. It checks your shelf straight away, even with no signal, and tells you if you own it or own another edition."),
+        ("How do I know if a second-hand price is good?",
+         "Add the shop price when you scan. Worth Keeping compares it with what the item usually sells for: Discogs for CDs and records, and eBay UK listings for books and films. It then says Good find, Fair price or Too much."),
+        ("Does it work with Letterboxd and Discogs?",
+         "Yes. Upload your Letterboxd export to see your rating or watchlist on every film you scan, and connect Discogs to import your collection and wantlist."),
+        ("Which book apps does it support?",
+         "Pagebound, Goodreads and StoryGraph CSV exports. You choose which shelves mean you own a physical copy."),
+        ("Does it work without phone signal?",
+         "Yes. Your phone keeps a copy of your shelf, so \"do I own it?\" still works. Anything it can't answer is saved and checked when you're back online."),
+        ("Why does it need Tailscale on my phone?",
+         "Phones only let websites use the camera over https. Tailscale gives your home server a private https address that only your own devices can reach."),
+        ("Where is my data kept?",
+         "In one file on your own computer, <code>data/worth-keeping.db</code>. Settings has a backup download."),
+        ("Is it free?", "Yes. It runs on your own computer, and the optional eBay, Discogs and TMDB keys are free too."),
+        ("Is Worth Keeping affiliated with Discogs, Letterboxd or eBay?", "No. It's an independent hobby project."),
+        ("Was Worth Keeping written with AI?",
+         "Yes, it's vibe coded: written with AI coding tools, then tested by hand on a real collection. The source is on GitHub, so you can read exactly what it does before you run it."),
+    ],
+    "footer": [
+        "Worth Keeping is made by <a href=\"https://github.com/MOON5H1N3\">MOON5H1N3</a>. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
+        "Book data from <a href=\"https://openlibrary.org/\">Open Library</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.",
+    ],
+    "sibling": ("last", "Last Showing", "plans your Monzo Vue tickets around your Letterboxd taste"),
+}
+
+APPS = [UNBINGE, LAST, WORTH]

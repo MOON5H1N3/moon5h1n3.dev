@@ -13,7 +13,7 @@ import sys
 
 from common import (code, esc, faq_html, fill, head, install_html, jsonld_app, jsonld_site,
                     links, table_html, COPY_JS, write_extras)
-from content import SITE, UNBINGE, LAST
+from content import SITE, UNBINGE, LAST, WORTH
 
 
 # ---------------------------------------------------------------- marks
@@ -365,6 +365,73 @@ def ls_page(L):
     return "\n".join(s)
 
 
+# ---------------------------------------------------------------- Worth Keeping
+# Same family as Last Showing (shared neutrals, type, spacing); only the brand colour
+# (keeper lavender), the identity colour (cloth green) and the mark change.
+def shelf_mark(size=34):
+    return ('<svg width="%d" height="%d" viewBox="0 0 96 96" aria-hidden="true"><rect width="96" height="96" rx="20" fill="var(--velvet)"/>'
+            '<g transform="translate(16 14)" fill="#f3ebdc"><rect x="4" y="25" width="10" height="31" rx="1.5"/><rect x="17" y="19" width="10" height="37" rx="1.5"/>'
+            '<path fill-rule="evenodd" fill="#b39cf0" d="M31.5 4h11a1.5 1.5 0 0 1 1.5 1.5v49a1.5 1.5 0 0 1-1.5 1.5h-11a1.5 1.5 0 0 1-1.5-1.5v-49A1.5 1.5 0 0 1 31.5 4zM33 11v2.5h8V11zM33 45v2.5h8V45z"/>'
+            '<rect x="51" y="27" width="10" height="29" rx="1.5" transform="rotate(-9 51 56)"/><rect x="2" y="58" width="60" height="4" rx="1"/></g></svg>') % (size, size)
+
+
+def _wk_css():
+    c = LS_CSS
+    dark, light = c.split("@media (prefers-color-scheme:light)", 1)
+    dark = (dark.replace("#f2b33d", "#b39cf0").replace("--on-marquee:#1a1206", "--on-marquee:#1a1030")
+                .replace("#a32a3c", "#245442"))
+    light = (light.replace("--marquee:#eaa52b", "--marquee:#5e3fae").replace("--marquee-text:#8a5600", "--marquee-text:#5e3fae")
+                  .replace("--on-marquee:#1a1206", "--on-marquee:#fffaf1").replace("#8c2232", "#1f4a3a")
+                  .replace("--marquee:#eaa52b", "--marquee:#5e3fae").replace("--marquee-text:#8a5600", "--marquee-text:#5e3fae"))
+    return dark + "@media (prefers-color-scheme:light)" + light + "\n.velvet{--on-velvet:#f3ebdc}\n.lockup .mk{display:block;border-radius:8px}"
+
+
+WK_CSS = _wk_css()
+
+
+def wk_page(L):
+    app = WORTH
+    s = [head(title=app["title"], description=app["description"], canonical=SITE["url"] + "worth-keeping/", L=L,
+              theme="#14110f", fonts="family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;600",
+              css=WK_CSS, extra=jsonld_app(app))]
+    s.append(f'<body><header class="top"><div class="wrap"><a class="lockup" href="{L["worth"]}"><span class="mk">{shelf_mark(32)}</span><b>Worth Keeping</b></a>'
+             f'<nav aria-label="Page"><a class="opt" href="#how">How a scan works</a><a href="#install">Install</a>'
+             f'<a class="opt" href="#faq">Questions</a><a href="{app["repo"]}">GitHub</a></nav></div></header>')
+    s.append('<main><div class="wrap hero"><div>')
+    s.append('<p class="label">Free and self-hosted, for physical media</p><h1 class="marquee-xl">Worth<br>Keeping</h1>')
+    s.append(f'<p class="lede">{app["lede"]}</p><p class="intro">{app["intro"]}</p>')
+    s.append(f'<div class="actions"><a class="btn primary" href="#install">Install with Docker</a><a class="btn" href="{app["repo"]}">Source on GitHub</a></div>')
+    s.append(f'<p class="note">Vibe coded, tested by hand. {app["honesty"]}</p></div>')
+    s.append('<figure style="margin:0" aria-label="Example scan: a Blu-ray that upgrades a DVD you own, at a good price">'
+             '<div class="sechead"><p class="marquee-s">Just scanned</p><span class="label">5 012345 678900</span></div>'
+             '<div class="card"><div class="tags"><span class="tag pick">Good find</span><span class="tag later">Upgrade</span></div>'
+             '<p class="film">The Long Field</p><p class="fmeta">Blu-ray · 2019. You own this on DVD, and you rated it 4.5★ on Letterboxd.</p>'
+             '<div class="data"><div><span class="label">Shop price</span><span class="v">£3.00</span></div><div><span class="label">Usually</span><span class="v">£6.50</span></div><div><span class="label">On Plex</span><span class="v">No</span></div></div>'
+             '<div class="fakebtns" aria-hidden="true"><span class="p">Bought it</span><span>Replace the DVD</span><span class="q">Not today</span></div></div>'
+             '<div class="card"><div class="tags"><span class="tag leaving">On your shelf</span></div>'
+             '<p class="film">The Quiet Harbour</p><p class="fmeta">Paperback · added 12 March, £1.50 from the charity shop on the high street.</p></div>'
+             '</figure></div>')
+    s.append(f'<section id="why" class="velvet"><div class="wrap"><div class="prose"><p class="label">The problem</p><h2>{app["why"]["h"]}</h2>'
+             + "".join(f"<p>{p}</p>" for p in app["why"]["p"]) + "</div></div></section>")
+    s.append(f'<section id="how"><div class="wrap"><h2>{app["how"]["h"]}</h2><p class="prose" style="color:var(--ink-muted)">{app["how"]["intro"]}</p><ol class="steps">')
+    for i, (t, d) in enumerate(app["how"]["steps"], 1):
+        s.append(f'<li><span class="label">Step {i}</span><b>{t}</b><p>{d}</p></li>')
+    s.append("</ol></div></section>")
+    t = app["table"]
+    s.append(f'<section id="verdicts"><div class="wrap"><h2>{t["h"]}</h2>{table_html(t["cols"], t["rows"])}<p class="prose">{t["after"]}</p></div></section>')
+    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{f}</li>" for f in app["features"]) + "</ul></div></section>")
+    ins = app["install"]
+    s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
+    o = app["options"]
+    s.append(f'<h3>{o["h"]}</h3></div>{table_html(("Service", "What it adds"), o["rows"])}<p class="prose">{o["after"]}</p></div></section>')
+    s.append(f'<section id="faq"><div class="wrap"><h2>Questions</h2><div class="prose">{faq_html(app)}</div></div></section></main>')
+    sk, sname, sdesc = app["sibling"]
+    s.append('<footer><div class="wrap">' + "".join(f"<p>{fill(f, L)}</p>" for f in app["footer"]))
+    s.append(f'<p>Also by me: <a href="{L[sk]}">{sname}</a>, which {sdesc}. More at <a href="{L["home"]}">{SITE["domain"]}</a>.</p></div></footer>')
+    s.append(f"<script>{COPY_JS}</script></body></html>")
+    return "\n".join(s)
+
+
 # ---------------------------------------------------------------- home
 HOME_CSS = """
 :root{--ground:#14110f;--raised:#1f1a16;--hairline:#3b332c;--ink:#f3ebdc;--ink-muted:#b4a896;--accent:#D98A4B;--text-faint:#716A5A;--marquee:#f2b33d;--sans:"IBM Plex Sans",system-ui,sans-serif}
@@ -380,6 +447,8 @@ a{color:inherit}
 .app .mk{grid-row:span 2;width:56px;height:56px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--hairline);background:var(--ground)}
 .app h2{margin:0;font-size:1.3rem;line-height:1.2}
 .app.ub h2{font:italic 600 1.55rem/1.2 "Fraunces",Georgia,serif}
+.app.wk h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
+.app .wkmk{--velvet:#245442;border:0;overflow:hidden}
 .app.ls h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
 .app p{margin:4px 0 0;color:var(--ink-muted)}
 .app.sp .mk{overflow:hidden;border:0}
@@ -398,15 +467,16 @@ def home_page(L):
     s.append(f'<body><main class="wrap"><h1>{SITE["domain"]}</h1><p class="intro">{SITE["intro"]} {SITE["honesty"]}</p>')
     s.append(f'<a class="app ub" href="{L["unbinge"]}"><span class="mk">{release_ring(32)}</span><h2>Unbinge</h2><p>{UNBINGE["summary"]}</p></a>')
     s.append(f'<a class="app ls" href="{L["last"]}"><span class="mk">{ticket_mark(36)}</span><h2>Last Showing</h2><p>{LAST["summary"]}</p></a>')
+    s.append(f'<a class="app wk" href="{L["worth"]}"><span class="mk wkmk">{shelf_mark(56)}</span><h2>Worth Keeping</h2><p>{WORTH["summary"]}</p></a>')
     up = "" if L["home"] == "/" else L["home"].replace("index.html", "")
     for app in EXTRA_APPS:
         if (APPS_DIR / app["folder"] / "index.html").exists():
             href = f'/{app["folder"]}/' if L["home"] == "/" else f'{up}{app["folder"]}/index.html'
             icon = href.replace("index.html", "") + app["icon"]
             s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
-    code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>'] + [
+    code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>', f'<a href="{WORTH["repo"]}">Worth Keeping</a>'] + [
         f'<a href="{a["repo"]}">{a["name"]}</a>' for a in EXTRA_APPS if (APPS_DIR / a["folder"] / "index.html").exists()]
-    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed. Unbinge and Last Showing run in Docker; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
+    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
     return "\n".join(s)
 
 
@@ -418,11 +488,12 @@ NOT_FOUND = """<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><me
 
 def build(out, mode):
     out = pathlib.Path(out)
-    for d in ("", "unbinge", "last-showing"):
+    for d in ("", "unbinge", "last-showing", "worth-keeping"):
         (out / d).mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(home_page(links(0, mode)))
     (out / "unbinge/index.html").write_text(ub_page(links(1, mode)))
     (out / "last-showing/index.html").write_text(ls_page(links(1, mode)))
+    (out / "worth-keeping/index.html").write_text(wk_page(links(1, mode)))
     write_extras(out, mode)
     for app in EXTRA_APPS:
         src = APPS_DIR / app["folder"]
