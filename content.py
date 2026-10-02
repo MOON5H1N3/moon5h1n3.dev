@@ -12,7 +12,7 @@ SITE = {
     "github": "https://github.com/MOON5H1N3",
     "title": "moon5h1n3.dev: small self-hosted apps",
     "description": "Free, open-source, self-hosted Docker apps by MOON5H1N3: Unbinge releases Plex shows weekly, and Last Showing plans your Monzo Vue tickets with Letterboxd.",
-    "intro": "Small self-hosted apps I built to fix my own problems, now open source for anyone with the same ones.",
+    "intro": "Small apps I built to fix my own problems, now open source for anyone with the same ones.",
     "honesty": "They're vibe coded: written with AI coding tools and tested by hand on my own setup. I'd rather say that up front.",
 }
 

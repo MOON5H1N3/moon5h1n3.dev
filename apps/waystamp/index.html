@@ -1,0 +1,1537 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Waystamp</title>
+<meta name="description" content="Collect an illustrated stamp for every heritage place, summit and trail you visit.">
+<meta name="theme-color" content="#262b5e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Waystamp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600&family=Courier+Prime:wght@400;700&display=swap">
+<style>
+/* Layout: a stamp book. Indigo cover band, sticky tabs (Places / Summits / Trails), then one "page" per region with a grid of stamp slots on contour-line paper. */
+:root {
+  --paper: #eef1f4;
+  --paper-2: #e1e6ec;
+  --ink: #1c2140;
+  --muted: #5a6079;
+  --line: #c2c9d4;
+  --cover: #262b5e;
+  --cover-ink: #f3f1ea;
+  --signal: #e4a72a;
+  --focus: #1c2140;
+  --i-house: #c03d2a;
+  --i-garden: #3d7438;
+  --i-castle: #2c4c9c;
+  --i-coast: #0f7480;
+  --i-countryside: #87660f;
+  --i-ruin: #7a3a8a;
+  --i-summit: #3a4d68;
+  --i-trail: #b0501a;
+  --f-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-stamp: "Courier Prime", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10132a; --paper-2: #181c38; --ink: #e7e9f3; --muted: #9ba1ba; --line: #2c3256;
+    --cover: #0a0c1f; --cover-ink: #f3f1ea; --signal: #f2b941; --focus: #f2b941;
+    --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10132a; --paper-2: #181c38; --ink: #e7e9f3; --muted: #9ba1ba; --line: #2c3256;
+  --cover: #0a0c1f; --cover-ink: #f3f1ea; --signal: #f2b941; --focus: #f2b941;
+  --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e;
+  color-scheme: dark;
+}
+html { -webkit-text-size-adjust: 100%; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 15px;
+  line-height: 1.5;
+  padding-inline: 16px;
+  margin: 0;
+  padding-block: 0 calc(48px + env(safe-area-inset-bottom, 0px));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px));
+  -webkit-tap-highlight-color: transparent;
+  background-image:
+    repeating-radial-gradient(circle at 50% -20%, transparent 0 13px, color-mix(in srgb, var(--line) 35%, transparent) 13px 14px);
+  background-attachment: fixed;
+}
+.wrap { max-width: 1040px; margin-inline: auto; }
+
+/* Cover */
+.cover {
+  background: var(--cover);
+  color: var(--cover-ink);
+  margin-inline: -16px;
+  padding: calc(28px + env(safe-area-inset-top, 0px)) 16px 24px;
+  border-bottom: 4px solid var(--signal);
+}
+.cover-in { max-width: 1040px; margin-inline: auto; display: flex; flex-wrap: wrap; gap: 20px 32px; align-items: end; justify-content: space-between; }
+.eyebrow { font-family: var(--f-stamp); font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--signal); margin: 0 0 6px; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.mark { width: 60px; height: 60px; flex: none; color: var(--cover-ink); transform: rotate(-8deg); }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(36px, 7vw, 56px); line-height: .95; letter-spacing: -.02em; margin: 0; }
+h1 span { color: var(--signal); }
+.tally { display: flex; gap: 28px; flex-wrap: wrap; }
+.tally div { display: grid; }
+.tally b { font-family: var(--f-display); font-size: 38px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.tally span { font-family: var(--f-stamp); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; opacity: .8; }
+
+/* Controls */
+.controls { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--paper); margin-inline: -16px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.controls-in { max-width: 1040px; margin-inline: auto; display: grid; gap: 10px; }
+.tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.tab { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 1px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); min-width: 0; }
+.tab b { font: 700 17px/1.1 var(--f-display); }
+.tab small { font: 400 12px var(--f-stamp); color: var(--muted); letter-spacing: .04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab[aria-selected="true"] { background: var(--cover); border-color: var(--cover); color: var(--cover-ink); box-shadow: inset 0 -3px 0 var(--signal); }
+.tab[aria-selected="true"] small { color: var(--cover-ink); opacity: .8; }
+.tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.summary { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; padding-top: 22px; }
+.stat { display: grid; }
+.stat b { font: 800 34px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.stat span { font: 400 12px var(--f-stamp); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.set { display: grid; grid-template-columns: auto auto; gap: 4px 12px; align-items: center; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; }
+.set-name { grid-column: 1 / -1; font-weight: 600; font-size: 14px; }
+.dots { display: inline-flex; gap: 5px; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--i-summit); }
+.dots i.on { background: var(--i-summit); }
+.set-state { font: 400 12px var(--f-stamp); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.set.full { border-style: solid; border-color: var(--signal); }
+.set.full .set-state { color: var(--ink); font-weight: 700; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.search { flex: 1 1 220px; min-width: 0; font: inherit; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-2); color: var(--ink); }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: thin; }
+.chip { flex: none; font: 500 13px var(--f-body); padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; white-space: nowrap; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { font: 500 13px var(--f-body); padding: 8px 12px; border: 0; background: transparent; color: var(--ink); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--paper-2); box-shadow: inset 0 -2px 0 var(--ink); }
+.btn { font: 600 14px var(--f-body); padding: 9px 14px; border-radius: 6px; border: 1px solid var(--ink); background: var(--ink); color: var(--paper); cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.danger { background: transparent; color: var(--i-house); border-color: var(--i-house); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .slot:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Pages */
+.page { padding-block: 28px 8px; }
+.page-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 18px; }
+.page-head h2 { font-family: var(--f-display); font-weight: 700; font-size: 26px; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+.page-meta { font-family: var(--f-stamp); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: flex; gap: 14px; align-items: center; }
+.bar { width: 90px; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--ink); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 14px 10px; }
+.slot { all: unset; box-sizing: border-box; cursor: pointer; display: grid; justify-items: center; gap: 6px; padding: 6px 4px 8px; border-radius: 8px; text-align: center; }
+.slot:hover { background: color-mix(in srgb, var(--paper-2) 70%, transparent); }
+.slot .face { width: 112px; height: 112px; display: grid; place-items: center; }
+.slot .ghost { width: 112px; height: 112px; color: var(--muted); opacity: .22; transition: opacity .15s; }
+.slot:hover .ghost, .slot:focus-visible .ghost { opacity: .4; }
+.slot .name { font-size: 13px; line-height: 1.25; font-weight: 500; max-width: 130px; text-wrap: balance; }
+.slot .sub { font-family: var(--f-stamp); font-size: 11px; color: var(--muted); letter-spacing: .06em; }
+.slot.done .name { font-weight: 600; }
+.stamp { width: 112px; height: 112px; overflow: visible; }
+.stamp.fresh { animation: thunk .42s cubic-bezier(.2,.9,.3,1.3); }
+@keyframes thunk { from { transform: scale(1.5) rotate(var(--r)); opacity: 0; } to { transform: scale(1) rotate(var(--r)); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .stamp.fresh { animation: none; } }
+
+.empty { padding: 40px 0; color: var(--muted); text-align: center; }
+.foot { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 10px; color: var(--muted); font-size: 13px; }
+.foot-row { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; }
+.foot .hint { margin: 0; max-width: 70ch; }
+.sync::before { content: "●"; margin-right: 6px; color: var(--i-garden); }
+.sync.warn::before { color: var(--i-house); }
+.btn.small { font-size: 13px; padding: 7px 12px; display: inline-flex; align-items: center; }
+label.btn { cursor: pointer; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 8px; font-size: 14px; max-width: calc(100vw - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
+
+/* Dialogs */
+dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); padding: 0; width: min(420px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(14, 16, 40, .55); }
+.dlg { padding: 22px; display: grid; gap: 14px; }
+.dlg h3 { font-family: var(--f-display); font-weight: 700; font-size: 24px; margin: 0; line-height: 1.15; text-wrap: balance; }
+.dlg .kicker { font-family: var(--f-stamp); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.dlg label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.dlg input, .dlg textarea, .dlg select { font: 400 15px var(--f-body); padding: 9px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-2); color: var(--ink); width: 100%; }
+.dlg textarea { min-height: 72px; resize: vertical; }
+.dlg .actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.dlg .actions .left { margin-right: auto; }
+.big { display: grid; place-items: center; padding: 6px 0; }
+.big .stamp { width: 210px; height: 210px; }
+.note { font-style: italic; color: var(--muted); margin: 0; white-space: pre-wrap; }
+.confirm { background: var(--paper-2); border-radius: 6px; padding: 10px 12px; font-size: 14px; display: grid; gap: 8px; }
+.cover-nav { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+.cover-nav button { font: 600 13px var(--f-body); padding: 7px 12px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--cover-ink) 45%, transparent); background: transparent; color: var(--cover-ink); cursor: pointer; }
+.cover-nav button:hover { background: color-mix(in srgb, var(--cover-ink) 12%, transparent); }
+.cover-nav button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+dialog.wide { width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); }
+dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr; padding-bottom: 0; }
+.p-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.p-body { overflow-y: auto; display: grid; gap: 14px; padding-bottom: 22px; align-content: start; min-height: 0; }
+.p-intro { margin: 0; color: var(--muted); }
+.p-sub { margin: 6px 0 0; font: 700 15px var(--f-display); }
+.opt { font-weight: 400; color: var(--muted); }
+.a-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.a-preview { display: grid; place-items: center; padding: 4px 0; }
+.a-preview .stamp { width: 150px; height: 150px; }
+.fld { display: grid; gap: 4px; font-size: 13px; font-weight: 600; }
+.fld input { font: 400 15px var(--f-body); padding: 9px 11px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-2); color: var(--ink); }
+.badges, .rv-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px 8px; }
+.badge-cell { display: grid; justify-items: center; text-align: center; gap: 2px; }
+.badge { width: 84px; height: 84px; }
+.badge .b-fill { fill: var(--paper-2); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.badge .b-ring { fill: none; stroke: var(--line); stroke-width: 1.5; }
+.badge .b-big { fill: var(--muted); font-family: var(--f-display); font-weight: 800; }
+.badge .b-unit { fill: var(--muted); font: 700 9px var(--f-stamp); letter-spacing: 1px; }
+.badge.on .b-fill { fill: var(--cover); stroke: none; }
+.badge.on .b-ring { stroke: var(--cover-ink); }
+.badge.on .b-big { fill: var(--cover-ink); }
+.badge.on .b-unit { fill: var(--signal); }
+.bc-label { font-size: 13px; font-weight: 600; line-height: 1.25; }
+.bc-sub { font: 400 11px var(--f-stamp); color: var(--muted); letter-spacing: .03em; }
+.badge-cell:not(.on) .bc-label { color: var(--muted); font-weight: 500; }
+.setcards { display: grid; gap: 8px; }
+.setcard { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.setcard.full { border: 2px solid var(--signal); }
+.setcard summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; padding: 12px 14px; }
+.setcard summary::-webkit-details-marker { display: none; }
+.setcard summary .bar { grid-column: 1 / -1; width: auto; }
+.sc-name { font-weight: 600; }
+.sc-prog { font: 400 12px var(--f-stamp); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.setcard.full .sc-prog { color: var(--ink); font-weight: 700; }
+.tag-yours { font: 400 11px var(--f-stamp); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+.sc-note { margin: 0 14px 8px; color: var(--muted); font-size: 13px; }
+.sc-list { list-style: none; margin: 0; padding: 0 14px 12px; display: grid; gap: 4px; font-size: 14px; }
+.sc-list li { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px dashed var(--line); color: var(--muted); }
+.sc-list li span:last-child { font: 400 12px var(--f-stamp); white-space: nowrap; }
+.sc-list li.on { color: var(--ink); }
+.sc-list li.on span:first-child { font-weight: 600; }
+.sc-actions { padding: 0 14px 14px; justify-content: flex-start; }
+.sc-actions .confirm { width: 100%; }
+.se-count { margin: 0; font: 400 12px var(--f-stamp); color: var(--muted); letter-spacing: .08em; text-transform: uppercase; }
+.se-list { display: grid; gap: 12px; }
+.se-list fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 2px; min-width: 0; }
+.se-list legend { font: 700 15px var(--f-display); padding: 0 0 4px; }
+.chk { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 6px 4px; border-bottom: 1px dashed var(--line); font-size: 14px; cursor: pointer; }
+.chk input { width: 18px; height: 18px; accent-color: var(--cover); }
+.chk small { font: 400 11px var(--f-stamp); color: var(--muted); }
+.se-actions { position: sticky; bottom: 0; background: var(--paper); padding-top: 10px; }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+.swatch { all: unset; box-sizing: border-box; cursor: pointer; display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 8px; font-weight: 600; font-size: 14px; }
+.swatch .sw { height: 56px; border-radius: 6px; box-shadow: inset 0 -5px 0 #e4a72a; }
+.swatch[aria-pressed="true"] { border: 2px solid var(--ink); padding: 7px; }
+.swatch:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.review { display: grid; gap: 16px; }
+.rv-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.rv-year { font: 800 64px/.9 var(--f-display); letter-spacing: -.02em; }
+.rv-in { font: 700 22px var(--f-display); color: var(--muted); }
+.rv-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; }
+.rv-stats div { display: grid; }
+.rv-stats b { font: 800 32px/1 var(--f-display); font-variant-numeric: tabular-nums; }
+.rv-stats span { font: 400 11px var(--f-stamp); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.rv-months { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; height: 120px; border-bottom: 1px solid var(--line); }
+.rv-m { display: grid; grid-template-rows: 16px 1fr 16px; height: 100%; justify-items: center; min-width: 0; }
+.rv-m .rv-bar { width: 70%; max-width: 26px; display: flex; align-items: flex-end; height: 100%; }
+.rv-m i { display: block; width: 100%; background: var(--muted); border-radius: 3px 3px 0 0; opacity: .55; }
+.rv-m.top i { background: var(--cover); opacity: 1; }
+.rv-n { font: 700 11px var(--f-stamp); color: var(--ink); align-self: end; }
+.rv-m:not(.top) .rv-n { visibility: hidden; }
+.rv-l { font: 400 11px var(--f-stamp); color: var(--muted); align-self: center; }
+.yr-pick { overflow: visible; flex-wrap: wrap; }
+.p-body > * { min-height: min-content; }
+.rv-high { margin: 0; display: grid; gap: 6px; }
+.rv-high div { display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.rv-high dt { font: 400 12px var(--f-stamp); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.rv-high dd { margin: 0; font-weight: 600; min-width: 0; }
+.rv-stamps { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+.rv-stamps .stamp { width: 92px; height: 92px; }
+@media (max-width: 480px) { .rv-high div { grid-template-columns: 1fr; gap: 2px; } .rv-year { font-size: 52px; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="ink" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.3" numOctaves="3" seed="9" result="n2"/>
+      <feColorMatrix in="n2" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -3 2.45" result="m"/>
+      <feComposite in="d" in2="m" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+
+<header class="cover">
+  <div class="cover-in">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor"><circle cx="60" cy="60" r="55" stroke-width="5"/><circle cx="60" cy="60" r="46" stroke-width="2"/></g><clipPath id="mk"><circle cx="60" cy="60" r="40"/></clipPath><g clip-path="url(#mk)"><path d="M14 92L46 52L58 64L74 42L108 92Z" fill="currentColor"/><path d="M34 100Q52 84 50 76Q48 70 62 64" fill="none" stroke="var(--cover)" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="36" r="7" fill="var(--signal)"/></g></svg>
+      <div>
+        <p class="eyebrow">Heritage · Summits · Trails</p>
+        <h1>Way<span>stamp</span></h1>
+      </div>
+    </div>
+    <div class="tally" aria-live="polite">
+      <div><b id="t-count">0</b><span>Stamps collected</span></div>
+    </div>
+    <nav class="cover-nav" aria-label="Your book">
+      <button type="button" data-panel="year">Your year</button>
+      <button type="button" data-panel="badges">Badges</button>
+      <button type="button" data-panel="sets">Sets</button>
+      <button type="button" data-panel="cover">Cover colour</button>
+    </nav>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="controls-in">
+    <div class="tabs" role="tablist" aria-label="Collections">
+      <button type="button" class="tab" role="tab" data-kind="places" aria-selected="true"><b>Places</b><small><span id="t-places">0</span> <span id="t-places-of"></span></small></button>
+      <button type="button" class="tab" role="tab" data-kind="summits" aria-selected="false"><b>Summits</b><small><span id="t-summits">0</span> <span id="t-summits-of"></span></small></button>
+      <button type="button" class="tab" role="tab" data-kind="trails" aria-selected="false"><b>Trails</b><small><span id="t-trails">0</span> <span id="t-trails-of"></span></small></button>
+    </div>
+    <div class="row">
+      <input id="q" class="search" type="search" placeholder="Search places, e.g. Tyntesfield" aria-label="Search">
+      <div class="seg" role="group" aria-label="Show">
+        <button type="button" data-show="all" aria-pressed="true">All</button>
+        <button type="button" data-show="done" aria-pressed="false">Stamped</button>
+        <button type="button" data-show="todo" aria-pressed="false">Not yet</button>
+      </div>
+      <button type="button" class="btn ghost" id="add-btn">+ Add your own</button>
+    </div>
+    <div class="chips" id="chips" role="group" aria-label="Region"></div>
+  </div>
+</div>
+
+<main class="wrap" id="pages"></main>
+
+<footer class="wrap foot">
+  <div class="foot-row">
+    <span id="sync" class="sync">Saved on this device</span>
+    <div class="row">
+      <button type="button" class="btn small" id="install" hidden>Install app</button>
+      <button type="button" class="btn ghost small" id="backup">Save a backup</button>
+      <label class="btn ghost small" for="restore-file">Restore a backup</label>
+      <input type="file" id="restore-file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+  <p id="ios-hint" class="hint" hidden>To install on iPhone or iPad: open this page in Safari, tap the Share button, then <b>Add to Home Screen</b>.</p>
+  <p class="hint">Your stamps are kept on this device only. Save a backup now and then, and restore it if you change phone. Waystamp is an independent, open-source project. It is not affiliated with or endorsed by the National Trust, English Heritage, Cadw, Historic Environment Scotland or any other organisation whose places appear here. All stamp artwork is original.</p>
+</footer>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<dialog id="dlg-stamp">
+  <form class="dlg" id="f-stamp" method="dialog">
+    <p class="kicker" id="s-kicker"></p>
+    <h3 id="s-title"></h3>
+    <div id="s-view" hidden>
+      <div class="big" id="s-big"></div>
+      <p class="note" id="s-note"></p>
+    </div>
+    <div id="s-edit">
+      <div style="display:grid;gap:12px">
+        <label for="s-date"><span id="s-date-label">Date of visit</span><input id="s-date" type="date" required></label>
+        <label for="s-memo">Note <span style="font-weight:400;color:var(--muted)">(optional)</span><textarea id="s-memo" placeholder="Who you went with, the best bit, the café cake..."></textarea></label>
+      </div>
+    </div>
+    <div class="confirm" id="s-confirm" hidden>
+      <span id="s-confirm-text">Remove this stamp? The date and note go with it.</span>
+      <div class="actions"><button type="button" class="btn ghost" id="s-keep">Keep it</button><button type="button" class="btn danger" id="s-remove-yes">Remove stamp</button></div>
+    </div>
+    <div class="actions" id="s-actions">
+      <button type="button" class="btn danger left" id="s-remove" hidden>Remove stamp</button>
+      <button type="button" class="btn danger left" id="s-delplace" hidden>Delete place</button>
+      <button type="button" class="btn ghost" id="s-cancel">Close</button>
+      <button type="button" class="btn ghost" id="s-editbtn" hidden>Edit</button>
+      <button type="submit" class="btn" id="s-save">Stamp it</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlg-panel" class="wide">
+  <div class="dlg">
+    <div class="p-head"><h3 id="p-title"></h3><button type="button" class="btn ghost small" id="p-close">Close</button></div>
+    <div id="p-body" class="p-body"></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-add">
+  <form class="dlg" id="f-add" method="dialog">
+    <p class="kicker">New entry</p>
+    <h3>Add your own</h3>
+    <label for="a-name">Name<input id="a-name" required maxlength="60" placeholder="e.g. Brownsea Island or Pen y Fan"></label>
+    <div class="a-cols">
+      <label for="a-type">Kind<select id="a-type"></select></label>
+      <label for="a-region">Region<select id="a-region"></select></label>
+    </div>
+    <label for="a-pic">Picture<select id="a-pic"></select></label>
+    <div id="a-h-wrap" hidden><label for="a-h">Height in metres <span class="opt">(optional)</span><input id="a-h" type="number" min="1" max="9000" inputmode="numeric" placeholder="e.g. 886"></label></div>
+    <div id="a-mi-wrap" hidden><label for="a-mi">Length in miles <span class="opt">(optional)</span><input id="a-mi" type="number" min="1" max="5000" inputmode="numeric" placeholder="e.g. 102"></label></div>
+    <div class="a-preview" id="a-preview" aria-label="Stamp preview"></div>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="a-cancel">Cancel</button>
+      <button type="submit" class="btn">Add and stamp</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+const TYPES = {
+  house: "Historic house", garden: "Garden", castle: "Castle", coast: "Coast", countryside: "Countryside", ruin: "Ruin & ancient site", summit: "Summit", trail: "Trail"
+};
+const KINDS = {
+  places: { label: "Places", noun: "places", groups: ["South West", "South East & London", "East of England", "Midlands", "North", "Wales", "Scotland", "Northern Ireland"] },
+  summits: { label: "Summits", noun: "summits", groups: ["Scotland", "Lake District", "Wales", "Pennines & Peak", "Southern England", "Northern Ireland"] },
+  trails: { label: "Trails", noun: "trails", groups: ["England", "Wales", "Scotland"] }
+};
+const kindOf = p => p.type === "summit" ? "summits" : p.type === "trail" ? "trails" : "places";
+const REGIONS = KINDS.places.groups;
+const RAW = {
+  "South West": `Tyntesfield|house|house W=36 f=3 r=gable tw=spire c=3 tr=1;Dyrham Park|house|park house=1;Clevedon Court|house|house W=40 f=2 r=gable g=3 c=2;Leigh Woods|countryside|hills woods=1;Prior Park Landscape Garden~Prior Park|garden|temple v=bridge;Lacock Abbey|house|house W=38 f=2 r=flat tw=oct wp=1 tr=1;Stourhead|garden|temple v=lake;Avebury|ruin|stones;Stonehenge|ruin|stones v=henge;Old Sarum|ruin|castle hill=1 ruin=1;Longleat|house|house W=50 f=3 r=flat tw=pinn tr=1;Newark Park|house|house W=28 f=3 r=flat c=2 tr=2;Chedworth Roman Villa~Chedworth|ruin|roman v=mosaic;Snowshill Manor|house|house W=34 f=2 r=gable g=2 c=2 tr=1;Hidcote|garden|garden hedges=1;Brean Down|coast|hills v=ridge sea=1;Cheddar Gorge|countryside|hills v=gorge;Montacute House|house|house W=44 f=3 r=flat tw=pinn;Barrington Court|house|house W=40 f=2 r=gable g=3 tw=pinn;Lytes Cary Manor|house|house W=34 f=2 r=gable g=2 tr=1;Dunster Castle|castle|castle hill=1 trees=1 keep=1;Holnicote Estate|countryside|hills woods=1 wall=1;Corfe Castle|castle|castle hill=1 ruin=1 keep=1;Kingston Lacy|house|house W=40 f=3 r=hip c=4 tr=1;Studland Bay|coast|lighthouse stacks=1 nolight=1;Golden Cap|coast|cliffs v=cap;Killerton|house|house W=40 f=2 r=hip tr=2;Knightshayes|house|house W=40 f=2 r=gable g=2 c=3 wp=1;Castle Drogo|castle|castle hill=1 keep=1;Arlington Court|house|house W=36 f=2 r=flat p=1 tr=1;Lanhydrock|house|house W=40 f=2 r=gable g=3 c=4 tr=2;Cotehele|house|house W=30 f=2 r=gable tw=batt tr=1;St Michael's Mount|castle|island;Tintagel Castle|castle|island v=crag;Pendennis Castle|castle|castle hill=1 round=1;Trelissick|garden|garden;Glendurgan Garden~Glendurgan|garden|garden maze=1;Kynance Cove|coast|cliffs v=cove`,
+  "South East & London": `Sissinghurst Castle Garden~Sissinghurst|garden|garden tower=1;Knole|house|park;Chartwell|house|house W=36 f=2 r=gable g=3 c=4 tr=1;Scotney Castle|castle|castle moat=1 ruin=1 round=1;Bodiam Castle|castle|castle moat=1 round=1;Leeds Castle|castle|castle moat=1 keep=1 trees=1;Hever Castle|castle|castle moat=1 keep=gate;Dover Castle|castle|castle hill=1 keep=1;Battle Abbey|ruin|castle keep=gate trees=1;Petworth|house|house W=56 f=3 r=flat tr=0;Nymans|garden|abbey t=low;Sheffield Park|garden|lakepark;Wakehurst|garden|garden house=1;Polesden Lacey|house|house W=40 f=2 r=hip p=1 tr=1;Hinton Ampner|house|house W=36 f=2 r=hip c=2 tr=1;Highclere Castle|house|house W=44 f=3 r=flat tw=sq tr=1;Osborne|house|house W=36 f=3 r=hip tw=sq tr=1;Mottisfont|garden|garden v=roses;The Vyne|house|house W=40 f=2 r=gable p=1 c=4;Basildon Park|house|house w=2 f=2 r=flat p=1;Blenheim Palace|house|house W=40 w=2 f=3 r=flat p=1 tw=sq;Cliveden|house|house W=44 f=3 r=flat tr=1;Waddesdon Manor|house|house W=44 f=3 r=mansard tw=round;Stowe|garden|temple v=lake t=portico;Birling Gap & Seven Sisters~Seven Sisters|coast|cliffs v=sisters;White Cliffs of Dover|coast|cliffs v=dover;The Needles Old Battery~The Needles|coast|lighthouse stacks=1;Hampton Court Palace~Hampton Court|house|house W=50 f=2 r=flat tw=oct c=4 water=1;Tower of London|castle|castle keep=1 round=1;Ham House|house|house w=2 f=3 r=flat;Osterley Park|house|house W=44 f=2 r=flat tw=sq p=1;Sutton House|house|house W=30 f=3 r=gable g=2 c=2;Morden Hall Park|countryside|mill v=wheel;Fenton House|house|house W=30 f=3 r=hip c=2 tr=1`,
+  "East of England": `Blickling Estate~Blickling|house|house W=44 f=2 r=gable g=2 tw=ogee d=cupola;Felbrigg Hall|house|house W=40 f=2 r=gable g=3 c=3;Oxburgh Estate~Oxburgh|house|castle moat=1 keep=gate;Audley End|house|house W=50 f=2 r=flat tw=sq tr=1;Ickworth|house|temple wings=1;Melford Hall|house|house W=40 f=2 r=gable tw=ogee;Anglesey Abbey|house|house W=36 f=2 r=gable g=3 c=2 tr=1;Wimpole Estate~Wimpole|house|house W=40 w=2 f=3 r=flat;Wicken Fen|countryside|windpump;Sutton Hoo|ruin|mound;Flatford|countryside|mill;Blakeney National Nature Reserve~Blakeney Point|coast|beach seal=1;Dunwich Heath|coast|beach;Hatfield Forest|countryside|park oak=1`,
+  "Midlands": `Chatsworth|house|house W=50 f=3 r=flat water=1 tr=1;Burghley House|house|house W=44 f=3 r=flat tw=ogee;Kedleston Hall|house|house W=36 w=2 f=3 r=flat p=1 d=dome;Hardwick Hall|house|house W=40 f=4 r=flat tw=sq big=1;Calke Abbey|house|house W=40 f=3 r=flat p=1 tw=sq;Belton House|house|house W=40 f=2 r=hip d=cupola c=4;Woolsthorpe Manor~Woolsthorpe|house|apple;Tattershall Castle|castle|castle keep=tall;Warwick Castle|castle|castle round=1 keep=1 trees=1;Kenilworth Castle|castle|castle ruin=1 keep=1;Clumber Park|countryside|lakepark spire=1;Baddesley Clinton|house|house W=36 f=2 r=gable g=2 moat=1;Packwood House|house|garden yews=1;Charlecote Park|house|park house=1;Croome|garden|temple v=lake;Attingham Park|house|house W=36 w=2 f=3 r=flat p=1;Berrington Hall|house|house W=36 f=2 r=hip p=1 tr=1;Kinver Edge|countryside|hills v=rock;Dovedale|countryside|hills v=dove;Mam Tor|countryside|hills v=ridge;Sudbury Hall|house|house W=40 f=2 r=hip d=cupola tr=1`,
+  "North": `Fountains Abbey & Studley Royal~Fountains Abbey|ruin|abbey;Rievaulx Abbey|ruin|abbey t=low;Rievaulx Terrace|garden|temple v=terrace t=portico;Whitby Abbey|ruin|abbey t=low;Mount Grace Priory|ruin|abbey t=low;Castle Howard|house|house W=36 w=2 f=2 r=flat p=1 d=dome;Nunnington Hall|house|house W=34 f=2 r=gable c=3 water=1;Beningbrough Hall|house|house W=40 f=3 r=hip d=cupola;Nostell|house|house W=36 w=2 f=3 r=flat p=1;Malham Tarn|countryside|hills lake=1 wall=1;Cragside|house|house W=40 f=3 r=gable g=3 tudor=1 c=3 tr=2;Wallington|house|house W=40 f=3 r=hip c=2 tr=1;Alnwick Castle|castle|castle round=1 keep=1 trees=1;Dunstanburgh Castle|castle|castle hill=1 ruin=1;Lindisfarne Castle|castle|island v=crag;Seaton Delaval Hall~Seaton Delaval|house|house W=32 w=2 f=3 r=flat p=1 tw=sq;Souter Lighthouse|coast|lighthouse stripe=1 cot=1;Housesteads Roman Fort~Housesteads|ruin|roman;Gibside|countryside|column;Hill Top|house|cottage;Tarn Hows|countryside|hills lake=1 pines=1;Wordsworth House|house|house W=36 f=3 r=gable c=2;Sizergh|house|house W=36 f=2 r=gable tw=batt tr=1;Speke Hall|house|house W=44 f=2 r=gable g=3 tudor=1;Formby|coast|beach pines=1;Lyme|house|house W=44 f=3 r=flat p=1 water=1;Dunham Massey|house|park house=1;Quarry Bank|house|mill v=quarry;Little Moreton Hall|house|house W=36 f=3 r=gable g=3 tudor=1;Tatton Park|house|house W=40 f=2 r=flat p=1 tr=2`,
+  "Wales": `Caernarfon Castle|castle|castle round=1 moat=1 keep=1;Conwy Castle|castle|castle round=1 trees=1;Harlech Castle|castle|castle hill=1 round=1 keep=gate;Beaumaris Castle|castle|castle moat=1 round=1;Caerphilly Castle|castle|castle moat=1 ruin=1 round=1;Tintern Abbey|ruin|abbey t=low;St Davids Bishop's Palace~St Davids|ruin|abbey;Powis Castle|castle|castle hill=1 terr=1 round=1;Erddig|house|house W=46 f=3 r=flat tr=1;Chirk Castle|castle|castle round=1;Bodnant Garden~Bodnant|garden|garden arch=1;Penrhyn Castle|castle|castle keep=1 trees=1;Plas Newydd|house|house W=40 f=3 r=flat wp=1 water=1;Tredegar House|house|house W=40 f=3 r=hip c=2;Dinefwr|countryside|park ruin=1;Llanerchaeron|house|house W=30 f=2 r=hip c=2 tr=2;Rhossili & South Gower~Rhossili|coast|cliffs v=worm;Stackpole|coast|cliffs v=arch;Dolaucothi Gold Mines~Dolaucothi|ruin|mine`,
+  "Scotland": `Edinburgh Castle|castle|castle hill=1 keep=1;Stirling Castle|castle|castle hill=1 round=1;Eilean Donan|castle|castle moat=1 keep=1;Urquhart Castle|castle|castle moat=1 ruin=1 keep=1;Culzean Castle|house|house W=44 f=3 r=flat tw=round water=1;Glamis Castle|house|house W=30 f=4 r=flat tw=round tr=1;Melrose Abbey|ruin|abbey;Skara Brae|ruin|mound;Calanais Standing Stones~Calanais|ruin|stones`,
+  "Northern Ireland": `Giant's Causeway|coast|hexagons;Carrick-a-Rede|coast|ropebridge;Mussenden Temple|coast|temple v=cliff;Dunluce Castle|castle|castle hill=1 ruin=1;Carrickfergus Castle|castle|castle moat=1 keep=1;Mount Stewart|house|house W=40 f=2 r=flat p=1 tr=2;Castle Ward|house|house W=40 f=2 r=flat wp=1 tr=1;Florence Court|house|house W=30 w=2 f=3 r=hip;The Argory|house|house W=34 f=2 r=hip c=2;Rowallane Garden~Rowallane|garden|garden`
+};
+const SUMMITS = {
+  "Scotland": `Ben Nevis|1345|summit s=crag snow=1;Ben Macdui|1309|summit s=whale snow=1;Cairn Gorm|1245|summit s=whale snow=1;Schiehallion|1083|summit s=cone;Buachaille Etive Mòr~Buachaille|1022|summit s=pyr;Ben Lomond|974|summit s=pyr loch=1;Arthur's Seat|251|summit s=dome`,
+  "Lake District": `Scafell Pike|978|summit s=crag;Helvellyn|950|summit s=crag tarn=1;Skiddaw|931|summit s=whale;Great Gable|899|summit s=pyr;Blencathra|868|summit s=twin;Coniston Old Man|803|summit s=whale tarn=1;Haystacks|597|summit s=crag tarn=1;Catbells|451|summit s=twin loch=1`,
+  "Wales": `Yr Wyddfa (Snowdon)~Yr Wyddfa|1085|summit s=pyr tarn=1;Glyder Fawr|1001|summit s=crag;Tryfan|917|summit s=twin;Cadair Idris|893|summit s=crag tarn=1;Pen y Fan|886|summit s=flat;Pumlumon|752|summit s=whale;Sugar Loaf|596|summit s=cone`,
+  "Pennines & Peak": `Cross Fell|893|summit s=whale;The Cheviot|815|summit s=whale;Whernside|736|summit s=whale;Ingleborough|723|summit s=flat;Pen-y-ghent|694|summit s=flat;Kinder Scout|636|summit s=flat;Roseberry Topping|320|summit s=cone`,
+  "Southern England": `High Willhays|621|summit s=tor;Dunkery Beacon|519|summit s=whale;Worcestershire Beacon|425|summit s=twin;Leith Hill|295|summit s=whale`,
+  "Northern Ireland": `Slieve Donard|850|summit s=pyr loch=1;Slieve Binnian|747|summit s=tor`
+};
+const TRAILS = {
+  "England": `South West Coast Path~SW Coast Path|630|1014|trail v=coast;Pennine Way|255|410|trail v=moor;Pennine Bridleway|205|330|trail v=moor;Coast to Coast|197|317|trail v=glen;Thames Path|185|298|trail v=river;Peddars Way & Norfolk Coast Path~Peddars Way|158|254|trail v=coast;North Downs Way|125|201|trail v=downs;Cleveland Way|109|175|trail v=coast;Cotswold Way|102|164|trail v=downs;South Downs Way|100|161|trail v=downs;The Ridgeway|87|140|trail v=ridge;Hadrian's Wall Path|84|135|trail v=wall;Yorkshire Wolds Way|79|127|trail v=downs`,
+  "Wales": `Wales Coast Path|870|1400|trail v=coast;Pembrokeshire Coast Path~Pembrokeshire Coast|186|299|trail v=coast;Offa's Dyke Path|177|285|trail v=ridge;Glyndŵr's Way|135|217|trail v=glen`,
+  "Scotland": `Southern Upland Way|214|344|trail v=moor;West Highland Way|96|155|trail v=glen;Speyside Way|85|137|trail v=river;Great Glen Way|79|127|trail v=glen`
+};
+const BUILTIN = [];
+const splitName = nm => { const [name, short] = nm.split("~"); return { name, short }; };
+for (const r of REGIONS) (RAW[r] || "").split(";").filter(Boolean).forEach(s => {
+  const [nm, type, m] = s.split("|");
+  BUILTIN.push({ id: slug(splitName(nm).name), ...splitName(nm), type, m, region: r });
+});
+for (const g of KINDS.summits.groups) (SUMMITS[g] || "").split(";").filter(Boolean).forEach(s => {
+  const [nm, h, m] = s.split("|"), n = splitName(nm);
+  BUILTIN.push({ id: "summit-" + slug(n.name), ...n, type: "summit", h: +h, m, region: g });
+});
+for (const g of KINDS.trails.groups) (TRAILS[g] || "").split(";").filter(Boolean).forEach(s => {
+  const [nm, mi, km, m] = s.split("|"), n = splitName(nm);
+  BUILTIN.push({ id: "trail-" + slug(n.name), ...n, type: "trail", miles: +mi, km: +km, m, region: g });
+});
+function slug(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+const DEFAULT_M = { house: "house W=36 f=2 r=hip c=2 tr=1", garden: "garden", castle: "castle", coast: "cliffs v=sisters", countryside: "hills tree=1", ruin: "abbey", summit: "summit s=pyr", trail: "trail v=downs" };
+
+/* ---------- drawing kit (120 x 120 stamp space) ---------- */
+const F = d => `<path d="${d}" fill="currentColor"/>`;
+const K = d => d ? `<path d="${d}" style="fill:var(--paper)"/>` : "";
+const S = (d, w = 1.2) => `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const KS = (d, w = .8) => `<path d="${d}" fill="none" style="stroke:var(--paper)" stroke-width="${w}" stroke-linecap="round"/>`;
+const P = (d, w = 1.1) => `<path d="${d}" style="fill:var(--paper)" stroke="currentColor" stroke-width="${w}" stroke-linejoin="round"/>`;
+const n1 = v => +(+v).toFixed(2);
+const rc = (x, y, w, h) => `M${n1(x)} ${n1(y)}h${n1(w)}v${n1(h)}h${n1(-w)}Z`;
+const circ = (cx, cy, r) => `M${n1(cx - r)} ${n1(cy)}a${r} ${r} 0 1 0 ${n1(2 * r)} 0a${r} ${r} 0 1 0 ${n1(-2 * r)} 0Z`;
+const ell = (cx, cy, rx, ry) => `M${cx - rx} ${cy}a${rx} ${ry} 0 1 0 ${2 * rx} 0a${rx} ${ry} 0 1 0 ${-2 * rx} 0Z`;
+const bez = (a, c, b, t) => [0, 1].map(i => (1 - t) * (1 - t) * a[i] + 2 * (1 - t) * t * c[i] + t * t * b[i]);
+function waves(y, x0 = 0, x1 = 120, a = 1.5, l = 7, w = .9) { let d = `M${x0} ${y}`; for (let x = x0; x < x1; x += l) d += `q${l / 4} ${-a} ${l / 2} 0t${l / 2} 0`; return S(d, w); }
+function crenels(x, y, w, m = 2.4, g = 1.6) { let d = ""; for (let i = x; i < x + w - .2; i += m + g) d += rc(i, y - 2.6, Math.min(m, x + w - i), 2.7); return F(d); }
+const tree = (x, gy, s = 1) => F(rc(x - .9 * s, gy - 7 * s, 1.8 * s, 7 * s) + circ(x, gy - 12 * s, 5.5 * s) + circ(x - 4.5 * s, gy - 8.5 * s, 3.8 * s) + circ(x + 4.5 * s, gy - 8.5 * s, 3.8 * s));
+const pine = (x, gy, s = 1) => F(`M${n1(x)} ${n1(gy - 18 * s)}L${n1(x + 5 * s)} ${n1(gy - 9 * s)}L${n1(x + 2.5 * s)} ${n1(gy - 9 * s)}L${n1(x + 6.5 * s)} ${n1(gy - 2 * s)}L${n1(x - 6.5 * s)} ${n1(gy - 2 * s)}L${n1(x - 2.5 * s)} ${n1(gy - 9 * s)}L${n1(x - 5 * s)} ${n1(gy - 9 * s)}Z` + rc(x - .8 * s, gy - 2 * s, 1.6 * s, 2 * s));
+const ground = (gy = 80) => F(rc(-10, gy, 140, 2.2)) + `<path d="M-5 ${gy + 5.5}H125M-3 ${gy + 10}H125M-5 ${gy + 14.5}H125" stroke="currentColor" stroke-width=".8" stroke-dasharray="2 3.2" fill="none"/>`;
+const gulls = (x, y) => S(`M${x} ${y}q2 -2 4 0q2 -2 4 0M${x + 14} ${y - 6}q1.6 -1.6 3.2 0q1.6 -1.6 3.2 0`, .8);
+const polar = (cx, cy, r, a) => [n1(cx + r * Math.cos(a * Math.PI / 180)), n1(cy + r * Math.sin(a * Math.PI / 180))];
+const arcPath = (cx, cy, r, a0, a1) => { const p = polar(cx, cy, r, a0), q = polar(cx, cy, r, a1); return `M${p[0]} ${p[1]}A${r} ${r} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${q[0]} ${q[1]}`; };
+const STAG = F("M-8 -13Q-8 -17 -2 -17L6 -17Q9 -17 9.5 -14L12 -22L15 -22L13 -12Q10 -8.5 6 -9L-6 -9Q-9 -10 -8 -13Z M12 -22.5L18.5 -20.5L17.5 -18.8L14 -19.5Z") + S("M-6 -10V0M-3.5 -10L-4 0M5 -10V0M8 -10.5L8.6 0", 1.3) + S("M13.5 -23L11 -30M11.8 -27.5L8.5 -29.5M13 -26L15.5 -31.5M14.6 -29L17.8 -30.5", 1);
+const ROT = F(rc(-15, -4, 30, 4) + [0, 1, 2, 3, 4, 5].map(i => rc(-13.4 + i * 5.2, -22, 1.8, 18)).join("") + rc(-15, -25.4, 30, 3.4) + "M-13 -25.4Q-13 -38 0 -39Q13 -38 13 -25.4Z" + rc(-1.6, -43, 3.2, 4) + circ(0, -44.6, 1.4));
+const PORT = F(rc(-17, -4, 34, 4) + [0, 1, 2, 3].map(i => rc(-13 + i * 8.2, -22, 2.2, 18)).join("") + rc(-16, -25, 32, 3) + "M-17 -25L0 -34L17 -25Z") + K("M-11 -26.4L0 -31.4L11 -26.4Z");
+
+/* ---------- motifs: one small engraving per place ---------- */
+const M = {};
+M.house = o => {
+  const f = +o.f || 2, fh = 8.5, wings = +o.w || 0;
+  const W = +o.W || (wings ? 30 : 40), gy = 80, H = f * fh + 3;
+  const x0 = 60 - W / 2, x1 = 60 + W / 2, yt = gy - H;
+  const g = +o.g || 0, r = o.r || "hip", tw = o.tw;
+  let s = "", k = "";
+  s += (+o.moat || +o.water) ? F(rc(-5, 80, 130, 1.4)) + waves(85) + waves(89.5) + waves(94) : ground(gy);
+  if (+o.tr) { s += tree(Math.max(16, x0 - wings * 14 - 9), gy, 1); if (+o.tr > 1) s += tree(Math.min(104, x1 + wings * 14 + 9), gy, .9); }
+  if (wings) for (const wx of [x0 - 14, x1 + 1]) {
+    const wh = H - fh; s += F(rc(wx, gy - wh, 13, wh) + rc(wx - .6, gy - wh - 2.4, 14.2, 2.4));
+    for (let rr = 0; rr < f - 1; rr++) for (let c = 0; c < 2; c++) k += rc(wx + 2.6 + c * 5.4, gy - wh + 3 + rr * fh, 2.4, 4.2);
+  }
+  const rh = r === "flat" ? 3 : r === "mansard" ? 8 : (r === "gable" && !g) ? 12 : 7;
+  if (r === "hip" || (r === "gable" && g)) s += F(`M${x0 - 1} ${yt}L${x0 + 6} ${yt - 7}H${x1 - 6}L${x1 + 1} ${yt}Z`);
+  if (r === "gable" && !g) s += F(`M${x0 - 1} ${yt}L60 ${yt - 12}L${x1 + 1} ${yt}Z`);
+  if (r === "flat") { s += F(rc(x0 - 1, yt - 3, W + 2, 3)); for (let x = x0 + 1; x < x1 - 1; x += 2.6) k += rc(x, yt - 2.2, 1, 1.5); }
+  if (r === "mansard") { s += F(`M${x0} ${yt}L${x0 + 3} ${yt - 8}H${x1 - 3}L${x1} ${yt}Z`); for (let x = x0 + 6; x < x1 - 6; x += 7) k += rc(x, yt - 5.5, 2, 3); }
+  const c = +o.c || 0; for (let i = 0; i < c; i++) { const cx = x0 + (i + 1) * W / (c + 1); s += F(rc(cx - 1.2, yt - rh - 3, 2.4, rh + 3)); }
+  const tudor = +o.tudor, inset = tw && tw !== "pinn" ? 7 : 2;
+  if (tudor) {
+    s += P(rc(x0, yt, W, H));
+    let t = "";
+    for (let x = x0 + 3.4; x < x1 - 1; x += 3.4) t += `M${n1(x)} ${yt}V${gy}`;
+    for (let rr = 1; rr < f; rr++) t += `M${x0} ${yt + rr * fh}H${x1}`;
+    for (let rr = 0; rr < f; rr++) for (let i = 0, x = x0; x + 6.8 <= x1 + .01; i++, x += 6.8) if ((i + rr) % 2) t += `M${n1(x)} ${yt + (rr + 1) * fh}L${n1(x + 6.8)} ${yt + rr * fh}`;
+    s += S(t, .7);
+    for (let rr = 0; rr < f; rr++) for (let x = x0 + 4; x < x1 - 9; x += 13) { const wy = yt + 2.4 + rr * fh; s += P(rc(x, wy, 8, 4), .8) + S(`M${n1(x + 2.7)} ${wy}v4M${n1(x + 5.3)} ${wy}v4`, .5); }
+  } else {
+    s += F(rc(x0, yt, W, H));
+    const big = +o.big, ww = big ? 3.8 : 2.6, wh = big ? 5.6 : 4.4;
+    const span = W - 2 * inset, n = Math.max(3, Math.round(span / (big ? 6.5 : 5.6))), pitch = span / n;
+    for (let rr = 0; rr < f; rr++) for (let i = 0; i < n; i++) {
+      const wx = x0 + inset + i * pitch + (pitch - ww) / 2, wy = yt + 2.8 + rr * fh;
+      if (+o.p && wx > 49 && wx < 70) continue;
+      if (rr === f - 1 && !+o.p && Math.abs(wx + ww / 2 - 60) < pitch / 2) continue;
+      k += +o.wp ? `M${n1(wx)} ${n1(wy + wh)}V${n1(wy + 1.6)}Q${n1(wx)} ${n1(wy)} ${n1(wx + ww / 2)} ${n1(wy - .8)}Q${n1(wx + ww)} ${n1(wy)} ${n1(wx + ww)} ${n1(wy + 1.6)}V${n1(wy + wh)}Z` : rc(wx, wy, ww, wh);
+    }
+    k += rc(x0, yt + 1.1, W, .6);
+    if (!+o.p) k += `M58.2 ${gy}V${gy - 4.6}a1.8 1.8 0 0 1 3.6 0V${gy}Z`;
+  }
+  if (r === "gable" && g) {
+    const gw = W / g;
+    for (let i = 0; i < g; i++) {
+      const gx = x0 + i * gw, d = `M${n1(gx)} ${yt + .5}L${n1(gx + gw / 2)} ${yt - 10}L${n1(gx + gw)} ${yt + .5}Z`;
+      if (tudor) s += P(d) + S(`M${n1(gx + gw / 2)} ${yt - 10}V${yt}M${n1(gx + gw / 4)} ${yt - 5}H${n1(gx + 3 * gw / 4)}`, .6);
+      else { s += F(d); k += rc(gx + gw / 2 - 1.2, yt - 5.5, 2.4, 3.6); }
+    }
+  }
+  let ts = "", tk = "";
+  if (tw && tw !== "pinn") {
+    const one = tw === "batt" || tw === "oct";
+    for (const tx of one ? [x0 - 6] : [x0 - 3.5, x1 - 3.5]) {
+      const wdt = one ? 12 : 7, top = yt - (one ? 12 : 6);
+      ts += F(rc(tx, top, wdt, gy - top));
+      if (tw === "sq" || one) ts += crenels(tx - .5, top, wdt + 1, 1.8, 1.2);
+      if (tw === "spire") ts += F(`M${tx - .6} ${top}L${tx + 3.5} ${top - (tx < 60 ? 12 : 18)}L${tx + 7.6} ${top}Z`);
+      if (tw === "ogee") ts += F(`M${tx - .4} ${top}Q${tx - .4} ${top - 5} ${tx + 3.5} ${top - 7.5}Q${tx + 7.4} ${top - 5} ${tx + 7.4} ${top}Z` + rc(tx + 3.1, top - 10.5, .8, 3));
+      if (tw === "round") ts += F(`M${tx - 1} ${top}L${tx + 3.5} ${top - 9}L${tx + 8} ${top}Z`);
+      for (let y = top + 4; y < gy - 6; y += fh) tk += rc(tx + wdt / 2 - .8, y, 1.6, 3.6);
+    }
+  }
+  if (tw === "pinn") {
+    const px = [x0, x1]; if (g) for (let i = 0; i < g; i++) px.push(x0 + (i + .5) * W / g);
+    for (const x of px) { const base = (g && x !== x0 && x !== x1) ? yt - 10 : yt - (r === "flat" ? 3 : 0); ts += F(`M${n1(x - 1)} ${base}L${n1(x)} ${base - 6}L${n1(x + 1)} ${base}Z`); }
+  }
+  let pt = "", ptk = "";
+  if (+o.p) {
+    k += rc(51, yt + 3.2, 18, H - 3.2);
+    let col = ""; for (let i = 0; i < 4; i++) col += rc(52.2 + i * 4.8, yt + 6, 1.6, H - 7.5);
+    pt = F(col + rc(50.5, yt + 3, 19, 2.8) + `M50 ${yt + 3}L60 ${yt - 5}L70 ${yt + 3}Z` + rc(49, gy - 1.5, 22, 1.5));
+    ptk = `M54.5 ${yt + 1.6}L60 ${yt - 1.6}L65.5 ${yt + 1.6}Z`;
+  }
+  let ds = "", dk = "";
+  if (o.d) {
+    const top = yt - rh;
+    if (o.d === "dome") ds = F(rc(50, top - 3, 20, 3) + `M50 ${top - 3}Q50 ${top - 15} 60 ${top - 16}Q70 ${top - 15} 70 ${top - 3}Z` + rc(58.5, top - 20, 3, 4.5) + circ(60, top - 21, 1.2));
+    else { ds = F(rc(56.5, top - 5, 7, 5) + `M55.8 ${top - 5}Q60 ${top - 12} 64.2 ${top - 5}Z` + rc(59.5, top - 15, 1, 4)); dk = rc(58.2, top - 4, 1.2, 3) + rc(60.6, top - 4, 1.2, 3); }
+  }
+  return s + K(k) + ts + K(tk) + pt + K(ptk) + ds + K(dk);
+};
+
+M.castle = o => {
+  const gy = +o.hill ? 66 : 80; let s = "", k = "";
+  if (+o.hill) {
+    s += F(`M-5 100V${gy + 8}Q22 ${gy + 1} 40 ${gy}H80Q98 ${gy + 1} 125 ${gy + 8}V100Z`);
+    if (+o.terr) { let t = ""; for (let i = 1; i < 4; i++) t += `M${30 - i * 6} ${gy + 2 + i * 5}H${90 + i * 6}`; s += KS(t, 1.1); }
+  } else if (+o.moat) s += F(rc(-5, 80, 130, 1.4)) + waves(85) + waves(89.5) + waves(94);
+  else s += ground(80);
+  if (+o.trees) s += tree(18, gy, .9) + tree(102, gy, .8);
+  s += F(rc(34, gy - 16, 52, 16)) + crenels(34, gy - 16, 52);
+  const tower = x => F(rc(x, gy - 26, 11, 26)) + crenels(x - .6, gy - 26, 12.2) + (+o.round ? F(rc(x - .8, gy - 24, 12.6, 1.6)) : "");
+  s += tower(26) + tower(83);
+  k += rc(30.8, gy - 20, 1.4, 5) + rc(87.8, gy - 20, 1.4, 5) + rc(30.8, gy - 11, 1.4, 5) + rc(87.8, gy - 11, 1.4, 5);
+  const gate = `M56 ${gy}V${gy - 8}a4 4 0 0 1 8 0V${gy}Z`;
+  if (o.keep === "gate") {
+    s += F(rc(48, gy - 36, 9, 36) + rc(63, gy - 36, 9, 36) + rc(55, gy - 30, 10, 30)) + crenels(47.6, gy - 36, 9.8, 2, 1.2) + crenels(62.6, gy - 36, 9.8, 2, 1.2) + crenels(55, gy - 30, 10, 2, 1.2);
+    k += gate + rc(51.8, gy - 30, 1.4, 5) + rc(66.8, gy - 30, 1.4, 5) + rc(58.6, gy - 24, 2.8, 4);
+  } else if (o.keep === "tall") {
+    s += F(rc(46, gy - 50, 28, 50) + rc(43, gy - 56, 6, 56) + rc(71, gy - 56, 6, 56)) + crenels(46, gy - 50, 28) + crenels(42.6, gy - 56, 6.8, 2, 1.2) + crenels(70.6, gy - 56, 6.8, 2, 1.2);
+    for (let y = gy - 44; y < gy - 12; y += 10) k += `M55 ${y + 6}V${y + 1.5}Q55 ${y} 56.5 ${y - .8}Q58 ${y} 58 ${y + 1.5}V${y + 6}Z M62 ${y + 6}V${y + 1.5}Q62 ${y} 63.5 ${y - .8}Q65 ${y} 65 ${y + 1.5}V${y + 6}Z`;
+    k += gate;
+  } else if (+o.keep) {
+    s += F(rc(47, gy - 36, 26, 36)) + crenels(47, gy - 36, 26);
+    k += rc(52, gy - 30, 1.6, 5) + rc(59.2, gy - 30, 1.6, 5) + rc(66.4, gy - 30, 1.6, 5) + gate;
+  } else k += gate;
+  if (+o.ruin) {
+    k += `M83 ${gy - 30}L86 ${gy - 21}L90 ${gy - 25}L95 ${gy - 22}V${gy - 31}Z M40 ${gy - 19}L43 ${gy - 11}L48 ${gy - 14}L52 ${gy - 9}L55 ${gy - 19}Z`;
+    if (+o.keep) k += `M66 ${gy - 40}L68 ${gy - 30}L72 ${gy - 34}L74 ${gy - 40}Z`;
+  }
+  if (+o.moat) s += S("M30 84h10M48 88h18M76 84h12", .7);
+  return s + K(k);
+};
+
+M.abbey = o => {
+  let s = ground(80), k = "";
+  s += F("M22 80V60L26 57L30 59L35 54L40 56L46 52L52 55L58 51L64 54L70 50L76 53V80Z");
+  for (let i = 0; i < 4; i++) {
+    const x = 25 + i * 12.5;
+    k += `M${x} 80V71Q${x} 66 ${x + 3.6} 64Q${x + 7.2} 66 ${x + 7.2} 71V80Z`;
+    k += `M${x + 2.2} 62V59Q${x + 2.2} 57.3 ${x + 3.6} 56.5Q${x + 5} 57.3 ${x + 5} 59V62Z`;
+  }
+  s += F("M8 80V56L15 46L22 56V80Z");
+  k += "M11.5 78V59Q11.5 53.5 15 51.5Q18.5 53.5 18.5 59V78Z";
+  const th = o.t === "low" ? 34 : 50;
+  s += F(rc(77, 80 - th, 14, th)) + crenels(77, 80 - th, 14, 2, 1.4);
+  let tk = ""; for (let y = 80 - th + 6; y < 70; y += 14) tk += `M80 ${y + 9}V${y + 2.5}Q80 ${y} 81.3 ${y - 1}Q82.6 ${y} 82.6 ${y + 2.5}V${y + 9}Z M85.4 ${y + 9}V${y + 2.5}Q85.4 ${y} 86.7 ${y - 1}Q88 ${y} 88 ${y + 2.5}V${y + 9}Z`;
+  return s + K(k + tk) + F(rc(14.4, 52, 1.2, 26) + "M11.5 62Q15 58 18.5 62");
+};
+
+M.island = o => {
+  let s = waves(84) + waves(88.5) + waves(93), k = "";
+  if (o.v === "crag") {
+    s += F("M26 86L34 72L42 67L46 57L52 52H74L78 58L84 67L94 86Z") + F(rc(50, 42, 24, 11) + rc(56, 35, 11, 8)) + crenels(56, 35, 11, 2, 1.2);
+    s += F("M4 86Q11 78 18 86Z M98 86Q104 80 110 86Z");
+    k += rc(53, 45, 2, 3) + rc(58, 45, 2, 3) + rc(63, 45, 2, 3) + rc(68, 45, 2, 3) + rc(60.5, 38, 2, 2.6) + "M43 70L48 66M60 60L70 64";
+    return s + K(k) + KS("M40 74L50 70L58 72", .8);
+  }
+  s += F("M12 86Q28 74 40 64Q50 54 62 53Q76 54 86 66Q96 77 110 86Z");
+  s += F(rc(46, 40, 22, 14) + rc(42, 46, 6, 8) + rc(64, 30, 8, 24)) + crenels(46, 40, 22, 2, 1.4) + crenels(63.6, 30, 8.8, 2, 1.2);
+  k += rc(49, 44, 2, 3) + rc(54, 44, 2, 3) + rc(59, 44, 2, 3) + rc(67, 35, 1.6, 4) + rc(67, 43, 1.6, 4) + circ(34, 74, 1.6) + circ(39, 70, 1.4) + circ(84, 70, 1.5) + circ(90, 76, 1.6) + circ(30, 80, 1.4);
+  return s + K(k) + S("M18 98Q36 92 46 87", 1) + gulls(86, 30);
+};
+
+M.lighthouse = o => {
+  let s = "", k = "";
+  if (+o.stacks) {
+    s += waves(82) + waves(86.5) + waves(91);
+    s += F("M-5 48H30L38 58L42 86H-5Z M48 86L53 70L58 66L62 86Z M62 86L68 62L74 86Z M74 86L81 66L88 86Z");
+    s += KS("M6 54V84M12 52V84M18 52V84M24 52V84M32 60V84M66 70V84M80 72V84", .7);
+    if (!+o.nolight) { s += F(rc(94, 68, 6, 18) + rc(92.5, 66, 9, 2) + "M93.5 61L97 57L100.5 61Z") + S(rc(94, 61, 6, 5), .8); k += rc(94, 74, 6, 2.4); }
+    else s += gulls(80, 40);
+    return s + K(k);
+  }
+  s += waves(84, 96) + waves(89, 96) + waves(94, 96);
+  s += F("M-5 80H94L99 86L97 100H-5Z");
+  s += F("M53 80L55 40H65L67 80Z" + rc(52, 37.6, 16, 2.4) + "M54 31L60 24.5L66 31Z") + S(rc(55.5, 31, 9, 6.6), .9) + S("M60 31V37.6", .6);
+  if (+o.stripe) k += "M54.4 58H65.6L66 66H54Z M54.9 44H65.1L65.4 50H54.6Z";
+  k += "M58.4 80V75a1.6 1.6 0 0 1 3.2 0V80Z";
+  s += S("M50 32L40 28M70 32L80 28M50 36L40 38M70 36L80 38", .8);
+  if (+o.cot) {
+    s += F(rc(24, 72, 22, 8) + "M23 72L27 66H43L47 72Z" + rc(72, 74, 16, 6) + "M71 74L74 70H86L89 74Z");
+    k += rc(27, 74, 2, 3) + rc(32, 74, 2, 3) + rc(40, 74, 2, 3) + rc(76, 75.5, 2, 2.6) + rc(82, 75.5, 2, 2.6);
+  }
+  return s + K(k);
+};
+
+M.cliffs = o => {
+  let s = waves(84) + waves(88.5) + waves(93);
+  const v = o.v || "sisters";
+  if (v === "sisters") {
+    s += F("M-5 81V58Q8 50 20 57Q32 49 44 56Q56 48 68 55Q80 47 92 54Q104 47 125 53V81Z");
+    let t = ""; for (let x = 4; x < 120; x += 4.5) t += `M${n1(x)} ${n1(62 + (x % 3))}V80`;
+    s += KS(t, .7) + gulls(84, 40);
+  }
+  if (v === "dover") {
+    s += F("M-5 81V52Q20 49 40 51Q70 49 92 50L104 54L108 68L110 81Z");
+    let t = ""; for (let x = 4; x < 106; x += 4.5) t += `M${n1(x)} ${n1(57 + (x % 4))}V80`;
+    s += KS(t, .7) + F("M92 87h16l-1.8 2.6h-12.4Z M99 86.4V76L106 86Z") + gulls(70, 36);
+  }
+  if (v === "cap") s += F("M-5 86L20 76Q42 52 58 46H72Q88 52 125 78V86Z") + KS("M50 52Q64 47 80 51", 2.6) + KS("M34 64Q60 58 98 66M24 72Q60 66 112 74", .7) + gulls(20, 40);
+  if (v === "cove") s += F("M-5 36H22L30 58L26 86H-5Z M125 40H96L90 60L96 86H125Z M42 86L45 68L52 62L58 70L60 86Z M66 86L69 74L75 71L78 86Z") + S("M30 80h12M60 80h6M78 80h12", .6);
+  if (v === "worm") s += F("M-5 86V64Q10 58 30 60L44 69Q52 66 58 71Q64 65 72 69Q78 72 84 69Q92 64 98 71L106 76L112 86Z") + gulls(70, 40);
+  if (v === "arch") s += F("M24 86V62Q36 52 58 54Q82 52 94 62V86H80V76Q80 66 70 66Q60 66 60 76V86Z M-5 86V70Q8 66 18 72V86Z") + gulls(30, 38);
+  return s;
+};
+
+M.hexagons = () => {
+  let s = waves(84, 84) + waves(88.5, 84) + waves(93, 84) + S("M-5 42Q30 34 62 40Q90 36 125 44", .9);
+  s += F("M-5 100V58H14V54H32V60H48V66H62V72H76V78H90V100Z");
+  const tops = [[-5, 14, 58], [14, 32, 54], [32, 48, 60], [48, 62, 66], [62, 76, 72], [76, 90, 78]];
+  let h = "", v = "";
+  for (const [a, b, y] of tops) for (let x = a + .6; x + 4.4 <= b + .1; x += 4.4) {
+    h += `M${n1(x)} ${y + 1.8}l1.1 -1.1h2.2l1.1 1.1l-1.1 1.1h-2.2Z`;
+    v += `M${n1(x)} ${y + 2.9}V100`;
+  }
+  return s + KS(h, .55) + KS(v, .5);
+};
+
+M.ropebridge = () => {
+  let s = waves(86) + waves(90.5) + waves(95);
+  s += F("M-5 44H30L36 54L33 70L38 100H-5Z M125 40H86L82 52L86 68L82 100H125Z");
+  const A = [35, 50], C = [60, 64], B = [83, 47], A2 = [35, 44], C2 = [60, 57], B2 = [83, 41];
+  let p = ""; for (let t = .08; t < .95; t += .07) { const a = bez(A, C, B, t), b = bez(A2, C2, B2, t); p += `M${n1(a[0])} ${n1(a[1])}L${n1(b[0])} ${n1(b[1])}`; }
+  return s + S(`M${A}Q${C} ${B}`, 1.6) + S(`M${A2}Q${C2} ${B2}`, .8) + S(p, .6) + gulls(46, 28);
+};
+
+M.stones = () => {
+  let s = ground(80) + S("M-5 66Q60 58 125 66", .9) + tree(102, 64, .7);
+  const st = [[22, 16, 8], [35, 24, 10], [50, 14, 8], [64, 26, 11], [80, 19, 9], [94, 12, 7]];
+  let d = ""; for (const [x, h, w] of st) d += `M${x - w / 2} 80Q${x - w / 2 - 1.2} ${n1(80 - h * .6)} ${x - w / 4} ${80 - h}Q${x + w / 4} ${80 - h - 2} ${x + w / 2} ${n1(80 - h * .45)}L${x + w / 2 + .8} 80Z`;
+  return s + F(d) + KS("M34 64l2 4M63 58l3 5l-1 4M79 66l2 3", .6);
+};
+
+M.mound = () => {
+  let s = ground(80) + F("M12 80Q34 60 56 80Z M58 80Q84 56 110 80Z");
+  const A = [26, 44], C = [60, 64], B = [94, 44], A2 = [29, 47], C2 = [60, 57], B2 = [91, 47];
+  let r = ""; for (let t = .12; t < .9; t += .08) { const a = bez(A, C, B, t), b = bez(A2, C2, B2, t); r += `M${n1(a[0])} ${n1(a[1])}L${n1(b[0])} ${n1(b[1])}`; }
+  return s + S(`M${A}Q${C} ${B}`, 1.6) + S(`M${A2}Q${C2} ${B2}`, 1) + S(r, .7) + S("M26 44Q22 38 27 35M94 44Q98 38 93 35", 1.4);
+};
+
+M.roman = o => {
+  if (o.v === "mosaic") {
+    let s = P(rc(28, 34, 64, 50), 1.4) + S(rc(33, 39, 54, 40), .8), ch = "";
+    for (let x = 28; x < 90; x += 5) ch += rc(x, 34, 2.5, 2.5) + rc(x + 2.5, 81.5, 2.5, 2.5);
+    for (let y = 36.5; y < 80; y += 5) ch += rc(28, y, 2.5, 2.5) + rc(89.5, y + 2.5, 2.5, 2.5);
+    s += F(ch) + F(circ(60, 59, 11)) + K("M60 50Q63.5 59 60 68Q56.5 59 60 50Z M51 59Q60 55.5 69 59Q60 62.5 51 59Z") + F(circ(60, 59, 1.6));
+    s += F(circ(38, 47, 2) + circ(82, 47, 2) + circ(38, 71, 2) + circ(82, 71, 2)) + S("M36 59h8M76 59h8M60 43v4M60 71v4", .9);
+    return s;
+  }
+  const crag = "M-5 68L18 62L32 66L48 56L62 58L76 50L92 54L108 48L125 52";
+  return F(crag + "V100H-5Z") + F("M-5 63L18 57L32 61L48 51L62 53L76 45L92 49L108 43L125 47V52L108 48L92 54L76 50L62 58L48 56L32 66L18 62L-5 68Z") + KS(crag, .9) + KS(rc(66, 62, 12, 7) + rc(82, 64, 8, 5), .6) + S("M14 36q4 -4 8 0q3 -3 6 0M80 30q3 -3 6 0q3 -3 6 0", .8);
+};
+
+M.garden = o => {
+  let s = ground(80), k = "";
+  if (+o.maze) {
+    let d = "";
+    for (const [r, g] of [[30, 40], [22, 200], [14, 300], [6.5, 110]]) d += arcPath(60, 60, r, g + 16, g + 344);
+    for (const [a, r0, r1] of [[90, 22, 30], [250, 14, 22], [20, 6.5, 14], [160, 22, 30]]) { const p = polar(60, 60, r0, a), q = polar(60, 60, r1, a); d += `M${p[0]} ${p[1]}L${q[0]} ${q[1]}`; }
+    return S(d, 3.2) + F(circ(60, 60, 2.2));
+  }
+  if (+o.hedges) {
+    s += F("M4 56L46 66V80L4 88Z M116 56L74 66V80L116 88Z" + rc(53, 64, 14, 16) + "M51 64Q60 52 69 64Z" + rc(59.4, 50, 1.2, 4));
+    return s + K("M57.5 80V72a2.5 2.5 0 0 1 5 0V80Z") + S("M46 80L36 96M74 80L84 96", .8);
+  }
+  if (+o.arch) {
+    let a = "", drops = "";
+    for (let i = 0; i < 4; i++) {
+      const w = 30 - i * 6.5, top = 34 + i * 8, sh = top + w * .55;
+      a += `M${n1(60 - w)} 80V${n1(sh)}Q${n1(60 - w)} ${top} 60 ${top}Q${n1(60 + w)} ${top} ${n1(60 + w)} ${n1(sh)}V80`;
+      if (i < 2) for (let t = .1; t <= 1; t += .15) for (const sg of [-1, 1]) { const [x, y] = bez([60 + sg * w, sh], [60 + sg * w, top], [60, top], t); drops += `M${n1(x)} ${n1(y + 1.2)}v${n1(4 - i * 1.5)}`; }
+    }
+    return s + S(a, 1.5) + S(drops, 1.6) + S("M52 80L44 96M68 80L76 96", .8);
+  }
+  if (o.v === "roses") {
+    s += S("M36 80V52Q36 34 60 34Q84 34 84 52V80", 2.4);
+    let r = "", kk = "";
+    const pts = [[36, 62], [84, 66], [36, 72], [84, 56]];
+    for (let t = .05; t < 1; t += .13) for (const sg of [-1, 1]) pts.push(bez([60 + sg * 24, 52], [60 + sg * 24, 34], [60, 34], t));
+    for (const [x, y] of pts) { r += circ(x, y, 2.5); kk += circ(x, y, .8); }
+    return s + F(r + "M8 80Q12 66 22 70Q28 64 32 80Z M88 80Q92 64 98 70Q108 66 112 80Z") + K(kk);
+  }
+  if (+o.yews) {
+    let d = "";
+    for (let x = 18; x <= 102; x += 14) d += `M${x - 4.5} 66Q${x - 5} 54 ${x} 46Q${x + 5} 54 ${x + 4.5} 66Z`;
+    for (let x = 26; x <= 94; x += 17) d += `M${x - 6} 80Q${x - 7} 64 ${x} 54Q${x + 7} 64 ${x + 6} 80Z`;
+    return s + S("M-5 66H125", .8) + F(d);
+  }
+  if (+o.tower) {
+    s += F(rc(50, 30, 20, 40) + rc(45, 24, 6, 46) + rc(69, 24, 6, 46) + "M44.6 24Q44.6 19 48 16.5Q51.4 19 51.4 24Z M68.6 24Q68.6 19 72 16.5Q75.4 19 75.4 24Z" + rc(47.6, 13, .8, 4) + rc(71.6, 13, .8, 4) + rc(49.5, 28, 21, 2.2));
+    k += "M56 70V61a4 4 0 0 1 8 0V70Z" + rc(54, 35, 3, 5) + rc(63, 35, 3, 5) + rc(54, 46, 3, 5) + rc(63, 46, 3, 5) + rc(47.2, 32, 1.6, 4) + rc(71.2, 32, 1.6, 4) + rc(47.2, 46, 1.6, 4) + rc(71.2, 46, 1.6, 4);
+  }
+  if (+o.house) {
+    s += F(rc(30, 40, 60, 18) + "M30 40L37 32L44 40Z M53 40L60 32L67 40Z M76 40L83 32L90 40Z");
+    for (let x = 33; x < 88; x += 6) k += rc(x, 43, 2.4, 3.6) + rc(x, 49.5, 2.4, 3.6);
+    k += rc(36, 35.5, 2, 2.6) + rc(59, 35.5, 2, 2.6) + rc(82, 35.5, 2, 2.6);
+  }
+  let hedge = "M10 66V58"; for (let x = 10; x < 110; x += 6) hedge += `Q${x + 3} 53.5 ${x + 6} 58`; hedge += "V66Z";
+  s += K(k) + F(hedge);
+  k = rc(55, 55, 10, 11.5);
+  s += K(k);
+  s += F("M48 84Q60 90 72 84V82.5H48Z") + S("M60 82V68M60 72Q55 70 53 78M60 72Q65 70 67 78M60 68Q57 66 55.5 70M60 68Q63 66 64.5 70", .8);
+  let t = ""; for (const [x, ty] of [[22, "c"], [36, "b"], [84, "b"], [98, "c"]]) t += ty === "c" ? `M${x - 4} 80L${x} 64L${x + 4} 80Z` : circ(x, 72, 4) + rc(x - .7, 76, 1.4, 4);
+  return s + F(t);
+};
+
+M.hills = o => {
+  let s = "", k = "", after = "";
+  const v = o.v;
+  if (v === "gorge") return F("M-5 28L28 32L38 56L34 84H-5Z M125 26L94 32L84 54L90 84H125Z") + ground(84) + S("M54 84Q60 74 56 66Q52 58 62 48", 1.1) + tree(14, 28, .7) + pine(108, 26, .7);
+  if (v === "ridge") {
+    if (+o.sea) return waves(80) + waves(84.5) + waves(89) + F("M-5 92V70Q20 60 48 58Q76 56 102 64L114 74L118 92Z") + KS("M30 64L34 72M60 60L62 68M86 62L88 70", .7) + gulls(80, 34);
+    return S("M-5 54Q30 44 60 52", .8) + F("M-5 100V82L28 58L48 44L62 46L80 58L125 72V100Z") + KS("M49 46L45 62M53 45.5L51 60M57 45.5L56.5 58M61 46.5L61.5 56", .7) + gulls(90, 36);
+  }
+  if (v === "rock") {
+    s += ground(84) + F("M12 84V58Q28 48 50 52Q72 46 98 52L108 84Z" + rc(54, 43, 2.4, 8)) + tree(30, 52, .8) + tree(84, 50, .9);
+    k += "M24 84V75a3 3 0 0 1 6 0V84Z M56 84V74a3 3 0 0 1 6 0V84Z M84 84V76a3 3 0 0 1 6 0V84Z" + rc(36, 66, 4, 4) + rc(68, 64, 4, 4) + rc(94, 68, 3.4, 4) + rc(44, 72, 3.6, 4);
+    return s + K(k);
+  }
+  if (v === "dove") {
+    let st = ""; for (let x = 24; x <= 88; x += 8) st += rc(x, 88.6, 5.4, 2.8);
+    return F("M-5 84Q22 74 34 62Q42 46 52 46Q60 48 70 64Q84 78 125 80V84Z") + F(rc(-5, 84, 130, 1.2)) + waves(89.5) + waves(94) + F(st) + gulls(80, 36);
+  }
+  s += S("M-5 56Q28 40 58 50Q86 38 125 50", .9);
+  if (+o.woods) s += tree(24, 64, 1.1) + tree(36, 62, .9) + tree(48, 66, 1.2) + pine(66, 66, 1) + tree(80, 62, 1.1) + tree(94, 65, 1) + tree(106, 62, .9);
+  s += F("M-5 100V70Q30 58 60 67Q92 57 125 65V100Z");
+  if (+o.lake) { k += ell(58, 80, 28, 5); after += S("M40 80h8M56 79h12M70 81h8", .6); }
+  if (+o.wall) after += KS("M6 96L30 80L52 90L76 76L104 88", .9);
+  if (+o.tree || (!+o.woods && !+o.pines && !+o.lake)) s += tree(92, 61, 1.1);
+  if (+o.pines) s += pine(84, 66, 1.1) + pine(94, 66, .9) + pine(30, 68, 1);
+  return s + K(k) + after;
+};
+
+M.windpump = () => {
+  let s = F(rc(-5, 80, 130, 1.4)) + waves(85) + waves(89.5) + waves(94);
+  let r = ""; for (let x = 4; x < 118; x += 3.2) { if (x > 50 && x < 70) continue; r += `M${n1(x)} 80V${n1(80 - 7 - ((x * 7) % 6))}`; }
+  s += S(r, .8) + F("M54.5 80L57 54H63L65.5 80Z M55.5 54Q60 47.5 64.5 54Z");
+  s += [20, 110, 200, 290].map(a => `<g transform="rotate(${a} 60 51)">${F(rc(59.2, 30, 1.6, 21))}${P(rc(60.8, 31, 4.4, 15), .7)}${S("M60.8 35H65.2M60.8 39H65.2M60.8 43H65.2", .5)}</g>`).join("");
+  return s + F(circ(60, 51, 1.8)) + K("M58.6 80V75.5a1.4 1.4 0 0 1 2.8 0V80Z") + gulls(20, 30);
+};
+
+M.mill = o => {
+  let s = F(rc(-5, 80, 130, 1.4)) + waves(85) + waves(89.5) + waves(94), k = "";
+  if (o.v === "quarry") {
+    s += F(rc(22, 48, 60, 32) + "M21 48L25 44H79L83 48Z" + rc(88, 24, 6, 56) + rc(87, 23, 8, 2.2)) + S("M91 21q-4 -4 0 -8q4 -4 0 -8", .9);
+    for (let r = 0; r < 4; r++) for (let c = 0; c < 10; c++) k += rc(25 + c * 5.6, 51 + r * 7, 2.4, 4);
+    return s + K(k);
+  }
+  if (o.v === "wheel") {
+    s += F(rc(28, 58, 32, 22) + "M26 58L32 50H56L62 58Z" + rc(52, 44, 3, 8));
+    k += rc(32, 62, 3, 4) + rc(40, 62, 3, 4) + rc(48, 62, 3, 4) + "M38 80V72a2.5 2.5 0 0 1 5 0V80Z";
+    return s + K(k) + S(circ(74, 74, 11), 1.6) + S("M63 74H85M74 63V85M66.2 66.2L81.8 81.8M66.2 81.8L81.8 66.2", .8) + F(circ(74, 74, 2)) + tree(100, 80, 1);
+  }
+  s += F(rc(28, 54, 40, 26) + "M26 54L34 44H62L70 54Z" + rc(36, 39, 3, 6));
+  k += rc(32, 58, 3, 4) + rc(40, 58, 3, 4) + rc(48, 58, 3, 4) + rc(56, 58, 3, 4) + rc(32, 67, 3, 4) + rc(48, 67, 3, 4) + rc(56, 67, 3, 4) + "M39 80V73a2 2 0 0 1 4 0V80Z";
+  s += F(circ(88, 50, 11) + circ(80, 56, 7) + circ(96, 56, 7) + rc(87, 56, 2.4, 24)) + S("M77 58v12M81 61v13M95 61v13M99 58v12", .8);
+  return s + K(k) + F("M70 87h16l-2 2.6h-12Z");
+};
+
+M.mine = () => {
+  let s = F("M-5 100V72Q30 60 60 67Q94 58 125 70V100Z");
+  s += S("M44 69L54 34L64 68M54 34L70 66M48 54H60M46 62H64", 2) + S(circ(54, 33, 7.5), 1.6) + S("M46.5 33H61.5M54 25.5V40.5", .8) + F(circ(54, 33, 1.8));
+  s += F(rc(74, 46, 16, 20) + "M73 46L82 39L91 46Z" + rc(86, 32, 4, 12));
+  return s + K("M80 66V58a2 2 0 0 1 4 0V66Z") + S("M88 30q-3 -3 0 -6q3 -3 0 -6", .8);
+};
+
+M.apple = () => {
+  let s = ground(80), k = "";
+  s += F(rc(14, 62, 30, 18) + "M12 62L18 52H40L46 62Z" + rc(16, 48, 3, 6) + rc(38, 48, 3, 6));
+  k += rc(18, 66, 3, 4) + rc(25, 66, 3, 4) + rc(36, 66, 3, 4) + rc(18, 73, 3, 4) + rc(36, 73, 3, 4) + "M27.5 80V74a1.5 1.5 0 0 1 3 0V80Z";
+  s += F("M78 80L79 64L74 58H77L80.5 62L84 56L87 57L83 64L84 80Z" + circ(80, 46, 14) + circ(68, 53, 8) + circ(93, 52, 8));
+  for (const [x, y] of [[74, 42], [84, 40], [90, 48], [70, 52], [80, 52], [95, 54], [86, 46]]) k += circ(x, y, 1.5);
+  return s + K(k) + F(circ(64, 71, 2.4)) + S("M64 62V65M60.6 63V66M67.4 63V66", .7);
+};
+
+M.cottage = () => {
+  let s = ground(80), k = "";
+  s += F(rc(36, 56, 40, 24) + "M34 56L40 46H72L78 56Z" + rc(41, 40, 4, 9) + rc(67, 40, 4, 9));
+  k += rc(40, 60, 4, 5) + rc(48, 60, 4, 5) + rc(62, 60, 4, 5) + rc(68, 60, 4, 5) + rc(40, 70, 4, 5) + rc(68, 70, 4, 5) + "M49 68.6L56 61.6L63 68.6Z" + rc(52.6, 69, 6.8, 11);
+  let fl = ""; [84, 88, 92, 96, 100, 104].forEach((x, i) => fl += circ(x, 75 - (i % 2) * 3, 1.8));
+  return s + K(k) + F("M50.4 68L56 63.2L61.6 68Z" + rc(51, 68, 1.4, 12) + rc(59.6, 68, 1.4, 12) + fl) + S("M84 80V76M88 80V73M92 80V76M96 80V73M100 80V76M104 80V73", .6) + S("M12 80V72H28V80M12 75.5H28M16 72V80M20 72V80M24 72V80", .7);
+};
+
+M.column = () => {
+  let s = S("M-5 54Q30 44 60 50Q90 44 125 52", .8) + tree(22, 72, 1.1) + tree(100, 72, 1) + F("M-5 100V74Q30 66 60 68Q92 64 125 72V100Z");
+  s += F(rc(53, 66, 14, 5) + rc(55.5, 63, 9, 3) + rc(57, 30, 6, 33) + rc(55, 27.4, 10, 2.6) + rc(58.6, 18.4, 2.8, 9) + circ(60, 16.6, 1.8)) + S("M61.4 21L64.5 17.5", 1);
+  return s + KS("M58.6 31V62M60 31V62M61.4 31V62", .4);
+};
+
+M.lakepark = o => {
+  let s = "";
+  if (+o.spire) s += F(rc(78, 42, 7, 24) + "M77.5 42L81.5 26L85.5 42Z");
+  s += tree(26, 66, 1.1) + tree(40, 64, .9) + pine(54, 66, .9) + tree(96, 66, 1.2) + tree(108, 64, .8) + (+o.spire ? "" : tree(72, 66, 1));
+  s += F(rc(-5, 66, 130, 1.6)) + S("M14 72h18M44 74h12M84 72h20M20 78h40M70 80h30M10 86h40M60 88h40", .7);
+  return s + F("M44 77Q60 66 76 77V79.4Q60 70 44 79.4Z");
+};
+
+M.park = o => {
+  let s = ground(80);
+  if (+o.house) s += S("M40 80Q80 62 128 66", .9) + F(rc(86, 57, 26, 9) + "M85 57L89 53H109L113 57Z" + rc(96.5, 49.5, 5, 3.5) + "M96 49.5Q99 45.5 102 49.5Z") + K(rc(89, 59.5, 1.8, 3) + rc(93, 59.5, 1.8, 3) + rc(103, 59.5, 1.8, 3) + rc(107, 59.5, 1.8, 3) + rc(98, 62, 2, 4));
+  if (+o.ruin) s += S("M40 80Q80 62 128 66", .9) + F(rc(86, 52, 7, 14) + rc(94, 57, 14, 9)) + crenels(86, 52, 7, 1.8, 1.2) + crenels(94, 57, 14, 1.8, 1.2) + K("M102 55L105 60L108 56V54H102Z");
+  if (+o.oak) return s + tree(40, 80, 1.9) + tree(86, 80, 1.3) + KS("M38 70l-3 -4M42 68l4 -5", .9);
+  return s + tree(30, 80, 1.8) + `<g transform="translate(58 80) scale(1.15)">${STAG}</g>`;
+};
+
+M.temple = o => {
+  const t = o.t === "portico" ? PORT : ROT;
+  if (+o.wings) {
+    let k = ""; for (let x = 12; x < 42; x += 6) k += rc(x, 71, 2, 3.6) + rc(120 - x - 2, 71, 2, 3.6);
+    return ground(80) + F("M6 80V68Q26 64 44 68V80Z M114 80V68Q94 64 76 68V80Z") + K(k) + `<g transform="translate(60 80) scale(1.2)">${ROT}</g>`;
+  }
+  if (o.v === "cliff") return waves(84, 84) + waves(89, 84) + waves(94, 84) + F("M-5 72H80L86 82L82 100H-5Z") + `<g transform="translate(46 72) scale(.95)">${ROT}</g>` + gulls(84, 40);
+  if (o.v === "bridge") {
+    let col = ""; for (let x = 30; x <= 89; x += 5) col += rc(x, 54.6, 1.4, 13.4);
+    return waves(84) + waves(88.5) + waves(93) + tree(12, 74, 1) + tree(108, 74, 1) + F(rc(18, 68, 84, 3) + rc(18, 71, 84, 9) + rc(28, 52, 64, 2.6) + "M47 52L60 44.5L73 52Z M26 52L33.5 47L41 52Z M79 52L86.5 47L94 52Z" + col) + K("M28 80V76a6 6 0 0 1 12 0V80Z M54 80V76a6 6 0 0 1 12 0V80Z M80 80V76a6 6 0 0 1 12 0V80Z M51.5 51L60 46.2L68.5 51Z");
+  }
+  if (o.v === "terrace") return ground(80) + tree(98, 80, 1.3) + tree(16, 80, .9) + `<g transform="translate(54 80)">${t}</g>`;
+  return F(rc(-5, 76, 130, 1.6)) + waves(82, 0, 120, 1.1, 8, .8) + waves(87, 0, 120, 1.1, 8, .8) + waves(92, 0, 120, 1.1, 8, .8) + tree(22, 76, 1.2) + tree(100, 76, 1.1) + `<g transform="translate(60 76)">${t}</g>`;
+};
+
+M.beach = o => {
+  let s = waves(52, 0, 120, 1.2, 8, .8) + waves(57, 0, 120, 1.2, 8, .8);
+  if (+o.pines) s += pine(28, 70, 1.3) + pine(42, 66, 1) + pine(92, 68, 1.2);
+  s += F("M-5 100V70Q20 60 40 70Q60 58 80 68Q100 60 125 70V100Z");
+  let g = ""; for (const x of [16, 22, 52, 58, 64, 90, 96, 104]) { const y = x < 30 ? 64 : x < 70 ? 63 : 64; g += `M${x} ${y}l-3 -7M${x} ${y}l0 -8M${x} ${y}l3 -7`; }
+  s += S(g, .7);
+  if (+o.seal) s += K("M42 86Q44 79 56 78Q66 77 70 72Q74 72 73 75Q72 80 64 84Q58 87 42 86Z") + S("M42 86Q44 79 56 78Q66 77 70 72Q74 72 73 75Q72 80 64 84Q58 87 42 86ZM46 86l-6 2M46 86l-5 -2", .9) + F(circ(71, 74, .7));
+  else if (!+o.pines) s += KS("M20 80q4 -2 8 0M70 84q4 -2 8 0M44 90q3 -2 6 0", .7) + gulls(70, 34);
+  return s;
+};
+
+const label = (x, y, w, txt, fs = 6.2) => P(rc(x - w / 2, y - 6.4, w, 9), .9) + `<text x="${x}" y="${y}" text-anchor="middle" fill="currentColor" font-family="Courier Prime, Courier New, monospace" font-weight="700" font-size="${fs}" letter-spacing=".2">${txt}</text>`;
+
+M.summit = o => {
+  const sh = o.s || "pyr";
+  const PEAKS = {
+    pyr: { d: "M10 86L60 32L110 86Z", top: [60, 32], ridge: "M60 32L48 52L52 60L40 74" },
+    flat: { d: "M4 86L30 60L40 50L48 46H78L86 54L96 62L116 86Z", top: [63, 46], ridge: "M48 46L42 58L36 66M86 54L82 66" },
+    twin: { d: "M10 86L38 52L46 54L56 36L62 42L68 34L76 50L84 52L110 86Z", top: [68, 34], ridge: "M56 36L54 52L46 64M68 34L70 50L76 62" },
+    whale: { d: "M0 86Q26 58 56 48Q66 45 76 48Q100 58 120 86Z", top: [66, 45.5], ridge: "M40 58Q56 52 74 52" },
+    cone: { d: "M14 86Q40 76 52 50Q57 38 60 38Q63 38 68 50Q80 76 106 86Z", top: [60, 38], ridge: "M58 44L55 58M63 46L66 60" },
+    crag: { d: "M4 86L28 64L46 50L60 42L72 41L80 48L84 60L90 62L96 70L116 86Z", top: [66, 41.2], ridge: "M80 48L78 58L84 66M84 60L82 72M88 64L90 74" },
+    dome: { d: "M4 86Q14 76 28 74L44 62Q52 50 60 51Q68 52 72 60L80 66Q100 68 116 86Z", top: [60, 51], ridge: "M44 62L48 70M72 60L70 70" },
+    tor: { d: "M0 86Q30 66 60 62Q90 64 120 86Z", top: [60, 49], ridge: "" }
+  };
+  const pk = PEAKS[sh] || PEAKS.pyr;
+  let s = S("M-5 60Q14 50 26 56Q40 44 52 52M70 50Q86 40 100 50Q110 46 125 54", .8);
+  s += F(pk.d);
+  if (sh === "tor") s += F("M48 63V55H54V52H60V49H66V53H71V57H74V63Z") + KS("M54 55V62M60 52V62M66 55V62M48 58H74", .5);
+  let k = pk.ridge ? "" : "";
+  let after = pk.ridge ? KS(pk.ridge, .8) : "";
+  if (+o.snow) after += K(`M${pk.top[0] - 6} ${pk.top[1] + 6}L${pk.top[0]} ${pk.top[1] + 1.4}L${pk.top[0] + 7} ${pk.top[1] + 6.5}L${pk.top[0] + 3} ${pk.top[1] + 5}L${pk.top[0] - 1} ${pk.top[1] + 8}Z`);
+  if (+o.tarn) after += K(ell(40, 82, 12, 2.6)) + S("M34 82h5M43 82h6", .5);
+  if (+o.loch) after += K("M-5 84Q40 79 125 83V90H-5Z") + S("M10 86h12M40 85h16M76 86h14", .6);
+  const [tx, ty] = pk.top;
+  after += F(rc(tx - 1.4, ty - 6, 2.8, 6.2) + rc(tx - 2, ty - 6.8, 4, 1.2));
+  if (o.h) after += label(60, 79, 40, `${o.h} M`, 7.4);
+  return s + after + gulls(16, 34);
+};
+
+M.trail = o => {
+  const v = o.v || "downs";
+  let s = "", path = "";
+  if (v === "coast") {
+    s += waves(78, 62) + waves(82.5, 62) + waves(87, 62) + F("M-5 100V58Q22 54 44 60Q58 64 66 72L72 82L68 100Z") + gulls(84, 40);
+    path = "M8 100Q18 84 26 72Q34 62 54 64";
+  } else if (v === "downs") {
+    s += S("M-5 52Q30 42 60 50Q90 40 125 50", .8) + tree(22, 61, .8) + F("M-5 100V66Q20 56 44 62Q70 52 96 60Q110 56 125 60V100Z");
+    path = "M40 100Q56 86 52 76Q48 68 62 62";
+  } else if (v === "ridge") {
+    s += S("M-5 56Q40 48 125 54", .8) + tree(98, 60, .9) + F("M-5 100V70L30 60Q60 54 90 58L125 66V100Z");
+    path = "M48 100Q58 84 54 72Q52 64 70 58.5";
+    s += KS("M-5 74L30 64Q60 58 90 62L125 70", .7);
+  } else if (v === "moor") {
+    s += S("M-5 56Q20 48 46 54Q70 46 125 56", .8) + F("M-5 100V64Q30 58 60 62Q90 56 125 62V100Z");
+    path = "M44 100Q54 84 58 74Q62 66 74 61";
+  } else if (v === "wall") {
+    const crag = "M-5 68L18 62L32 66L48 56L62 58L76 50L92 54L108 48L125 52";
+    s += F(crag + "V100H-5Z") + F("M-5 63L18 57L32 61L48 51L62 53L76 45L92 49L108 43L125 47V52L108 48L92 54L76 50L62 58L48 56L32 66L18 62L-5 68Z") + KS(crag, .9);
+    path = "M30 100Q40 86 36 76Q34 70 46 64";
+  } else if (v === "river") {
+    s += tree(18, 62, .9) + tree(32, 61, .7) + tree(104, 62, 1) + F(rc(-5, 62, 130, 40));
+    s += K("M-5 92Q30 86 50 78Q70 70 125 68V73Q74 74 56 82Q34 92 -5 98Z");
+    path = "M34 100Q46 92 60 86Q76 80 96 76";
+  } else {
+    s += F("M-5 72L16 48L30 60L50 34L70 56L88 42L125 66V76H-5Z") + K("M50 34L46 42L52 40L56 44Z M88 42L85 47L90 46Z") + F("M-5 100V80Q60 76 125 80V100Z") + K("M18 76Q60 72 104 76Q60 80 18 76Z");
+    path = "M40 100Q52 92 48 86Q44 82 58 80";
+  }
+  s += KS(path, 2.8);
+  const mi = o.mi ? `${o.mi} MI` : "";
+  s += F(rc(76, 50, 2.2, 34)) + P("M78.2 53h20l3.6 3.6l-3.6 3.6h-20Z", .9) + P("M76 62.4h-13l-3.6 3.6l3.6 3.6h13Z", .9);
+  if (mi) s += `<text x="88.6" y="58.6" text-anchor="middle" fill="currentColor" font-family="Courier Prime, Courier New, monospace" font-weight="700" font-size="${mi.length > 5 ? 4.6 : 5.2}">${mi}</text>`;
+  s += S("M64 66h8M65.5 64.2l-1.8 1.8l1.8 1.8", .6);
+  return s;
+};
+
+const stonesBase = M.stones;
+M.stones = o => {
+  if (o.v !== "henge") return stonesBase(o);
+  let s = ground(80) + S("M-5 66Q60 60 125 66", .8);
+  const tri = (x, w, h) => F(rc(x, 80 - h, w * .36, h) + rc(x + w * .64, 80 - h, w * .36, h) + rc(x - 1, 80 - h - 4, w + 2, 4.2));
+  s += tri(20, 18, 22) + tri(46, 22, 28) + tri(78, 18, 22);
+  s += F(rc(70, 66, 5, 14) + rc(100, 70, 5, 10) + "M8 80L10 72L16 71L18 80Z");
+  return s + KS("M28 80V62M56 80V56M88 80V62", .5) + gulls(50, 30);
+};
+
+const DEFAULT_ICON = "hills";
+
+/* ---------- frames ---------- */
+const STAMPFONT = "Courier Prime, Courier New, monospace";
+function fit(str, max, base, min) {
+  const nat = fs => str.length * (fs * .6 + .3);
+  let fs = base; if (nat(fs) > max) fs = Math.max(min, (max / str.length - .3) / .6);
+  return { fs: n1(fs), tl: nat(fs) > max + .5 ? max : 0 };
+}
+function arcText(str, pid, d, max, base, min) {
+  const { fs, tl } = fit(str, max, base, min);
+  return { defs: `<path id="${pid}" d="${d}"/>`, el: `<text fill="currentColor" font-family="${STAMPFONT}" font-weight="700" font-size="${fs}" letter-spacing=".3" text-anchor="middle"><textPath href="#${pid}" startOffset="50%"${tl ? ` textLength="${tl}" lengthAdjust="spacingAndGlyphs"` : ""}>${esc(str)}</textPath></text>` };
+}
+function lineText(str, y, max, base, min) {
+  const { fs, tl } = fit(str, max, base, min);
+  return `<text x="60" y="${y}" fill="currentColor" font-family="${STAMPFONT}" font-weight="700" font-size="${fs}" letter-spacing=".3" text-anchor="middle"${tl ? ` textLength="${tl}" lengthAdjust="spacingAndGlyphs"` : ""}>${esc(str)}</text>`;
+}
+function arcs(n, d, id, p1, m1, p2, m2) { const a = arcText(n, "n" + id, p1, m1, 8.8, 6.4), b = arcText(d, "d" + id, p2, m2, 8, 6.6); return { defs: a.defs + b.defs, el: a.el + b.el }; }
+function octPath(r) { let d = ""; for (let i = 0; i < 8; i++) { const [x, y] = polar(60, 60, r, 22.5 + 45 * i); d += (i ? "L" : "M") + x + " " + y; } return d + "Z"; }
+function scallopPath(r, n) {
+  const pts = []; for (let i = 0; i < n; i++) pts.push(polar(60, 60, r, i / n * 360));
+  const rs = n1(r * Math.sin(Math.PI / n) * 1.08);
+  let d = `M${pts[0][0]} ${pts[0][1]}`; for (let i = 1; i <= n; i++) { const p = pts[i % n]; d += `A${rs} ${rs} 0 0 1 ${p[0]} ${p[1]}`; }
+  return d + "Z";
+}
+const roundText = (n, d, id) => arcs(n, d, id, "M20 60A40 40 0 0 1 100 60", 112, "M14.5 60A45.5 45.5 0 0 0 105.5 60", 72);
+const FR = {
+  round: { clip: circ(60, 60, 35), scale: .86, rings: S(circ(60, 60, 56), 2.6) + S(circ(60, 60, 51.5), .9) + S(circ(60, 60, 35.5), 1.4), text: roundText },
+  scallop: { clip: circ(60, 60, 35), scale: .86, rings: S(scallopPath(56, 32), 2) + S(circ(60, 60, 50), 1.4) + S(circ(60, 60, 35.5), 1), text: roundText },
+  oval: { clip: ell(60, 60, 29.5, 33), scale: .8, rings: S(ell(60, 60, 50, 57), 2.6) + S(ell(60, 60, 45.5, 52.5), .9) + S(ell(60, 60, 30, 33.5), 1.4), text: (n, d, id) => arcs(n, d, id, "M26 60A34 37.5 0 0 1 94 60", 98, "M19 60A41 46 0 0 0 101 60", 66) },
+  rect: { clip: rc(9.5, 31, 101, 58), scale: 1.12, rings: S(rc(5, 9, 110, 102), 2.6) + S(rc(9.5, 13.5, 101, 93), .9) + S("M9.5 31H110.5M9.5 89H110.5", 1.2), text: (n, d) => ({ defs: "", el: lineText(n, 26, 92, 8.8, 6.4) + lineText(d, 102.5, 70, 8.4, 7) }) },
+  shield: { clip: "M12.5 31H107.5V58Q107.5 80 94 89H26Q12.5 80 12.5 58Z", scale: .92, rings: S("M8 8H112V58Q112 96 60 114Q8 96 8 58Z", 2.6) + S("M12.5 12.5H107.5V58Q107.5 92 60 109Q12.5 92 12.5 58Z", .9) + S("M12.5 31H107.5M26 89H94", 1.2), text: (n, d) => ({ defs: "", el: lineText(n, 26, 88, 8.8, 6.4) + lineText(d, 99.5, 50, 7.6, 6.4) }) },
+  octagon: { clip: "M21.7 31H98.3L107.6 40.3V79.7L97.3 90H22.7L12.4 79.7V40.3Z", scale: .9, rings: S(octPath(56), 2.6) + S(octPath(51.5), .9) + S("M21.7 31H98.3M22.7 90H97.3", 1.2), text: (n, d) => ({ defs: "", el: lineText(n, 26.5, 56, 8.6, 6.4) + lineText(d, 101, 52, 7.8, 6.4) }) }
+};
+const FRAME_BY_TYPE = { summit: ["octagon", "round"], trail: ["rect", "shield"], house: ["rect", "oval"], castle: ["shield", "octagon"], garden: ["scallop", "oval"], coast: ["round", "scallop"], countryside: ["oval", "round"], ruin: ["octagon", "round"] };
+function pickFrame(p, label) {
+  const opts = FRAME_BY_TYPE[p.type] || ["round"];
+  let f = opts[hash(p.id + "frame") % opts.length];
+  if (label.length > 13 && f === "octagon") f = "round";
+  if (label.length > 22 && f === "shield") f = "rect";
+  return f;
+}
+
+/* ---------- stamp art ---------- */
+function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+function fmtDate(iso) { const [y, m, d] = (iso || "").split("-"); if (!y) return ""; return `${+d} ${MONTHS[+m - 1]} ${y}`; }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+let UID = 0;
+const motifCache = {};
+function motif(p) {
+  const ck = p.id + "|" + (p.m || "") + "|" + (p.h || "") + "|" + (p.miles || "");
+  if (motifCache[ck] !== undefined) return motifCache[ck];
+  const [kind, ...rest] = (p.m || DEFAULT_M[p.type] || DEFAULT_ICON).split(" ");
+  const o = {}; rest.forEach(t => { const [k, v] = t.split("="); o[k] = v === undefined ? "1" : v; });
+  if (p.h) o.h = p.h; if (p.miles) o.mi = p.miles;
+  let out = ""; try { out = (M[kind] || M.hills)(o); } catch (e) { out = ""; }
+  return (motifCache[ck] = out);
+}
+function stampSVG(place, date, cls = "", ghost = false) {
+  const id = "s" + (++UID);
+  const label = (place.short || place.name).toUpperCase();
+  const fr = FR[pickFrame(place, label)];
+  const rot = ghost ? 0 : (hash(place.id) % 23) - 11;
+  const t = fr.text(label, ghost ? "· · ·" : fmtDate(date), id);
+  return `<svg class="${ghost ? "ghost" : "stamp " + cls}" viewBox="0 0 120 120" style="--r:${rot}deg;transform:rotate(${rot}deg)${ghost ? "" : `;color:var(--i-${place.type})`}" ${ghost ? 'aria-hidden="true"' : `role="img" aria-label="Stamp: ${esc(place.name)}, ${fmtDate(date)}"`}>
+    <defs><clipPath id="c${id}"><path d="${fr.clip}"/></clipPath>${t.defs}</defs>
+    <g${ghost ? "" : ' filter="url(#ink)"'}><g clip-path="url(#c${id})"><g transform="translate(60 60) scale(${fr.scale}) translate(-60 -60)">${motif(place)}</g></g>${fr.rings}${t.el}</g>
+  </svg>`;
+}
+
+/* ---------- state ---------- */
+let state = { stamps: {}, custom: [], sets: [], settings: { cover: "indigo" } };
+const LS = "heritage-passport-v1";
+try { const s = JSON.parse(localStorage.getItem(LS) || "null"); if (s && s.stamps) state = { stamps: s.stamps || {}, custom: s.custom || [], sets: Array.isArray(s.sets) ? s.sets : [], settings: Object.assign({ cover: "indigo" }, s.settings || {}) }; } catch (e) {}
+let filter = { q: "", region: "All", show: "all", kind: KINDS[location.hash.slice(1)] ? location.hash.slice(1) : "places" };
+let freshId = null;
+function allPlaces() { return BUILTIN.concat(state.custom || []); }
+
+/* ---------- render ---------- */
+const $ = s => document.querySelector(s);
+function kindItems(kind) { return allPlaces().filter(p => kindOf(p) === kind); }
+function render() {
+  const stamps = state.stamps || {};
+  const ids = new Set(allPlaces().map(p => p.id));
+  $("#t-count").textContent = Object.keys(stamps).filter(id => ids.has(id)).length;
+  for (const k of Object.keys(KINDS)) {
+    const items = kindItems(k);
+    $(`#t-${k}`).textContent = items.filter(p => stamps[p.id]).length;
+    $(`#t-${k}-of`).textContent = "of " + items.length;
+  }
+  document.querySelectorAll("[data-kind]").forEach(b => b.setAttribute("aria-selected", b.dataset.kind === filter.kind));
+  const K_ = KINDS[filter.kind], groups = K_.groups;
+  if (filter.region !== "All" && !groups.includes(filter.region)) filter.region = "All";
+  $("#q").placeholder = { places: "Search places, e.g. Tyntesfield", summits: "Search summits, e.g. Helvellyn", trails: "Search trails, e.g. Cotswold Way" }[filter.kind];
+  $("#chips").innerHTML = ["All", ...groups].map(r => `<button type="button" class="chip" data-region="${esc(r)}" aria-pressed="${filter.region === r}">${esc(r)}</button>`).join("");
+
+  const items = kindItems(filter.kind);
+  let summary = "";
+  if (filter.kind === "summits") {
+    const metres = items.filter(p => stamps[p.id] && p.h).reduce((a, p) => a + p.h, 0);
+    summary = `<div class="summary"><div class="stat"><b>${metres.toLocaleString("en-GB")}</b><span>metres of summit stamped</span></div>${BUILTIN_SETS.filter(x => x.summary).map(st => { const got = st.ids.filter(id => stamps[id]).length; const full = got === st.ids.length; return `<div class="set${full ? " full" : ""}"><span class="set-name">${esc(st.name)}</span><span class="dots" aria-label="${got} of ${st.ids.length}">${st.ids.map(id => `<i class="${stamps[id] ? "on" : ""}"></i>`).join("")}</span><span class="set-state">${full ? "Complete" : `${got} / ${st.ids.length}`}</span></div>`; }).join("")}</div>`;
+  }
+  if (filter.kind === "trails") {
+    const miles = items.filter(p => stamps[p.id] && p.miles).reduce((a, p) => a + p.miles, 0);
+    summary = `<div class="summary"><div class="stat"><b>${miles.toLocaleString("en-GB")}</b><span>miles of trail completed</span></div></div>`;
+  }
+
+  const q = filter.q.trim().toLowerCase();
+  let pageNo = 0, html = "";
+  for (const r of groups) {
+    pageNo++;
+    if (filter.region !== "All" && filter.region !== r) continue;
+    const inRegion = items.filter(p => p.region === r);
+    const done = inRegion.filter(p => stamps[p.id]).length;
+    let list = inRegion.filter(p => !q || p.name.toLowerCase().includes(q));
+    if (filter.show === "done") list = list.filter(p => stamps[p.id]);
+    if (filter.show === "todo") list = list.filter(p => !stamps[p.id]);
+    if (!list.length) continue;
+    list.sort((a, b) => (stamps[b.id] ? 1 : 0) - (stamps[a.id] ? 1 : 0) || (b.h || 0) - (a.h || 0) || (b.miles || 0) - (a.miles || 0) || a.name.localeCompare(b.name));
+    const hid = "h-" + filter.kind + "-" + slug(r);
+    html += `<section class="page" aria-labelledby="${hid}">
+      <div class="page-head"><h2 id="${hid}">${esc(r)}</h2>
+        <div class="page-meta"><span>${done} / ${inRegion.length}</span><span class="bar" aria-hidden="true"><i style="width:${inRegion.length ? done / inRegion.length * 100 : 0}%"></i></span><span>Page ${String(pageNo).padStart(2, "0")}</span></div></div>
+      <div class="grid">${list.map(p => slotHTML(p, stamps[p.id])).join("")}</div></section>`;
+  }
+  $("#pages").innerHTML = summary + (html || `<p class="empty">No ${K_.noun} match. Try another search, or add it yourself.</p>`);
+  freshId = null;
+}
+function detail(p) { return p.h ? `${p.h.toLocaleString("en-GB")} m` : p.miles ? `${p.miles} miles · ${p.km} km` : TYPES[p.type]; }
+function slotHTML(p, s) {
+  if (s) return `<button type="button" class="slot done" data-id="${esc(p.id)}"><span class="face">${stampSVG(p, s.date, p.id === freshId ? "fresh" : "")}</span><span class="name">${esc(p.name)}</span></button>`;
+  return `<button type="button" class="slot" data-id="${esc(p.id)}"><span class="face">${stampSVG(p, "", "", true)}</span><span class="name">${esc(p.name)}</span><span class="sub">${detail(p)}</span></button>`;
+}
+
+/* ---------- persistence (this device) ---------- */
+function persist() {
+  try { localStorage.setItem(LS, JSON.stringify(state)); $("#sync").textContent = "Saved on this device"; $("#sync").classList.remove("warn"); }
+  catch (e) { $("#sync").textContent = "Couldn't save. Private browsing may be blocking storage."; $("#sync").classList.add("warn"); }
+}
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
+
+/* ---------- backup & restore ---------- */
+let toastTimer;
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
+async function saveBackup() {
+  const name = `waystamp-backup-${today()}.json`;
+  const json = JSON.stringify({ app: "waystamp", version: 2, exported: new Date().toISOString(), stamps: state.stamps, custom: state.custom, sets: state.sets, settings: state.settings }, null, 2);
+  await shareFile(new File([json], name, { type: "application/json" }), "Waystamp backup", "Backup saved: " + name);
+}
+async function restoreBackup(file) {
+  try {
+    const d = JSON.parse(await file.text());
+    if (!d || typeof d.stamps !== "object" || Array.isArray(d.stamps)) throw new Error();
+    let added = 0;
+    for (const [id, v] of Object.entries(d.stamps)) if (v && typeof v.date === "string" && !state.stamps[id]) { state.stamps[id] = { date: v.date.slice(0, 10), note: String(v.note || "").slice(0, 500) }; added++; }
+    const known = new Set(allPlaces().map(p => p.id));
+    for (const p of (Array.isArray(d.custom) ? d.custom : [])) if (p && p.id && p.name && !known.has(p.id) && TYPES[p.type] && KINDS[kindOf(p)].groups.includes(p.region)) { const c = { id: String(p.id), name: String(p.name).slice(0, 60), region: p.region, type: p.type }; if (typeof p.m === "string" && /^[a-z]+( [a-z]+=[a-z0-9.]+)*$/.test(p.m)) c.m = p.m; if (+p.h > 0) c.h = +p.h; if (+p.miles > 0) { c.miles = +p.miles; c.km = +p.km || Math.round(p.miles * 1.609); } state.custom.push(c); known.add(p.id); }
+    const haveSets = new Set(state.sets.map(x => x.id));
+    for (const st of (Array.isArray(d.sets) ? d.sets : [])) if (st && st.id && st.name && Array.isArray(st.ids) && !haveSets.has(st.id)) state.sets.push({ id: String(st.id), name: String(st.name).slice(0, 50), ids: st.ids.map(String) });
+    persist(); render();
+    toast(added ? `Restored ${added} stamp${added === 1 ? "" : "s"}` : "Nothing new in that backup. Your stamps are unchanged.");
+  } catch (e) { toast("That file isn't a Waystamp backup."); }
+}
+
+/* ---------- install ---------- */
+let installEvt = null;
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); installEvt = e; if (!standalone) $("#install").hidden = false; });
+addEventListener("appinstalled", () => { $("#install").hidden = true; toast("Installed. Look for Waystamp on your home screen."); });
+if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) $("#ios-hint").hidden = false;
+
+/* ---------- interactions ---------- */
+let current = null;
+const dlgS = $("#dlg-stamp");
+function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function openStamp(id) {
+  const p = allPlaces().find(x => x.id === id); if (!p) return;
+  current = p;
+  const s = state.stamps[id];
+  $("#s-kicker").textContent = p.region + " · " + (p.h || p.miles ? TYPES[p.type] + " · " + detail(p) : TYPES[p.type]);
+  $("#s-date-label").textContent = p.type === "trail" ? "Date finished" : p.type === "summit" ? "Date summited" : "Date of visit";
+  $("#s-title").textContent = p.name;
+  $("#s-confirm").hidden = true;
+  $("#s-actions").hidden = false;
+  $("#s-delplace").hidden = !p.id.startsWith("c-") || !!s;
+  if (s) {
+    $("#s-view").hidden = false; $("#s-edit").hidden = true;
+    $("#s-big").innerHTML = stampSVG(p, s.date, "big");
+    $("#s-note").textContent = s.note || "";
+    $("#s-note").hidden = !s.note;
+    $("#s-remove").hidden = false; $("#s-editbtn").hidden = false; $("#s-save").hidden = true;
+    $("#s-date").value = s.date; $("#s-memo").value = s.note || "";
+  } else {
+    $("#s-view").hidden = true; $("#s-edit").hidden = false;
+    $("#s-remove").hidden = true; $("#s-editbtn").hidden = true; $("#s-save").hidden = false;
+    $("#s-save").textContent = "Stamp it";
+    $("#s-date").value = today(); $("#s-memo").value = "";
+  }
+  dlgS.showModal();
+}
+$("#pages").addEventListener("click", e => { const b = e.target.closest(".slot"); if (b) openStamp(b.dataset.id); });
+$("#s-cancel").onclick = () => dlgS.close();
+$("#s-editbtn").onclick = () => {
+  $("#s-view").hidden = true; $("#s-edit").hidden = false;
+  $("#s-editbtn").hidden = true; $("#s-save").hidden = false; $("#s-save").textContent = "Save changes";
+};
+let confirmMode = "stamp";
+function askConfirm(mode) {
+  confirmMode = mode;
+  $("#s-confirm-text").textContent = mode === "place" ? "Delete this place from your book? It's removed from any sets too." : "Remove this stamp? The date and note go with it.";
+  $("#s-remove-yes").textContent = mode === "place" ? "Delete place" : "Remove stamp";
+  $("#s-confirm").hidden = false; $("#s-actions").hidden = true;
+}
+$("#s-remove").onclick = () => askConfirm("stamp");
+$("#s-delplace").onclick = () => askConfirm("place");
+$("#s-keep").onclick = () => { $("#s-confirm").hidden = true; $("#s-actions").hidden = false; };
+$("#s-remove-yes").onclick = () => {
+  delete state.stamps[current.id];
+  if (confirmMode === "place") {
+    state.custom = state.custom.filter(p => p.id !== current.id);
+    state.sets.forEach(st => st.ids = st.ids.filter(id => id !== current.id));
+    toast("Place deleted");
+  }
+  persist(); render(); dlgS.close();
+};
+$("#f-stamp").addEventListener("submit", e => {
+  e.preventDefault();
+  const date = $("#s-date").value || today();
+  const note = $("#s-memo").value.trim().slice(0, 500);
+  const wasNew = !state.stamps[current.id];
+  const before = computeBadges().earned;
+  state.stamps[current.id] = { date, note };
+  if (wasNew) freshId = current.id;
+  persist(); render(); dlgS.close();
+  const after = computeBadges().earned, fresh = BADGES.filter(b => after[b.id] && !before[b.id]);
+  if (fresh.length) setTimeout(() => toast(`Badge earned: ${fresh[0].label}${fresh.length > 1 ? ` and ${fresh.length - 1} more` : ""}`), 450);
+});
+
+const dlgA = $("#dlg-add");
+$("#a-type").innerHTML = Object.entries(TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join("");
+function fillRegions() { const g = KINDS[kindOf({ type: $("#a-type").value })].groups; $("#a-region").innerHTML = g.map(r => `<option>${esc(r)}</option>`).join(""); if (g.includes(filter.region)) $("#a-region").value = filter.region; }
+$("#a-type").addEventListener("change", () => { fillRegions(); fillPictures(); updatePreview(); });
+["#a-pic", "#a-region"].forEach(sel => $(sel).addEventListener("change", updatePreview));
+["#a-name", "#a-h", "#a-mi"].forEach(sel => $(sel).addEventListener("input", updatePreview));
+$("#add-btn").onclick = () => {
+  draftId = "c-" + Date.now().toString(36);
+  $("#a-name").value = $("#q").value.trim(); $("#a-h").value = ""; $("#a-mi").value = "";
+  $("#a-type").value = filter.kind === "summits" ? "summit" : filter.kind === "trails" ? "trail" : "house";
+  fillRegions(); fillPictures(); updatePreview();
+  dlgA.showModal();
+};
+$("#a-cancel").onclick = () => dlgA.close();
+$("#f-add").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#a-name").value.trim(); if (!name) return;
+  const d = draftPlace(), p = { id: d.id, name, region: d.region, type: d.type, m: d.m };
+  if (d.h > 0) p.h = Math.round(d.h);
+  if (d.miles > 0) { p.miles = Math.round(d.miles); p.km = d.km; }
+  state.custom.push(p);
+  persist();
+  filter.q = ""; $("#q").value = ""; filter.kind = kindOf(p); filter.region = "All";
+  render(); dlgA.close();
+  setTimeout(() => openStamp(p.id), 60);
+});
+document.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => {
+  filter.kind = b.dataset.kind; filter.region = "All";
+  try { history.replaceState(null, "", "#" + filter.kind); } catch (e) {}
+  render(); window.scrollTo({ top: 0 });
+});
+
+$("#q").addEventListener("input", e => { filter.q = e.target.value; render(); });
+$("#chips").addEventListener("click", e => { const c = e.target.closest(".chip"); if (c) { filter.region = c.dataset.region; render(); } });
+document.querySelectorAll("[data-show]").forEach(b => b.onclick = () => {
+  filter.show = b.dataset.show;
+  document.querySelectorAll("[data-show]").forEach(x => x.setAttribute("aria-pressed", x === b));
+  render();
+});
+
+/* ---------- cover colours ---------- */
+const COVERS = {
+  indigo: { name: "Indigo", light: "#262b5e", dark: "#0a0c1f" },
+  slate: { name: "Slate", light: "#2f3a48", dark: "#0e1218" },
+  teal: { name: "Teal", light: "#0c434a", dark: "#06191c" },
+  rust: { name: "Rust", light: "#6e2c10", dark: "#2a1208" },
+  plum: { name: "Plum", light: "#4e2a5c", dark: "#1a0d20" },
+  charcoal: { name: "Charcoal", light: "#2a2a2e", dark: "#0d0d10" }
+};
+function applyCover() {
+  const c = COVERS[state.settings.cover] || COVERS.indigo;
+  let el = document.getElementById("cover-style");
+  if (!el) { el = document.createElement("style"); el.id = "cover-style"; document.head.appendChild(el); }
+  el.textContent = `:root{--cover:${c.light}}@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--cover:${c.dark}}}:root[data-theme="dark"]{--cover:${c.dark}}`;
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.content = matchMedia("(prefers-color-scheme: dark)").matches ? c.dark : c.light;
+}
+
+/* ---------- shared helpers ---------- */
+const fmtN = n => Math.round(n).toLocaleString("en-GB");
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+function fmtLong(iso) { const [y, m, d] = (iso || "").split("-"); return y ? `${+d} ${MONTH_NAMES[+m - 1]} ${y}` : ""; }
+function stampLog() {
+  const all = new Map(allPlaces().map(p => [p.id, p]));
+  return Object.entries(state.stamps).filter(([id, s]) => all.has(id) && s && s.date)
+    .map(([id, s]) => ({ p: all.get(id), date: s.date }))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.p.name.localeCompare(b.p.name));
+}
+async function shareFile(file, title, doneMsg) {
+  try {
+    if (matchMedia("(pointer: coarse)").matches && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title }); return; }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement("a"); a.href = url; a.download = file.name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  toast(doneMsg || "Saved: " + file.name);
+}
+
+/* ---------- panel dialog ---------- */
+const dlgP = $("#dlg-panel");
+function openPanel(title, html) {
+  $("#p-title").textContent = title;
+  $("#p-body").innerHTML = html;
+  if (!dlgP.open) dlgP.showModal();
+  $("#p-body").scrollTop = 0;
+}
+$("#p-close").onclick = () => dlgP.close();
+document.querySelectorAll("[data-panel]").forEach(b => b.onclick = () => ({ year: () => yearPanel(), badges: badgesPanel, sets: () => setsPanel(), cover: coverPanel })[b.dataset.panel]());
+
+/* ---------- sets ---------- */
+const idsWhere = (type, region) => BUILTIN.filter(p => p.type === type && p.region === region).map(p => p.id);
+const BUILTIN_SETS = [
+  { id: "three-peaks", name: "National Three Peaks", note: "The highest summits in Scotland, England and Wales.", ids: ["summit-ben-nevis", "summit-scafell-pike", "summit-yr-wyddfa-snowdon"], summary: true },
+  { id: "yorkshire-three-peaks", name: "Yorkshire Three Peaks", note: "Pen-y-ghent, Ingleborough and Whernside.", ids: ["summit-pen-y-ghent", "summit-ingleborough", "summit-whernside"], summary: true },
+  { id: "lake-tops", name: "Lake District tops", note: "Every Lake District summit in the book.", ids: idsWhere("summit", "Lake District") },
+  { id: "welsh-peaks", name: "Welsh peaks", note: "Every Welsh summit in the book.", ids: idsWhere("summit", "Wales") },
+  { id: "edward-castles", name: "Castles of Edward I", note: "The four great castles of north Wales.", ids: ["caernarfon-castle", "conwy-castle", "harlech-castle", "beaumaris-castle"] },
+  { id: "scottish-castles", name: "Scottish castles", note: "Six of Scotland's best-known castles.", ids: ["edinburgh-castle", "stirling-castle", "eilean-donan", "urquhart-castle", "culzean-castle", "glamis-castle"] },
+  { id: "great-abbeys", name: "Great abbeys", note: "Six of the finest monastic ruins.", ids: ["fountains-abbey-and-studley-royal", "rievaulx-abbey", "whitby-abbey", "tintern-abbey", "melrose-abbey", "mount-grace-priory"] },
+  { id: "ancient", name: "Stones and barrows", note: "Prehistoric and early medieval sites.", ids: ["avebury", "stonehenge", "calanais-standing-stones", "sutton-hoo", "skara-brae"] },
+  { id: "coast-paths", name: "Coast paths", note: "Long-distance paths that follow the sea.", ids: ["trail-south-west-coast-path", "trail-wales-coast-path", "trail-pembrokeshire-coast-path", "trail-cleveland-way", "trail-peddars-way-and-norfolk-coast-path"] },
+  { id: "england-trails", name: "England's long-distance trails", note: "Every English trail in the book.", ids: idsWhere("trail", "England") }
+];
+function allSets() { return (state.sets || []).concat(BUILTIN_SETS); }
+function setProgress(st, byId) { const ids = st.ids.filter(id => byId.has(id)); const got = ids.filter(id => state.stamps[id]).length; return { ids, got, full: ids.length > 0 && got === ids.length }; }
+function setsPanel(openId) {
+  const byId = new Map(allPlaces().map(p => [p.id, p]));
+  const done = allSets().filter(st => setProgress(st, byId).full).length;
+  const cards = allSets().map(st => {
+    const { ids, got, full } = setProgress(st, byId), mine = !BUILTIN_SETS.includes(st);
+    return `<details class="setcard${full ? " full" : ""}" data-set="${esc(st.id)}"${openId === st.id ? " open" : ""}>
+      <summary><span class="sc-name">${esc(st.name)}${mine ? ' <span class="tag-yours">Yours</span>' : ""}</span><span class="sc-prog">${full ? "Complete" : `${got} / ${ids.length}`}</span><span class="bar" aria-hidden="true"><i style="width:${ids.length ? got / ids.length * 100 : 0}%"></i></span></summary>
+      ${st.note ? `<p class="sc-note">${esc(st.note)}</p>` : ""}
+      <ul class="sc-list">${ids.map(id => { const p = byId.get(id), s = state.stamps[id]; return `<li class="${s ? "on" : ""}"><span>${esc(p.name)}</span><span>${s ? fmtLong(s.date) : "Not yet"}</span></li>`; }).join("")}</ul>
+      ${mine ? `<div class="actions sc-actions"><button type="button" class="btn danger small" data-del-set="${esc(st.id)}">Delete set</button><button type="button" class="btn ghost small" data-edit-set="${esc(st.id)}">Edit set</button></div>` : ""}
+    </details>`;
+  }).join("");
+  openPanel("Sets", `<p class="p-intro">${done} of ${allSets().length} complete. Collect every stamp in a set to complete it, or make your own set from any places, summits and trails.</p>
+    <div><button type="button" class="btn" id="new-set">+ Make a set</button></div>
+    <div class="setcards">${cards}</div>`);
+  $("#new-set").onclick = () => setEditor(null);
+}
+$("#p-body").addEventListener("click", e => {
+  const ed = e.target.closest("[data-edit-set]"); if (ed) return setEditor((state.sets || []).find(s => s.id === ed.dataset.editSet));
+  const del = e.target.closest("[data-del-set]");
+  if (del) {
+    const box = del.closest(".sc-actions");
+    box.innerHTML = `<div class="confirm"><span>Delete this set? Your stamps stay in your book.</span><div class="actions"><button type="button" class="btn ghost small" data-keep-set>Keep it</button><button type="button" class="btn danger small" data-del-yes="${esc(del.dataset.delSet)}">Delete set</button></div></div>`;
+    return;
+  }
+  if (e.target.closest("[data-keep-set]")) return setsPanel(e.target.closest(".setcard").dataset.set);
+  const yes = e.target.closest("[data-del-yes]");
+  if (yes) { state.sets = state.sets.filter(s => s.id !== yes.dataset.delYes); persist(); render(); setsPanel(); toast("Set deleted"); }
+});
+function setEditor(st) {
+  const sel = new Set(st ? st.ids : []);
+  openPanel(st ? "Edit set" : "Make a set", `<label class="fld" for="se-name">Name<input id="se-name" maxlength="50" value="${esc(st ? st.name : "")}" placeholder="e.g. Summer 2026 or Every castle in Wales"></label>
+    <input id="se-q" class="search" type="search" placeholder="Search to find stamps" aria-label="Search stamps to add">
+    <p class="se-count" id="se-count"></p>
+    <div class="se-list" id="se-list"></div>
+    <div class="actions se-actions"><button type="button" class="btn ghost" id="se-cancel">Cancel</button><button type="button" class="btn" id="se-save">Save set</button></div>`);
+  const count = () => $("#se-count").textContent = `${sel.size} chosen`;
+  const draw = () => {
+    const q = $("#se-q").value.trim().toLowerCase();
+    $("#se-list").innerHTML = Object.entries(KINDS).map(([k, K]) => {
+      const items = kindItems(k).filter(p => !q || p.name.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name));
+      if (!items.length) return "";
+      return `<fieldset><legend>${K.label}</legend>${items.map(p => `<label class="chk"><input type="checkbox" value="${esc(p.id)}"${sel.has(p.id) ? " checked" : ""}><span>${esc(p.name)}</span><small>${esc(p.region)}</small></label>`).join("")}</fieldset>`;
+    }).join("") || `<p class="p-intro">Nothing matches that search.</p>`;
+    count();
+  };
+  draw();
+  $("#se-q").oninput = draw;
+  $("#se-list").onchange = e => { if (e.target.type === "checkbox") { e.target.checked ? sel.add(e.target.value) : sel.delete(e.target.value); count(); } };
+  $("#se-cancel").onclick = () => setsPanel(st ? st.id : null);
+  $("#se-save").onclick = () => {
+    const name = $("#se-name").value.trim();
+    if (!name) { toast("Give the set a name."); $("#se-name").focus(); return; }
+    if (!sel.size) { toast("Choose at least one stamp for the set."); return; }
+    let id;
+    if (st) { st.name = name; st.ids = [...sel]; id = st.id; }
+    else { id = "set-" + Date.now().toString(36); state.sets.push({ id, name, ids: [...sel] }); }
+    persist(); render(); setsPanel(id); toast(st ? "Set saved" : "Set made");
+  };
+}
+
+/* ---------- badges ---------- */
+const BADGES = [
+  ...[1, 10, 25, 50, 100, 150].map(n => ({ id: "stamps-" + n, group: "Stamps", big: fmtN(n), unit: n === 1 ? "STAMP" : "STAMPS", label: n === 1 ? "First stamp" : `${n} stamps`, val: s => s.total, goal: n, left: d => `${d} more stamp${d === 1 ? "" : "s"}` })),
+  ...[1000, 3000, 5000, 10000].map(n => ({ id: "metres-" + n, group: "Height", big: n / 1000 + "K", unit: "METRES", label: `${fmtN(n)} m of summits`, val: s => s.metres, goal: n, left: d => `${fmtN(d)} m to go` })),
+  ...[100, 250, 500, 1000].map(n => ({ id: "miles-" + n, group: "Distance", big: fmtN(n), unit: "MILES", label: `${fmtN(n)} miles of trail`, val: s => s.miles, goal: n, left: d => `${fmtN(d)} miles to go` })),
+  { id: "summits-5", group: "Summits and trails", big: "5", unit: "SUMMITS", label: "5 summits", val: s => s.summits, goal: 5, left: d => `${d} more summit${d === 1 ? "" : "s"}` },
+  { id: "summits-15", group: "Summits and trails", big: "15", unit: "SUMMITS", label: "15 summits", val: s => s.summits, goal: 15, left: d => `${d} more summit${d === 1 ? "" : "s"}` },
+  { id: "trails-1", group: "Summits and trails", big: "1", unit: "TRAIL", label: "First trail finished", val: s => s.trails, goal: 1, left: () => "Finish a trail" },
+  { id: "trails-5", group: "Summits and trails", big: "5", unit: "TRAILS", label: "5 trails finished", val: s => s.trails, goal: 5, left: d => `${d} more trail${d === 1 ? "" : "s"}` },
+  { id: "inks", group: "Variety", big: "8", unit: "INKS", label: "One of every kind", val: s => s.types, goal: 8, left: d => `${d} more kind${d === 1 ? "" : "s"} of stamp` },
+  { id: "regions", group: "Variety", big: "8", unit: "REGIONS", label: "A place in every region", val: s => s.regions, goal: KINDS.places.groups.length, left: d => `${d} more region${d === 1 ? "" : "s"}` },
+  { id: "sets-1", group: "Sets", big: "1", unit: "SET", label: "First set complete", val: s => s.sets, goal: 1, left: () => "Complete a set" },
+  { id: "sets-3", group: "Sets", big: "3", unit: "SETS", label: "3 sets complete", val: s => s.sets, goal: 3, left: d => `${d} more set${d === 1 ? "" : "s"}` }
+];
+function computeBadges() {
+  const st = { total: 0, metres: 0, miles: 0, summits: 0, trails: 0, types: 0, regions: 0, sets: 0 };
+  const types = new Set(), regions = new Set(), have = new Set(), earned = {};
+  const byId = new Map(allPlaces().map(p => [p.id, p]));
+  const sets = allSets().map(s => s.ids.filter(id => byId.has(id))).filter(ids => ids.length);
+  for (const e of stampLog()) {
+    have.add(e.p.id); st.total++;
+    if (e.p.h) st.metres += e.p.h;
+    if (e.p.miles) st.miles += e.p.miles;
+    if (e.p.type === "summit") st.summits++;
+    if (e.p.type === "trail") st.trails++;
+    types.add(e.p.type); st.types = types.size;
+    if (kindOf(e.p) === "places") { regions.add(e.p.region); st.regions = regions.size; }
+    st.sets = sets.filter(ids => ids.every(id => have.has(id))).length;
+    for (const b of BADGES) if (!earned[b.id] && b.val(st) >= b.goal) earned[b.id] = e.date;
+  }
+  return { earned, st };
+}
+function badgeSVG(b, on, cls = "") {
+  const fs = b.big.length > 3 ? 26 : b.big.length > 2 ? 31 : 38;
+  return `<svg class="badge ${on ? "on" : ""} ${cls}" viewBox="0 0 120 120" aria-hidden="true"><path class="b-fill" d="${scallopPath(54, 26)}"/><circle class="b-ring" cx="60" cy="60" r="43"/><text class="b-big" x="60" y="${b.big.length > 3 ? 66 : 69}" text-anchor="middle" font-size="${fs}">${esc(b.big)}</text><text class="b-unit" x="60" y="85" text-anchor="middle">${esc(b.unit)}</text></svg>`;
+}
+function badgesPanel() {
+  const { earned, st } = computeBadges();
+  const n = BADGES.filter(b => earned[b.id]).length;
+  const groups = [...new Set(BADGES.map(b => b.group))];
+  openPanel("Badges", `<p class="p-intro">${n} of ${BADGES.length} earned.</p>` + groups.map(g => `<h4 class="p-sub">${g}</h4><div class="badges">${BADGES.filter(b => b.group === g).map(b => {
+    const on = !!earned[b.id];
+    return `<div class="badge-cell${on ? " on" : ""}">${badgeSVG(b, on)}<span class="bc-label">${esc(b.label)}</span><span class="bc-sub">${on ? "Earned " + fmtLong(earned[b.id]) : esc(b.left(Math.max(0, b.goal - b.val(st))))}</span></div>`;
+  }).join("")}</div>`).join(""));
+}
+
+/* ---------- year in review ---------- */
+function yearsWithStamps() { return [...new Set(stampLog().map(e => +e.date.slice(0, 4)))].sort((a, b) => b - a); }
+function reviewData(y) {
+  const log = stampLog().filter(e => +e.date.slice(0, 4) === y);
+  const months = Array(12).fill(0); log.forEach(e => months[+e.date.slice(5, 7) - 1]++);
+  const kinds = { places: 0, summits: 0, trails: 0 }; log.forEach(e => kinds[kindOf(e.p)]++);
+  const metres = log.reduce((a, e) => a + (e.p.h || 0), 0), miles = log.reduce((a, e) => a + (e.p.miles || 0), 0);
+  const reg = {}; log.filter(e => kindOf(e.p) === "places").forEach(e => reg[e.p.region] = (reg[e.p.region] || 0) + 1);
+  const topRegion = Object.entries(reg).sort((a, b) => b[1] - a[1])[0];
+  const max = Math.max(...months), busiest = months.indexOf(max);
+  const highest = log.filter(e => e.p.h).sort((a, b) => b.p.h - a.p.h)[0];
+  const longest = log.filter(e => e.p.miles).sort((a, b) => b.p.miles - a.p.miles)[0];
+  const { earned } = computeBadges();
+  const badges = BADGES.filter(b => earned[b.id] && +earned[b.id].slice(0, 4) === y);
+  return { y, log, months, max, kinds, metres, miles, topRegion, busiest, highest, longest, badges, first: log[0], last: log[log.length - 1] };
+}
+function highlights(d) {
+  const h = [];
+  if (d.first) h.push(["First stamp", `${d.first.p.name}, ${fmtLong(d.first.date).replace(/ \d{4}$/, "")}`]);
+  if (d.highest) h.push(["Highest summit", `${d.highest.p.name}, ${fmtN(d.highest.p.h)} m`]);
+  if (d.longest) h.push(["Longest trail", `${d.longest.p.name}, ${d.longest.p.miles} miles`]);
+  if (d.topRegion) h.push(["Favourite region", `${d.topRegion[0]}, ${d.topRegion[1]} place${d.topRegion[1] === 1 ? "" : "s"}`]);
+  if (d.max > 1) h.push(["Busiest month", `${MONTH_NAMES[d.busiest]}, ${d.max} stamps`]);
+  if (d.last && d.last !== d.first) h.push(["Latest stamp", `${d.last.p.name}, ${fmtLong(d.last.date).replace(/ \d{4}$/, "")}`]);
+  return h;
+}
+function yearPanel(y) {
+  const years = yearsWithStamps();
+  if (!years.length) { openPanel("Your year", `<p class="p-intro">Your year in review fills in as you collect stamps. Stamp your first place to start it.</p>`); return; }
+  const thisYear = new Date().getFullYear();
+  y = y || (years.includes(thisYear) ? thisYear : years[0]);
+  const d = reviewData(y);
+  const stats = [[d.log.length, "Stamps"], [d.kinds.places, "Places"], [d.kinds.summits, "Summits"], [d.kinds.trails, "Trails"], [fmtN(d.metres), "Metres up"], [fmtN(d.miles), "Miles walked"]];
+  const shown = d.log.slice().reverse().slice(0, 12);
+  openPanel("Your year", `${years.length > 1 ? `<div class="chips yr-pick">${years.map(v => `<button type="button" class="chip" data-year="${v}" aria-pressed="${v === y}">${v}</button>`).join("")}</div>` : ""}
+    <div class="review">
+      <div class="rv-head"><span class="rv-year">${y}</span><span class="rv-in">in stamps</span></div>
+      <div class="rv-stats">${stats.map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join("")}</div>
+      <div class="rv-months" role="img" aria-label="Stamps per month: ${d.months.map((v, i) => MONTH_NAMES[i].slice(0, 3) + " " + v).join(", ")}">${d.months.map((v, i) => `<div class="rv-m${v === d.max && v ? " top" : ""}"><span class="rv-n">${v || ""}</span><span class="rv-bar"><i style="height:${d.max ? Math.max(v ? 8 : 2, v / d.max * 100) : 2}%"></i></span><span class="rv-l">${MONTH_NAMES[i][0]}</span></div>`).join("")}</div>
+      <dl class="rv-high">${highlights(d).map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>
+      ${d.badges.length ? `<h4 class="p-sub">Badges earned</h4><div class="rv-badges">${d.badges.map(b => `<div class="badge-cell on">${badgeSVG(b, true)}<span class="bc-label">${esc(b.label)}</span></div>`).join("")}</div>` : ""}
+      <h4 class="p-sub">${d.log.length > 12 ? "Latest 12 stamps" : "Your stamps"}</h4>
+      <div class="rv-stamps">${shown.map(e => stampSVG(e.p, e.date, "mini")).join("")}</div>
+    </div>
+    <div class="actions"><button type="button" class="btn" id="yr-save">Save as image</button></div>`);
+  document.querySelectorAll("[data-year]").forEach(b => b.onclick = () => yearPanel(+b.dataset.year));
+  $("#yr-save").onclick = async () => {
+    $("#yr-save").disabled = true; $("#yr-save").textContent = "Making image…";
+    try { const blob = await reviewImage(d); await shareFile(new File([blob], `waystamp-${y}.png`, { type: "image/png" }), `My ${y} in stamps`, `Image saved: waystamp-${y}.png`); }
+    catch (e) { toast("Couldn't make the image. Try again."); }
+    $("#yr-save").disabled = false; $("#yr-save").textContent = "Save as image";
+  };
+}
+const INK_HEX = { house: "#c03d2a", garden: "#3d7438", castle: "#2c4c9c", coast: "#0f7480", countryside: "#87660f", ruin: "#7a3a8a", summit: "#3a4d68", trail: "#b0501a" };
+function exportStampSVG(p, date, paper) {
+  let s = stampSVG(p, date).trim();
+  const rot = (s.match(/--r:(-?\d+)deg/) || [])[1] || 0;
+  s = s.replace(/^<svg class="[^"]*"/, '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"')
+    .replace(/style="--r:[^"]*"/, "").replace(/role="img" aria-label="[^"]*"/, "")
+    .replace(/var\(--paper\)/g, paper).replace(/currentColor/g, INK_HEX[p.type] || "#1c2140")
+    .replace("<defs>", "<defs>" + $("#ink").outerHTML)
+    .replace('<g filter="url(#ink)">', `<g transform="rotate(${rot} 60 60)"><g filter="url(#ink)">`)
+    .replace(/<\/svg>$/, "</g></svg>");
+  return s;
+}
+function loadImg(svg) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg); }); }
+async function reviewImage(d) {
+  try { await document.fonts.ready; } catch (e) {}
+  const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
+  const x = c.getContext("2d");
+  const cover = (COVERS[state.settings.cover] || COVERS.indigo).light, coverInk = "#f3f1ea", signal = "#e4a72a", paper = "#eef1f4";
+  const DISP = '"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif', MONO = '"Courier Prime", "Courier New", monospace', BODY = '"Figtree", system-ui, sans-serif';
+  const spaced = (t, px, py, sp) => { if ("letterSpacing" in x) { x.letterSpacing = sp + "px"; x.fillText(t, px, py); x.letterSpacing = "0px"; } else x.fillText(t, px, py); };
+  x.fillStyle = cover; x.fillRect(0, 0, W, H);
+  x.fillStyle = signal; x.fillRect(0, H - 14, W, 14);
+  x.fillStyle = signal; x.font = `700 28px ${MONO}`; spaced("WAYSTAMP", 84, 112, 8);
+  x.fillStyle = coverInk; x.font = `800 210px ${DISP}`; x.fillText(String(d.y), 72, 310);
+  x.font = `700 56px ${DISP}`; x.fillText("in stamps", 84, 382);
+  const stats = [[d.log.length, "STAMPS"], [d.kinds.places, "PLACES"], [d.kinds.summits, "SUMMITS"], [d.kinds.trails, "TRAILS"], [fmtN(d.metres), "METRES UP"], [fmtN(d.miles), "MILES WALKED"]];
+  stats.forEach(([n, l], i) => {
+    const px = 84 + (i % 3) * 320, py = 500 + Math.floor(i / 3) * 150;
+    x.fillStyle = coverInk; x.font = `800 84px ${DISP}`; x.fillText(String(n), px, py);
+    x.fillStyle = signal; x.font = `400 26px ${MONO}`; spaced(l, px + 4, py + 42, 3);
+  });
+  const hl = highlights(d).filter(h => h[0] !== "First stamp" && h[0] !== "Latest stamp").slice(0, 1)[0];
+  if (hl) { x.fillStyle = coverInk; x.font = `600 32px ${BODY}`; x.fillText(`${hl[0]}: ${hl[1]}`, 84, 790); }
+  x.fillStyle = paper; x.beginPath(); (x.roundRect ? x.roundRect(60, 840, 960, 450, 24) : x.rect(60, 840, 960, 450)); x.fill();
+  const shown = d.log.slice().reverse().slice(0, 8);
+  for (let i = 0; i < shown.length; i++) {
+    try { const img = await loadImg(exportStampSVG(shown[i].p, shown[i].date, paper)); x.drawImage(img, 92 + (i % 4) * 228, 862 + Math.floor(i / 4) * 210, 200, 200); } catch (e) {}
+  }
+  return await new Promise(r => c.toBlob(r, "image/png"));
+}
+
+/* ---------- cover colour panel ---------- */
+function coverPanel() {
+  openPanel("Cover colour", `<p class="p-intro">Choose the colour of your book's cover. It also colours the selected tab and your badges.</p><div class="swatches">${Object.entries(COVERS).map(([k, c]) => `<button type="button" class="swatch" data-cover="${k}" aria-pressed="${(state.settings.cover || "indigo") === k}"><span class="sw" style="background:${c.light}"></span><span>${c.name}</span></button>`).join("")}</div>`);
+  document.querySelectorAll("[data-cover]").forEach(b => b.onclick = () => { state.settings.cover = b.dataset.cover; applyCover(); persist(); coverPanel(); });
+}
+
+/* ---------- pictures for your own places ---------- */
+const PRESETS = {
+  house: [["Manor house", "house W=36 f=2 r=hip c=2 tr=1"], ["Grand house with portico", "house W=36 w=2 f=3 r=flat p=1"], ["Palace with a dome", "house W=36 w=2 f=2 r=flat p=1 d=dome"], ["Tudor timber-frame", "house W=36 f=3 r=gable g=3 tudor=1"], ["Gabled hall", "house W=40 f=2 r=gable g=3 c=3 tr=1"], ["House with turrets", "house W=40 f=3 r=flat tw=round tr=1"], ["Cottage", "cottage"], ["Watermill", "mill v=wheel"]],
+  castle: [["Castle on a hill", "castle hill=1 keep=1"], ["Ruin on a hill", "castle hill=1 ruin=1 keep=1"], ["Moated castle", "castle moat=1 round=1"], ["Gatehouse", "castle keep=gate trees=1"], ["Tall tower keep", "castle keep=tall"], ["Castle on an island", "island"], ["Castle on a crag", "island v=crag"]],
+  garden: [["Topiary and fountain", "garden"], ["Maze", "garden maze=1"], ["Flowering arch", "garden arch=1"], ["Rose arch", "garden v=roses"], ["Yew garden", "garden yews=1"], ["Lake and temple", "temple v=lake"], ["Lake and trees", "lakepark"]],
+  coast: [["Chalk cliffs", "cliffs v=sisters"], ["Sea stacks", "lighthouse stacks=1 nolight=1"], ["Lighthouse", "lighthouse stripe=1 cot=1"], ["Beach and dunes", "beach"], ["Cove", "cliffs v=cove"], ["Sea arch", "cliffs v=arch"], ["Headland", "cliffs v=worm"], ["Island", "island"]],
+  countryside: [["Hills and a tree", "hills tree=1"], ["Woods", "hills woods=1"], ["Lake in the hills", "hills lake=1 pines=1"], ["Gorge", "hills v=gorge"], ["Ridge", "hills v=ridge"], ["Parkland with deer", "park"], ["Big old trees", "park oak=1"], ["Windpump and reeds", "windpump"], ["River and mill", "mill"]],
+  ruin: [["Abbey ruin", "abbey"], ["Standing stones", "stones"], ["Stone circle", "stones v=henge"], ["Roman wall", "roman"], ["Roman mosaic", "roman v=mosaic"], ["Burial mounds", "mound"], ["Old mine", "mine"]],
+  summit: [["Pointed peak", "summit s=pyr"], ["Flat top", "summit s=flat"], ["Twin tops", "summit s=twin"], ["Whaleback", "summit s=whale"], ["Cone", "summit s=cone"], ["Craggy peak", "summit s=crag"], ["Rocky tor", "summit s=tor"], ["Rounded hill", "summit s=dome"], ["Snowy peak", "summit s=crag snow=1"], ["Peak above a lake", "summit s=pyr tarn=1"]],
+  trail: [["Rolling downs", "trail v=downs"], ["Coast path", "trail v=coast"], ["Ridge", "trail v=ridge"], ["Moorland", "trail v=moor"], ["Along a wall", "trail v=wall"], ["Riverside", "trail v=river"], ["Mountains and loch", "trail v=glen"]]
+};
+let draftId = null;
+function fillPictures() { const t = $("#a-type").value; $("#a-pic").innerHTML = (PRESETS[t] || []).map(([n, m]) => `<option value="${esc(m)}">${esc(n)}</option>`).join(""); }
+function draftPlace() {
+  const t = $("#a-type").value, mi = +$("#a-mi").value || 0;
+  return { id: draftId, name: $("#a-name").value.trim() || "Your place", type: t, region: $("#a-region").value, m: $("#a-pic").value, h: t === "summit" ? (+$("#a-h").value || 0) : 0, miles: t === "trail" ? mi : 0, km: t === "trail" && mi ? Math.round(mi * 1.609) : 0 };
+}
+function updatePreview() {
+  const t = $("#a-type").value;
+  $("#a-h-wrap").hidden = t !== "summit"; $("#a-mi-wrap").hidden = t !== "trail";
+  $("#a-preview").innerHTML = stampSVG(draftPlace(), today(), "preview");
+}
+
+applyCover();
+render();
+$("#backup").onclick = saveBackup;
+$("#restore-file").addEventListener("change", e => { const f = e.target.files[0]; if (f) restoreBackup(f); e.target.value = ""; });
+$("#install").onclick = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $("#install").hidden = true; };
+if ("serviceWorker" in navigator && location.protocol !== "file:") addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+</script>
+</body>
+</html>

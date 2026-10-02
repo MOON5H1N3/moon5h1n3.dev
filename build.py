@@ -48,8 +48,8 @@ def stamp_mark(size=34):
 # Ready-made apps served as they are, from apps/<folder>/. Each one is copied into the
 # built site unchanged and gets a card on the home page.
 EXTRA_APPS = [
-    {"folder": "stamp-passport", "name": "Heritage Stamp Passport",
-     "summary": "A stamp passport for the heritage places you visit. Works offline, installs on your phone, and keeps your stamps on your own device.",
+    {"folder": "waystamp", "name": "Waystamp", "icon": "icons/icon-192.png",
+     "summary": "Collect an illustrated stamp for every heritage place, summit and trail you visit. Works offline, installs on your phone, and keeps your stamps on your own device.",
      "cta": "Open the app"},
 ]
 
@@ -382,9 +382,10 @@ a{color:inherit}
 .app.ub h2{font:italic 600 1.55rem/1.2 "Fraunces",Georgia,serif}
 .app.ls h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
 .app p{margin:4px 0 0;color:var(--ink-muted)}
-.app.sp .mk{color:#2f6a4f}
+.app.sp .mk{overflow:hidden;border:0}
+.app.sp .mk img{display:block;width:56px;height:56px}
+.app.sp h2{font:600 1.45rem/1.2 Georgia,serif}
 .app .cta{grid-column:2;color:var(--ink);font-weight:600}
-@media (prefers-color-scheme:dark){.app.sp .mk{color:#8fc7a8}}
 .app:hover{border-color:var(--ink-muted)}
 footer{margin-top:36px;color:var(--ink-muted);font-size:.92rem}
 """
@@ -401,7 +402,8 @@ def home_page(L):
     for app in EXTRA_APPS:
         if (APPS_DIR / app["folder"] / "index.html").exists():
             href = f'/{app["folder"]}/' if L["home"] == "/" else f'{up}{app["folder"]}/index.html'
-            s.append(f'<a class="app sp" href="{href}"><span class="mk">{stamp_mark()}</span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
+            icon = href.replace("index.html", "") + app["icon"]
+            s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
     s.append(f'<footer>Code on <a href="{SITE["github"]}">GitHub</a>. Unbinge and Last Showing are MIT licensed and run in Docker.</footer></main></body></html>')
     return "\n".join(s)
 
