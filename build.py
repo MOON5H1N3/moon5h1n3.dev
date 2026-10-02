@@ -476,7 +476,7 @@ def home_page(L):
             s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
     code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>', f'<a href="{WORTH["repo"]}">Worth Keeping</a>'] + [
         f'<a href="{a["repo"]}">{a["name"]}</a>' for a in EXTRA_APPS if (APPS_DIR / a["folder"] / "index.html").exists()]
-    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
+    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed. Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
     return "\n".join(s)
 
 

@@ -241,7 +241,6 @@ WORTH = {
     "slug": "worth-keeping",
     "name": "Worth Keeping",
     "repo": "https://github.com/MOON5H1N3/worth-keeping",
-    "license": None,  # no LICENSE file in the repo yet
     "category": "LifestyleApplication",
     "keywords": "physical media, barcode scanner, Discogs, Letterboxd, Blu-ray, vinyl, books, collection tracker, self-hosted, Docker, Plex",
     "title": "Worth Keeping: scan a barcode, know if it's worth buying",
@@ -331,13 +330,13 @@ WORTH = {
          "Phones only let websites use the camera over https. Tailscale gives your home server a private https address that only your own devices can reach."),
         ("Where is my data kept?",
          "In one file on your own computer, <code>data/worth-keeping.db</code>. Settings has a backup download."),
-        ("Is it free?", "Yes. It runs on your own computer, and the optional eBay, Discogs and TMDB keys are free too."),
+        ("Is it free?", "Yes. It's open source under the MIT licence and runs on your own computer. The optional eBay, Discogs and TMDB keys are free too."),
         ("Is Worth Keeping affiliated with Discogs, Letterboxd or eBay?", "No. It's an independent hobby project."),
         ("Was Worth Keeping written with AI?",
          "Yes, it's vibe coded: written with AI coding tools, then tested by hand on a real collection. The source is on GitHub, so you can read exactly what it does before you run it."),
     ],
     "footer": [
-        "Worth Keeping is made by <a href=\"https://github.com/MOON5H1N3\">MOON5H1N3</a>. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
+        "Worth Keeping is MIT licensed and made by <a href=\"https://github.com/MOON5H1N3\">MOON5H1N3</a>. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
         "Book data from <a href=\"https://openlibrary.org/\">Open Library</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.",
     ],
     "sibling": ("last", "Last Showing", "plans your Monzo Vue tickets around your Letterboxd taste"),
