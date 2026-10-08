@@ -248,7 +248,7 @@ WORTH = {
     "lede": "Know if it's worth keeping before you buy it.",
     "summary": "Scan a book, film or record in a shop and see if you already own it, whether it's your taste, and whether the price is a good find.",
     "intro": "A free, self-hosted Docker app for anyone who collects books, DVDs and Blu-rays, CDs and vinyl. Scan a barcode in a charity shop and it tells you whether it's already on your shelf, how it fits your Letterboxd, book app and Plex taste, and whether the price is fair for the UK.",
-    "honesty": "I built Worth Keeping with AI coding tools and use it every time I'm in a charity shop. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
+    "honesty": "I built Worth Keeping with AI coding tools and use it on my own collection. Not affiliated with Discogs, Letterboxd, Pagebound, Plex or eBay.",
     "why": {
         "h": "Is it a find, or a second copy?",
         "p": [
@@ -282,7 +282,7 @@ WORTH = {
     "features": [
         "A shelf of everything you own, as covers or a list, searchable and filterable by format",
         "Upgrade spotting, with the option to take the old copy off your shelf",
-        "No-signal mode: \"do I own it?\" still works, and anything else is checked when you're back online",
+        "A phone app that keeps your whole shelf on the phone, so scanning works with no signal, and syncs with your computer when you're home",
         "Stats by format and decade, monthly spending, favourite shops, and what Discogs says your collection is worth",
         "A nightly refresh of Discogs and Plex, and covers found for anything missing one",
         "Find duplicates, and download your shelf as a spreadsheet",
@@ -297,11 +297,10 @@ WORTH = {
             {"h": "Start it", "code": "docker compose up -d --build",
              "after": ["Open <code>http://localhost:8787</code>. Your shelf and settings live in the <code>data</code> folder next to it, and updates never touch it."]},
             {"h": "On Windows, update with one click",
-             "p": ["Put the folder in <code>C:\\docker\\worth-keeping</code> and double-click <code>update.bat</code>. It pulls the latest version, rebuilds the container and starts it. Run it again whenever there's a new version."]},
+             "p": ["Double-click <code>update.bat</code> in the folder. It pulls the latest version, rebuilds the container and starts it. Run it again whenever there's a new version."]},
             {"h": "Use it on your phone",
-             "p": ["Phones only allow the camera on https addresses. Install <a href=\"https://tailscale.com/download\">Tailscale</a> on your computer and phone, turn on MagicDNS and HTTPS certificates in its admin page, then run this on the computer:"],
-             "code": "tailscale serve --bg 8787",
-             "after": ["Open the https address it prints on your phone and add it to your home screen."]},
+             "p": ["Android only installs a web app that works offline from an https address. Worth Keeping can get one that only works on your home network, so nothing is opened to the internet. You need a domain on Cloudflare: run <code>setup-https.bat</code> once, then <code>update.bat</code>. The README walks you through it.",
+                   "Then, on your home Wi-Fi, open <code>/app/</code> at that address on your phone and choose Install app."]},
         ],
     },
     "options": {
@@ -326,8 +325,8 @@ WORTH = {
          "Pagebound, Goodreads and StoryGraph CSV exports. You choose which shelves mean you own a physical copy."),
         ("Does it work without phone signal?",
          "Yes. Your phone keeps a copy of your shelf, so \"do I own it?\" still works. Anything it can't answer is saved and checked when you're back online."),
-        ("Why does it need Tailscale on my phone?",
-         "Phones only let websites use the camera over https. Tailscale gives your home server a private https address that only your own devices can reach."),
+        ("Why does the phone app need a domain?",
+         "Android only installs web apps from https addresses. A domain on Cloudflare lets Worth Keeping get a certificate for an address that only works on your home network, with no tunnel or VPN and nothing open to the internet."),
         ("Where is my data kept?",
          "In one file on your own computer, <code>data/worth-keeping.db</code>. Settings has a backup download."),
         ("Is it free?", "Yes. It's open source under the MIT licence and runs on your own computer. The optional eBay, Discogs and TMDB keys are free too."),

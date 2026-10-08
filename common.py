@@ -140,7 +140,7 @@ def write_extras(root, mode):
     if mode != "prod":
         return
     (root / "robots.txt").write_text("User-agent: *\nAllow: /\n\nSitemap: https://moon5h1n3.dev/sitemap.xml\n")
-    urls = "".join(f"  <url><loc>{u}</loc><lastmod>2026-10-01</lastmod></url>\n"
+    urls = "".join(f"  <url><loc>{u}</loc><lastmod>2026-10-08</lastmod></url>\n"
                    for u in [SITE["url"]] + [SITE["url"] + a["slug"] + "/" for a in APPS])
     (root / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + "</urlset>\n")
     lines = [f"# {SITE['domain']}", "",
