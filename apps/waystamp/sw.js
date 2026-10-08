@@ -1,6 +1,6 @@
 // Waystamp offline support.
 // Bump VERSION whenever you upload a new index.html so phones pick up the change.
-const VERSION = "waystamp-v3";
+const VERSION = "waystamp-v4";
 const CORE = [
   "./",
   "./index.html",

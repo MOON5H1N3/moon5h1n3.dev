@@ -49,7 +49,7 @@ def stamp_mark(size=34):
 # built site unchanged and gets a card on the home page.
 EXTRA_APPS = [
     {"folder": "waystamp", "name": "Waystamp", "icon": "icons/icon-192.png",
-     "summary": "Collect an illustrated stamp for every heritage place, summit and trail you visit. Works offline, installs on your phone, and keeps your stamps on your own device.",
+     "summary": "Collect an illustrated stamp for every heritage place, summit, trail and sauna you visit, including all the Munros and Wainwrights. Works offline, installs on your phone, and keeps your stamps on your own device.",
      "cta": "Open the app", "repo": "https://github.com/MOON5H1N3/waystamp"},
 ]
 

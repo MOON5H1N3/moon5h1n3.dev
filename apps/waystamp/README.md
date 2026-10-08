@@ -2,8 +2,9 @@
 
 Collect an illustrated stamp for every heritage place, summit and trail you visit. Tap it, pick the date, and it gets inked into your book.
 
-- **175 heritage places** across England, Scotland, Wales and Northern Ireland: houses, castles, gardens, abbeys, coast and countryside
-- **35 summits**, each stamp showing its height, plus the National Three Peaks and Yorkshire Three Peaks sets
+- **300 heritage places** across England, Scotland, Wales and Northern Ireland: houses, castles, gardens, abbeys, coast and countryside
+- **526 summits**, including all 282 Munros and all 214 Wainwrights, each stamp showing its height
+- **Saunas:** a tab of their own, with hut, barrel, lakeside, seaside and floating sauna stamps
 - **21 long-distance trails** (National Trails and Scotland's Great Trails), each stamp showing its length
 - **Every stamp is a different original drawing**, with its own frame, ink and angle
 - **Add your own** places, summits or trails, and pick a drawing for each so it gets a proper stamp
@@ -11,6 +12,11 @@ Collect an illustrated stamp for every heritage place, summit and trail you visi
 - **Milestone badges** for stamp counts, metres climbed, miles walked, variety and completed sets
 - **Your year:** a year in review with totals, a month-by-month chart and highlights, which you can save as an image to share
 - **Cover colours:** six colours for your book's cover
+- **Map** of everything you've stamped and everything still to go, which works offline
+- **Journal:** every stamp and visit in date order, with your notes
+- **Repeat visits:** log every time you go back, not just the first
+- **Near me:** sorts places, summits, trails or saunas by distance from where you are
+- **A stamp thud and buzz** when you stamp (can be turned off), a welcome guide, and Undo
 - **Works offline** once opened, so it is fine on a hill with no signal
 - **Installs like an app** from the browser, with its own home-screen icon
 - **Private:** stamps stay on your device. No accounts, no server, no tracking
@@ -60,6 +66,10 @@ All lists are near the top of the script in `index.html`:
 - **Trails** (`TRAILS`): `Name~Short label|miles|km|trail v=scene` where scene is `coast`, `downs`, `ridge`, `moor`, `wall`, `river` or `glen`
 
 The short label is optional and is used on the stamp when the full name is long.
+
+## Data
+
+Munro and Wainwright names, heights and positions come from the [Database of British and Irish Hills](https://www.hill-bagging.co.uk/) (v17.4, CC BY 4.0). The map outline is from [Natural Earth](https://www.naturalearthdata.com/) (public domain). Positions of heritage places and trails are approximate.
 
 ## License
 

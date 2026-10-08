@@ -35,6 +35,7 @@
   --i-ruin: #7a3a8a;
   --i-summit: #3a4d68;
   --i-trail: #b0501a;
+  --i-sauna: #a8326e;
   --f-display: "Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
   --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
   --f-stamp: "Courier Prime", "Courier New", monospace;
@@ -43,14 +44,14 @@
   :root:not([data-theme="light"]) {
     --paper: #10132a; --paper-2: #181c38; --ink: #e7e9f3; --muted: #9ba1ba; --line: #2c3256;
     --cover: #0a0c1f; --cover-ink: #f3f1ea; --signal: #f2b941; --focus: #f2b941;
-    --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e;
+    --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e; --i-sauna: #f08cba;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --paper: #10132a; --paper-2: #181c38; --ink: #e7e9f3; --muted: #9ba1ba; --line: #2c3256;
   --cover: #0a0c1f; --cover-ink: #f3f1ea; --signal: #f2b941; --focus: #f2b941;
-  --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e;
+  --i-house: #f08a74; --i-garden: #82c47a; --i-castle: #8faaf0; --i-coast: #5cc6d3; --i-countryside: #d9b65a; --i-ruin: #cc96dc; --i-summit: #a5b6cf; --i-trail: #f09a5e; --i-sauna: #f08cba;
   color-scheme: dark;
 }
 html { -webkit-text-size-adjust: 100%; }
@@ -181,7 +182,8 @@ dialog::backdrop { background: rgba(14, 16, 40, .55); }
 dialog.wide { width: min(680px, calc(100vw - 24px)); max-height: calc(100dvh - 32px); }
 dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr; padding-bottom: 0; }
 .p-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.p-body { overflow-y: auto; display: grid; gap: 14px; padding-bottom: 22px; align-content: start; min-height: 0; }
+.p-body { overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-bottom: 22px; min-height: 0; }
+.p-body > *, .map-tools > * { flex-shrink: 0; }
 .p-intro { margin: 0; color: var(--muted); }
 .p-sub { margin: 6px 0 0; font: 700 15px var(--f-display); }
 .opt { font-weight: 400; color: var(--muted); }
@@ -196,7 +198,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
 .badge .b-fill { fill: var(--paper-2); stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 3 3; }
 .badge .b-ring { fill: none; stroke: var(--line); stroke-width: 1.5; }
 .badge .b-big { fill: var(--muted); font-family: var(--f-display); font-weight: 800; }
-.badge .b-unit { fill: var(--muted); font: 700 9px var(--f-stamp); letter-spacing: 1px; }
+.badge .b-unit { fill: var(--muted); font-family: var(--f-stamp); font-weight: 700; letter-spacing: 1px; }
 .badge.on .b-fill { fill: var(--cover); stroke: none; }
 .badge.on .b-ring { stroke: var(--cover-ink); }
 .badge.on .b-big { fill: var(--cover-ink); }
@@ -260,6 +262,73 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
 .rv-stamps { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
 .rv-stamps .stamp { width: 92px; height: 92px; }
 @media (max-width: 480px) { .rv-high div { grid-template-columns: 1fr; gap: 2px; } .rv-year { font-size: 52px; } }
+.tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tab { padding: 8px 10px; }
+.tab b { font-size: 16px; }
+.tab small { font-size: 11px; }
+#near-btn[aria-pressed="true"] { background: var(--cover); color: var(--cover-ink); border-color: var(--cover); }
+.near-note { margin-top: 14px; }
+.subhead { margin: 22px 0 10px; font: 700 17px var(--f-display); display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.subhead:first-of-type { margin-top: 4px; }
+.subhead span { font: 400 12px var(--f-stamp); letter-spacing: .08em; color: var(--muted); }
+.page { content-visibility: auto; contain-intrinsic-size: auto 900px; }
+.slot { position: relative; }
+.vc { position: absolute; top: 4px; right: 8px; font: 700 11px var(--f-stamp); background: var(--ink); color: var(--paper); border-radius: 999px; padding: 2px 7px; }
+.empty p { margin: 0 auto 8px; max-width: 46ch; }
+/* toast with undo */
+.toast { display: flex; align-items: center; gap: 14px; }
+.t-undo { font: 700 14px var(--f-body); background: none; border: 0; color: inherit; cursor: pointer; padding: 4px 2px; text-decoration: underline; text-underline-offset: 3px; }
+/* visits */
+.vlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.vlist li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.vlist li div { display: grid; min-width: 0; }
+.v-date { font-weight: 600; }
+.v-note { font-style: italic; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+#s-visits:empty { display: none; }
+/* journal */
+.j-month { margin-top: 10px; }
+.jrow { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; padding: 6px; border-radius: 8px; }
+.jrow:hover { background: var(--paper-2); }
+.jrow:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.j-stamp .stamp { width: 64px; height: 64px; }
+.j-text { display: grid; gap: 1px; min-width: 0; }
+.j-name { font-weight: 600; }
+.j-meta { font: 400 12px var(--f-stamp); color: var(--muted); letter-spacing: .03em; }
+.j-note { font-style: italic; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+/* map */
+.map-tools { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
+.map-tools .chips { align-self: stretch; }
+.dlg .m-only { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.m-only input { width: 18px; height: 18px; accent-color: var(--cover); }
+.map-wrap { position: relative; height: min(62dvh, 600px); border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); overflow: hidden; }
+#map { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+#map .land { fill: var(--paper); stroke: var(--muted); stroke-width: 1.2; stroke-linejoin: round; }
+#map .land.dim { fill: var(--paper-2); stroke: var(--line); }
+#map circle.off { fill: var(--paper); stroke: var(--muted); stroke-width: var(--sw, 1.4); }
+#map circle.on { stroke: var(--paper); stroke-width: var(--sw, 1.4); }
+#map circle.me { fill: var(--signal); stroke: var(--ink); stroke-width: calc(var(--sw, 1.4) * 1.6); }
+.map-zoom { position: absolute; right: 8px; top: 8px; display: grid; gap: 6px; }
+.map-zoom .btn { background: var(--paper); min-width: 40px; justify-content: center; font-size: 16px; }
+.map-zoom [data-z="reset"] { font-size: 12px; }
+.map-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper); }
+.mc-text { display: grid; gap: 1px; min-width: 0; }
+.mc-name { font-weight: 700; }
+.mc-meta { font: 400 12px var(--f-stamp); color: var(--muted); }
+.map-key { margin: 0; font-size: 13px; color: var(--muted); }
+.map-key span { display: inline-block; width: 11px; height: 11px; border-radius: 50%; vertical-align: -1px; margin: 0 4px 0 2px; }
+.k-on { background: var(--i-castle); }
+.k-off { border: 1.5px solid var(--muted); background: var(--paper); margin-left: 10px !important; }
+/* settings */
+.dlg .switch { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; }
+.switch input { width: 20px; height: 20px; accent-color: var(--cover); }
+/* add your own: location */
+.a-loc { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.a-loc .opt { font-size: 13px; }
+/* welcome */
+.welcome { text-align: left; }
+.w-mark { width: 64px; height: 64px; color: var(--cover); transform: rotate(-8deg); }
+.w-steps { margin: 0; padding-left: 22px; display: grid; gap: 10px; }
+.w-steps li::marker { font: 700 15px var(--f-display); color: var(--muted); }
 </style>
 </head>
 <body>
@@ -290,9 +359,11 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
     </div>
     <nav class="cover-nav" aria-label="Your book">
       <button type="button" data-panel="year">Your year</button>
+      <button type="button" data-panel="journal">Journal</button>
+      <button type="button" data-panel="map">Map</button>
       <button type="button" data-panel="badges">Badges</button>
       <button type="button" data-panel="sets">Sets</button>
-      <button type="button" data-panel="cover">Cover colour</button>
+      <button type="button" data-panel="settings">Settings</button>
     </nav>
   </div>
 </header>
@@ -303,6 +374,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
       <button type="button" class="tab" role="tab" data-kind="places" aria-selected="true"><b>Places</b><small><span id="t-places">0</span> <span id="t-places-of"></span></small></button>
       <button type="button" class="tab" role="tab" data-kind="summits" aria-selected="false"><b>Summits</b><small><span id="t-summits">0</span> <span id="t-summits-of"></span></small></button>
       <button type="button" class="tab" role="tab" data-kind="trails" aria-selected="false"><b>Trails</b><small><span id="t-trails">0</span> <span id="t-trails-of"></span></small></button>
+      <button type="button" class="tab" role="tab" data-kind="saunas" aria-selected="false"><b>Saunas</b><small><span id="t-saunas">0</span> <span id="t-saunas-of"></span></small></button>
     </div>
     <div class="row">
       <input id="q" class="search" type="search" placeholder="Search places, e.g. Tyntesfield" aria-label="Search">
@@ -311,6 +383,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
         <button type="button" data-show="done" aria-pressed="false">Stamped</button>
         <button type="button" data-show="todo" aria-pressed="false">Not yet</button>
       </div>
+      <button type="button" class="btn ghost" id="near-btn" aria-pressed="false">Near me</button>
       <button type="button" class="btn ghost" id="add-btn">+ Add your own</button>
     </div>
     <div class="chips" id="chips" role="group" aria-label="Region"></div>
@@ -341,6 +414,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
     <div id="s-view" hidden>
       <div class="big" id="s-big"></div>
       <p class="note" id="s-note"></p>
+      <div id="s-visits"></div>
     </div>
     <div id="s-edit">
       <div style="display:grid;gap:12px">
@@ -357,6 +431,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
       <button type="button" class="btn danger left" id="s-delplace" hidden>Delete place</button>
       <button type="button" class="btn ghost" id="s-cancel">Close</button>
       <button type="button" class="btn ghost" id="s-editbtn" hidden>Edit</button>
+      <button type="button" class="btn" id="s-again" hidden>Log another visit</button>
       <button type="submit" class="btn" id="s-save">Stamp it</button>
     </div>
   </form>
@@ -366,6 +441,20 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
   <div class="dlg">
     <div class="p-head"><h3 id="p-title"></h3><button type="button" class="btn ghost small" id="p-close">Close</button></div>
     <div id="p-body" class="p-body"></div>
+  </div>
+</dialog>
+
+<dialog id="dlg-welcome">
+  <div class="dlg welcome">
+    <svg class="w-mark" viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor"><circle cx="60" cy="60" r="55" stroke-width="5"/><circle cx="60" cy="60" r="46" stroke-width="2"/></g><clipPath id="wk"><circle cx="60" cy="60" r="40"/></clipPath><g clip-path="url(#wk)"><path d="M14 92L46 52L58 64L74 42L108 92Z" fill="currentColor"/><path d="M34 100Q52 84 50 76Q48 70 62 64" fill="none" style="stroke:var(--paper)" stroke-width="5" stroke-linecap="round"/><circle cx="84" cy="36" r="7" fill="#e4a72a"/></g></svg>
+    <h3>Welcome to Waystamp</h3>
+    <p class="p-intro">A stamp book for the places you walk to.</p>
+    <ol class="w-steps">
+      <li><b>Collect stamps.</b> Tap any place, summit, trail or sauna and pick the date you went. It's inked into your book with its own picture. Been back? Log another visit.</li>
+      <li><b>Put it on your home screen.</b> On iPhone, open this page in Safari, tap Share, then Add to Home Screen. On Android, tap Install app at the bottom of the page. It then works without signal.</li>
+      <li><b>Keep a backup.</b> Your stamps are saved on this phone only. Use Save a backup at the bottom of the page now and then, and Restore a backup on a new phone.</li>
+    </ol>
+    <div class="actions"><button type="button" class="btn" id="w-start">Start collecting</button></div>
   </div>
 </dialog>
 
@@ -381,6 +470,7 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
     <label for="a-pic">Picture<select id="a-pic"></select></label>
     <div id="a-h-wrap" hidden><label for="a-h">Height in metres <span class="opt">(optional)</span><input id="a-h" type="number" min="1" max="9000" inputmode="numeric" placeholder="e.g. 886"></label></div>
     <div id="a-mi-wrap" hidden><label for="a-mi">Length in miles <span class="opt">(optional)</span><input id="a-mi" type="number" min="1" max="5000" inputmode="numeric" placeholder="e.g. 102"></label></div>
+    <div class="a-loc"><button type="button" class="btn ghost small" id="a-loc">Use my location</button><span id="a-loc-state" class="opt">Optional. Puts it on your map and in Nearest to me.</span></div>
     <div class="a-preview" id="a-preview" aria-label="Stamp preview"></div>
     <div class="actions">
       <button type="button" class="btn ghost" id="a-cancel">Cancel</button>
@@ -391,14 +481,16 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
 
 <script>
 const TYPES = {
-  house: "Historic house", garden: "Garden", castle: "Castle", coast: "Coast", countryside: "Countryside", ruin: "Ruin & ancient site", summit: "Summit", trail: "Trail"
+  house: "Historic house", garden: "Garden", castle: "Castle", coast: "Coast", countryside: "Countryside", ruin: "Ruin & ancient site", summit: "Summit", trail: "Trail", sauna: "Sauna"
 };
+const PLACE_REGIONS = ["South West", "South East & London", "East of England", "Midlands", "North", "Wales", "Scotland", "Northern Ireland"];
 const KINDS = {
-  places: { label: "Places", noun: "places", groups: ["South West", "South East & London", "East of England", "Midlands", "North", "Wales", "Scotland", "Northern Ireland"] },
-  summits: { label: "Summits", noun: "summits", groups: ["Scotland", "Lake District", "Wales", "Pennines & Peak", "Southern England", "Northern Ireland"] },
-  trails: { label: "Trails", noun: "trails", groups: ["England", "Wales", "Scotland"] }
+  places: { label: "Places", noun: "places", groups: PLACE_REGIONS },
+  summits: { label: "Summits", noun: "summits", groups: ["Munros", "Wainwrights", "Scotland", "Wales", "Pennines & Peak", "Southern England", "Northern Ireland"] },
+  trails: { label: "Trails", noun: "trails", groups: ["England", "Wales", "Scotland"] },
+  saunas: { label: "Saunas", noun: "saunas", groups: PLACE_REGIONS }
 };
-const kindOf = p => p.type === "summit" ? "summits" : p.type === "trail" ? "trails" : "places";
+const kindOf = p => p.type === "summit" ? "summits" : p.type === "trail" ? "trails" : p.type === "sauna" ? "saunas" : "places";
 const REGIONS = KINDS.places.groups;
 const RAW = {
   "South West": `Tyntesfield|house|house W=36 f=3 r=gable tw=spire c=3 tr=1;Dyrham Park|house|park house=1;Clevedon Court|house|house W=40 f=2 r=gable g=3 c=2;Leigh Woods|countryside|hills woods=1;Prior Park Landscape Garden~Prior Park|garden|temple v=bridge;Lacock Abbey|house|house W=38 f=2 r=flat tw=oct wp=1 tr=1;Stourhead|garden|temple v=lake;Avebury|ruin|stones;Stonehenge|ruin|stones v=henge;Old Sarum|ruin|castle hill=1 ruin=1;Longleat|house|house W=50 f=3 r=flat tw=pinn tr=1;Newark Park|house|house W=28 f=3 r=flat c=2 tr=2;Chedworth Roman Villa~Chedworth|ruin|roman v=mosaic;Snowshill Manor|house|house W=34 f=2 r=gable g=2 c=2 tr=1;Hidcote|garden|garden hedges=1;Brean Down|coast|hills v=ridge sea=1;Cheddar Gorge|countryside|hills v=gorge;Montacute House|house|house W=44 f=3 r=flat tw=pinn;Barrington Court|house|house W=40 f=2 r=gable g=3 tw=pinn;Lytes Cary Manor|house|house W=34 f=2 r=gable g=2 tr=1;Dunster Castle|castle|castle hill=1 trees=1 keep=1;Holnicote Estate|countryside|hills woods=1 wall=1;Corfe Castle|castle|castle hill=1 ruin=1 keep=1;Kingston Lacy|house|house W=40 f=3 r=hip c=4 tr=1;Studland Bay|coast|lighthouse stacks=1 nolight=1;Golden Cap|coast|cliffs v=cap;Killerton|house|house W=40 f=2 r=hip tr=2;Knightshayes|house|house W=40 f=2 r=gable g=2 c=3 wp=1;Castle Drogo|castle|castle hill=1 keep=1;Arlington Court|house|house W=36 f=2 r=flat p=1 tr=1;Lanhydrock|house|house W=40 f=2 r=gable g=3 c=4 tr=2;Cotehele|house|house W=30 f=2 r=gable tw=batt tr=1;St Michael's Mount|castle|island;Tintagel Castle|castle|island v=crag;Pendennis Castle|castle|castle hill=1 round=1;Trelissick|garden|garden;Glendurgan Garden~Glendurgan|garden|garden maze=1;Kynance Cove|coast|cliffs v=cove`,
@@ -411,34 +503,40 @@ const RAW = {
   "Northern Ireland": `Giant's Causeway|coast|hexagons;Carrick-a-Rede|coast|ropebridge;Mussenden Temple|coast|temple v=cliff;Dunluce Castle|castle|castle hill=1 ruin=1;Carrickfergus Castle|castle|castle moat=1 keep=1;Mount Stewart|house|house W=40 f=2 r=flat p=1 tr=2;Castle Ward|house|house W=40 f=2 r=flat wp=1 tr=1;Florence Court|house|house W=30 w=2 f=3 r=hip;The Argory|house|house W=34 f=2 r=hip c=2;Rowallane Garden~Rowallane|garden|garden`
 };
 const SUMMITS = {
-  "Scotland": `Ben Nevis|1345|summit s=crag snow=1;Ben Macdui|1309|summit s=whale snow=1;Cairn Gorm|1245|summit s=whale snow=1;Schiehallion|1083|summit s=cone;Buachaille Etive Mòr~Buachaille|1022|summit s=pyr;Ben Lomond|974|summit s=pyr loch=1;Arthur's Seat|251|summit s=dome`,
-  "Lake District": `Scafell Pike|978|summit s=crag;Helvellyn|950|summit s=crag tarn=1;Skiddaw|931|summit s=whale;Great Gable|899|summit s=pyr;Blencathra|868|summit s=twin;Coniston Old Man|803|summit s=whale tarn=1;Haystacks|597|summit s=crag tarn=1;Catbells|451|summit s=twin loch=1`,
-  "Wales": `Yr Wyddfa (Snowdon)~Yr Wyddfa|1085|summit s=pyr tarn=1;Glyder Fawr|1001|summit s=crag;Tryfan|917|summit s=twin;Cadair Idris|893|summit s=crag tarn=1;Pen y Fan|886|summit s=flat;Pumlumon|752|summit s=whale;Sugar Loaf|596|summit s=cone`,
-  "Pennines & Peak": `Cross Fell|893|summit s=whale;The Cheviot|815|summit s=whale;Whernside|736|summit s=whale;Ingleborough|723|summit s=flat;Pen-y-ghent|694|summit s=flat;Kinder Scout|636|summit s=flat;Roseberry Topping|320|summit s=cone`,
-  "Southern England": `High Willhays|621|summit s=tor;Dunkery Beacon|519|summit s=whale;Worcestershire Beacon|425|summit s=twin;Leith Hill|295|summit s=whale`,
-  "Northern Ireland": `Slieve Donard|850|summit s=pyr loch=1;Slieve Binnian|747|summit s=tor`
+  "Scotland": `Arthur's Seat|251|summit s=dome;The Cobbler|884|summit s=twin|56.213|-4.808;Goatfell|875|summit s=pyr|55.626|-5.192;Ben Ledi|879|summit s=whale|56.259|-4.322;Suilven|731|summit s=crag|58.116|-5.137;Stac Pollaidh|612|summit s=crag|58.044|-5.209;Bennachie|529|summit s=tor|57.293|-2.561;Ben A'an|454|summit s=cone loch=1|56.243|-4.419;Conic Hill|361|summit s=whale loch=1|56.099|-4.521`,
+  "Wales": `Yr Wyddfa (Snowdon)~Yr Wyddfa|1085|summit s=pyr tarn=1;Glyder Fawr|1001|summit s=crag;Tryfan|918|summit s=twin;Cadair Idris|893|summit s=crag tarn=1;Pen y Fan|886|summit s=flat;Pumlumon|752|summit s=whale;Sugar Loaf|596|summit s=cone`,
+  "Pennines & Peak": `Cross Fell|893|summit s=whale;The Cheviot|815|summit s=whale;Whernside|737|summit s=whale;Ingleborough|724|summit s=flat;Pen-y-ghent|694|summit s=flat;Kinder Scout|636|summit s=flat;Roseberry Topping|320|summit s=cone`,
+  "Southern England": `High Willhays|622|summit s=tor;Dunkery Beacon|519|summit s=whale;Worcestershire Beacon|425|summit s=twin;Leith Hill|295|summit s=whale`,
+  "Northern Ireland": `Slieve Donard|850|summit s=pyr loch=1;Slieve Binnian|746|summit s=tor`
 };
 const TRAILS = {
   "England": `South West Coast Path~SW Coast Path|630|1014|trail v=coast;Pennine Way|255|410|trail v=moor;Pennine Bridleway|205|330|trail v=moor;Coast to Coast|197|317|trail v=glen;Thames Path|185|298|trail v=river;Peddars Way & Norfolk Coast Path~Peddars Way|158|254|trail v=coast;North Downs Way|125|201|trail v=downs;Cleveland Way|109|175|trail v=coast;Cotswold Way|102|164|trail v=downs;South Downs Way|100|161|trail v=downs;The Ridgeway|87|140|trail v=ridge;Hadrian's Wall Path|84|135|trail v=wall;Yorkshire Wolds Way|79|127|trail v=downs`,
   "Wales": `Wales Coast Path|870|1400|trail v=coast;Pembrokeshire Coast Path~Pembrokeshire Coast|186|299|trail v=coast;Offa's Dyke Path|177|285|trail v=ridge;Glyndŵr's Way|135|217|trail v=glen`,
   "Scotland": `Southern Upland Way|214|344|trail v=moor;West Highland Way|96|155|trail v=glen;Speyside Way|85|137|trail v=river;Great Glen Way|79|127|trail v=glen`
 };
+const COORDS = {"tyntesfield":[51.441,-2.716],"dyrham-park":[51.479,-2.375],"clevedon-court":[51.443,-2.828],"leigh-woods":[51.462,-2.64],"prior-park-landscape-garden":[51.364,-2.343],"lacock-abbey":[51.414,-2.117],"stourhead":[51.106,-2.318],"avebury":[51.428,-1.854],"stonehenge":[51.179,-1.826],"old-sarum":[51.093,-1.804],"longleat":[51.186,-2.276],"newark-park":[51.627,-2.333],"chedworth-roman-villa":[51.82,-1.923],"snowshill-manor":[52.002,-1.858],"hidcote":[52.081,-1.745],"brean-down":[51.325,-3.025],"cheddar-gorge":[51.284,-2.758],"montacute-house":[50.954,-2.716],"barrington-court":[50.958,-2.869],"lytes-cary-manor":[51.039,-2.663],"dunster-castle":[51.181,-3.444],"holnicote-estate":[51.208,-3.556],"corfe-castle":[50.64,-2.059],"kingston-lacy":[50.81,-2.031],"studland-bay":[50.657,-1.948],"golden-cap":[50.724,-2.84],"killerton":[50.795,-3.454],"knightshayes":[50.928,-3.479],"castle-drogo":[50.697,-3.81],"arlington-court":[51.15,-3.987],"lanhydrock":[50.441,-4.697],"cotehele":[50.494,-4.226],"st-michael-s-mount":[50.117,-5.478],"tintagel-castle":[50.668,-4.759],"pendennis-castle":[50.147,-5.048],"trelissick":[50.218,-5.034],"glendurgan-garden":[50.107,-5.115],"kynance-cove":[49.975,-5.231],"sissinghurst-castle-garden":[51.115,0.582],"knole":[51.268,0.204],"chartwell":[51.247,0.088],"scotney-castle":[51.091,0.409],"bodiam-castle":[51.002,0.544],"leeds-castle":[51.249,0.63],"hever-castle":[51.187,0.116],"dover-castle":[51.129,1.322],"battle-abbey":[50.914,0.487],"petworth":[50.989,-0.612],"nymans":[51.05,-0.199],"sheffield-park":[50.995,0.008],"wakehurst":[51.067,-0.088],"polesden-lacey":[51.258,-0.373],"hinton-ampner":[51.044,-1.123],"highclere-castle":[51.326,-1.361],"osborne":[50.751,-1.27],"mottisfont":[51.039,-1.536],"the-vyne":[51.302,-1.088],"basildon-park":[51.501,-1.122],"blenheim-palace":[51.841,-1.361],"cliveden":[51.558,-0.688],"waddesdon-manor":[51.842,-0.942],"stowe":[52.032,-1.017],"birling-gap-and-seven-sisters":[50.743,0.2],"white-cliffs-of-dover":[51.135,1.358],"the-needles-old-battery":[50.664,-1.585],"hampton-court-palace":[51.403,-0.338],"tower-of-london":[51.508,-0.076],"ham-house":[51.444,-0.313],"osterley-park":[51.491,-0.352],"sutton-house":[51.549,-0.046],"morden-hall-park":[51.403,-0.188],"fenton-house":[51.558,-0.181],"blickling-estate":[52.811,1.229],"felbrigg-hall":[52.907,1.265],"oxburgh-estate":[52.581,0.567],"audley-end":[52.02,0.22],"ickworth":[52.215,0.656],"melford-hall":[52.081,0.718],"anglesey-abbey":[52.235,0.241],"wimpole-estate":[52.141,-0.049],"wicken-fen":[52.31,0.29],"sutton-hoo":[52.089,1.338],"flatford":[51.957,1.02],"blakeney-national-nature-reserve":[52.96,0.96],"dunwich-heath":[52.252,1.627],"hatfield-forest":[51.857,0.22],"chatsworth":[53.228,-1.611],"burghley-house":[52.64,-0.459],"kedleston-hall":[52.959,-1.536],"hardwick-hall":[53.168,-1.31],"calke-abbey":[52.799,-1.457],"belton-house":[52.944,-0.62],"woolsthorpe-manor":[52.809,-0.631],"tattershall-castle":[53.1,-0.193],"warwick-castle":[52.279,-1.585],"kenilworth-castle":[52.347,-1.592],"clumber-park":[53.27,-1.063],"baddesley-clinton":[52.34,-1.712],"packwood-house":[52.348,-1.746],"charlecote-park":[52.207,-1.62],"croome":[52.101,-2.163],"attingham-park":[52.686,-2.672],"berrington-hall":[52.264,-2.725],"kinver-edge":[52.443,-2.243],"dovedale":[53.06,-1.78],"mam-tor":[53.349,-1.81],"sudbury-hall":[52.885,-1.764],"fountains-abbey-and-studley-royal":[54.11,-1.581],"rievaulx-abbey":[54.258,-1.117],"rievaulx-terrace":[54.261,-1.114],"whitby-abbey":[54.488,-0.607],"mount-grace-priory":[54.38,-1.311],"castle-howard":[54.121,-0.906],"nunnington-hall":[54.205,-0.976],"beningbrough-hall":[54.016,-1.217],"nostell":[53.651,-1.389],"malham-tarn":[54.098,-2.164],"cragside":[55.317,-1.886],"wallington":[55.152,-1.959],"alnwick-castle":[55.416,-1.706],"dunstanburgh-castle":[55.49,-1.595],"lindisfarne-castle":[55.669,-1.785],"seaton-delaval-hall":[55.072,-1.524],"souter-lighthouse":[54.971,-1.364],"housesteads-roman-fort":[55.013,-2.331],"gibside":[54.92,-1.735],"hill-top":[54.353,-2.971],"tarn-hows":[54.386,-3.037],"wordsworth-house":[54.663,-3.365],"sizergh":[54.282,-2.768],"speke-hall":[53.339,-2.871],"formby":[53.56,-3.09],"lyme":[53.338,-2.054],"dunham-massey":[53.381,-2.396],"quarry-bank":[53.341,-2.247],"little-moreton-hall":[53.128,-2.253],"tatton-park":[53.33,-2.381],"caernarfon-castle":[53.139,-4.277],"conwy-castle":[53.28,-3.826],"harlech-castle":[52.86,-4.109],"beaumaris-castle":[53.265,-4.09],"caerphilly-castle":[51.576,-3.22],"tintern-abbey":[51.697,-2.677],"st-davids-bishop-s-palace":[51.882,-5.268],"powis-castle":[52.65,-3.162],"erddig":[53.027,-3.004],"chirk-castle":[52.935,-3.091],"bodnant-garden":[53.218,-3.799],"penrhyn-castle":[53.226,-4.094],"plas-newydd":[53.199,-4.211],"tredegar-house":[51.561,-3.031],"dinefwr":[51.877,-4.017],"llanerchaeron":[52.222,-4.233],"rhossili-and-south-gower":[51.569,-4.291],"stackpole":[51.625,-4.915],"dolaucothi-gold-mines":[52.045,-3.95],"edinburgh-castle":[55.949,-3.2],"stirling-castle":[56.124,-3.948],"eilean-donan":[57.274,-5.516],"urquhart-castle":[57.324,-4.442],"culzean-castle":[55.355,-4.79],"glamis-castle":[56.621,-3.001],"melrose-abbey":[55.599,-2.718],"skara-brae":[59.048,-3.343],"calanais-standing-stones":[58.197,-6.745],"giant-s-causeway":[55.241,-6.512],"carrick-a-rede":[55.239,-6.333],"mussenden-temple":[55.168,-6.811],"dunluce-castle":[55.211,-6.579],"carrickfergus-castle":[54.713,-5.807],"mount-stewart":[54.553,-5.601],"castle-ward":[54.369,-5.581],"florence-court":[54.258,-7.724],"the-argory":[54.452,-6.7],"rowallane-garden":[54.468,-5.832],"trail-south-west-coast-path":[50.335,-4.76],"trail-pennine-way":[54.62,-2.33],"trail-pennine-bridleway":[53.95,-2.15],"trail-coast-to-coast":[54.47,-2.35],"trail-thames-path":[51.64,-1.25],"trail-peddars-way-and-norfolk-coast-path":[52.84,0.76],"trail-north-downs-way":[51.26,0.42],"trail-cleveland-way":[54.47,-0.98],"trail-cotswold-way":[51.76,-2.18],"trail-south-downs-way":[50.92,-0.6],"trail-the-ridgeway":[51.55,-1.5],"trail-hadrian-s-wall-path":[55.0,-2.3],"trail-yorkshire-wolds-way":[54.05,-0.62],"trail-wales-coast-path":[52.41,-4.08],"trail-pembrokeshire-coast-path":[51.76,-5.1],"trail-offa-s-dyke-path":[52.4,-3.05],"trail-glyndwr-s-way":[52.55,-3.6],"trail-southern-upland-way":[55.4,-3.3],"trail-west-highland-way":[56.4,-4.7],"trail-speyside-way":[57.4,-3.3],"trail-great-glen-way":[57.15,-4.7],"summit-arthur-s-seat":[55.944,-3.162],"summit-yr-wyddfa-snowdon":[53.069,-4.076],"summit-glyder-fawr":[53.102,-4.029],"summit-tryfan":[53.115,-3.998],"summit-cadair-idris":[52.7,-3.909],"summit-pen-y-fan":[51.884,-3.437],"summit-pumlumon":[52.467,-3.783],"summit-sugar-loaf":[51.863,-3.058],"summit-cross-fell":[54.703,-2.487],"summit-the-cheviot":[55.478,-2.145],"summit-whernside":[54.229,-2.402],"summit-ingleborough":[54.166,-2.398],"summit-pen-y-ghent":[54.156,-2.249],"summit-kinder-scout":[53.385,-1.874],"summit-roseberry-topping":[54.505,-1.107],"summit-high-willhays":[50.685,-4.011],"summit-dunkery-beacon":[51.163,-3.587],"summit-worcestershire-beacon":[52.105,-2.339],"summit-leith-hill":[51.176,-0.371],"summit-slieve-donard":[54.18,-5.921],"summit-slieve-binnian":[54.142,-5.98]};
+const NEW_PLACES = {"South West":"Lulworth Cove|coast|cliffs v=cove|50.619|-2.248;Durdle Door|coast|cliffs v=arch|50.621|-2.277;Glastonbury Tor|ruin|column|51.144|-2.699;Glastonbury Abbey|ruin|abbey|51.146|-2.715;Roman Baths|ruin|roman v=mosaic|51.381|-2.360;Sherborne Old Castle|castle|castle ruin=1 keep=1 trees=1|50.949|-2.503;Berkeley Castle|castle|castle keep=1 trees=1|51.688|-2.459;Sudeley Castle|castle|castle keep=gate trees=1|51.947|-1.958;Launceston Castle|castle|castle hill=1 keep=1 round=1|50.637|-4.361;Restormel Castle|castle|castle hill=1 round=1 ruin=1|50.420|-4.672;Maiden Castle|ruin|mound|50.694|-2.468;Lydford Gorge|countryside|hills v=gorge|50.645|-4.106;Buckland Abbey|house|house W=36 f=2 r=gable tw=batt tr=1|50.480|-4.133;Saltram|house|house W=44 f=3 r=hip tr=1|50.380|-4.083;Trerice|house|house W=32 f=2 r=gable g=3|50.394|-5.011;Westonbirt Arboretum~Westonbirt|garden|park oak=1|51.606|-2.217;Lizard Point|coast|lighthouse cot=1|49.960|-5.202","South East & London":"Windsor Castle|castle|castle hill=1 round=1 keep=tall|51.484|-0.604;Arundel Castle|castle|castle hill=1 keep=1 trees=1|50.856|-0.554;Pevensey Castle|castle|castle ruin=1 round=1|50.819|0.334;Herstmonceux Castle|castle|castle moat=1 round=1|50.869|0.340;Carisbrooke Castle|castle|castle hill=1 keep=gate|50.687|-1.314;Portchester Castle|castle|castle moat=1 keep=1|50.837|-1.114;Ightham Mote|house|house W=34 f=2 r=gable g=2 moat=1|51.258|0.270;Uppark|house|house W=40 f=3 r=hip tr=1|50.966|-0.880;Hughenden|house|house W=36 f=2 r=gable g=2 tr=1|51.652|-0.756;West Wycombe Park|house|house W=36 f=2 r=flat p=1 tr=1|51.639|-0.808;Bateman's|house|house W=34 f=2 r=gable g=2 c=3|50.980|0.400;Claremont Landscape Garden~Claremont|garden|temple v=lake|51.355|-0.373;Royal Botanic Gardens, Kew~Kew Gardens|garden|garden house=1|51.478|-0.296;Box Hill|countryside|hills v=ridge|51.255|-0.310;Devil's Dyke|countryside|hills v=ridge|50.886|-0.212;Beachy Head|coast|lighthouse stripe=1|50.735|0.243","East of England":"Framlingham Castle|castle|castle trees=1|52.224|1.347;Orford Castle|castle|castle keep=tall|52.094|1.530;Castle Rising|castle|castle hill=1 ruin=1 keep=1|52.793|0.469;Holkham Hall|house|house W=36 w=2 f=2 r=flat p=1|52.951|0.808;Houghton Hall|house|house W=40 w=2 f=3 r=flat d=dome|52.829|0.656;Kentwell Hall|house|house W=40 f=2 r=gable g=2 moat=1|52.093|0.716;Grime's Graves|ruin|mine|52.476|0.674;Hunstanton Cliffs|coast|cliffs v=dover|52.950|0.488","Midlands":"Haddon Hall|house|house W=40 f=2 r=flat tw=batt tr=1|53.192|-1.653;Bolsover Castle|castle|castle hill=1 keep=1|53.231|-1.293;Peveril Castle|castle|castle hill=1 ruin=1 keep=1|53.343|-1.778;Stokesay Castle|castle|house W=34 f=2 r=gable tw=batt tudor=1|52.430|-2.831;Ludlow Castle|castle|castle ruin=1 keep=1 trees=1|52.367|-2.723;Witley Court|ruin|abbey|52.288|-2.322;Wenlock Priory|ruin|abbey t=low|52.597|-2.555;Kirby Hall|ruin|abbey t=low|52.508|-0.640;Rufford Abbey|ruin|abbey t=low|53.176|-1.035;Newstead Abbey|house|abbey|53.077|-1.191;Wollaton Hall|house|house W=40 f=3 r=flat tw=sq|52.948|-1.211;Shugborough|house|house W=36 w=2 f=2 r=flat p=1|52.799|-2.012;Coughton Court|house|house W=40 f=3 r=flat tw=oct|52.244|-1.880;Upton House|house|house W=40 f=2 r=hip tr=1|52.094|-1.452;Stanage Edge|countryside|hills v=ridge|53.354|-1.630","North":"Bamburgh Castle|castle|castle hill=1 keep=1|55.609|-1.710;Warkworth Castle|castle|castle hill=1 keep=tall|55.345|-1.611;Richmond Castle|castle|castle hill=1 keep=tall|54.401|-1.738;Bolton Castle|castle|castle keep=gate|54.322|-1.948;Skipton Castle|castle|castle round=1 keep=gate|53.963|-2.017;Muncaster Castle|castle|castle keep=1 trees=1|54.355|-3.383;Bolton Abbey|ruin|abbey|53.983|-1.888;Byland Abbey|ruin|abbey t=low|54.203|-1.159;Kirkstall Abbey|ruin|abbey|53.821|-1.607;Castlerigg Stone Circle~Castlerigg|ruin|stones|54.603|-3.098;Harewood House|house|house W=44 w=2 f=2 r=flat p=1|53.899|-1.523;Brodsworth Hall|house|house W=40 f=2 r=flat tr=1|53.556|-1.233;Belsay Hall|house|house W=36 f=2 r=flat p=1|55.100|-1.865;Levens Hall|house|garden yews=1|54.260|-2.776;Brimham Rocks|countryside|hills v=rock|54.078|-1.684;Malham Cove|countryside|hills v=gorge|54.072|-2.158;St Bees Head|coast|cliffs v=cap|54.513|-3.636;Robin Hood's Bay|coast|beach|54.434|-0.534;Flamborough Head|coast|lighthouse cot=1|54.116|-0.082","Wales":"Pembroke Castle|castle|castle hill=1 keep=1 round=1|51.677|-4.920;Kidwelly Castle|castle|castle round=1 keep=gate|51.739|-4.307;Carreg Cennen Castle|castle|castle hill=1 ruin=1|51.854|-3.935;Raglan Castle|castle|castle ruin=1 keep=tall|51.770|-2.850;Chepstow Castle|castle|castle hill=1 ruin=1 keep=1|51.643|-2.674;Cardiff Castle|castle|castle keep=1 round=1|51.482|-3.181;Castell Coch|castle|castle trees=1 round=1|51.536|-3.255;Criccieth Castle|castle|castle hill=1 keep=gate|52.917|-4.233;Dolbadarn Castle|castle|castle hill=1 keep=tall ruin=1|53.116|-4.114;Valle Crucis Abbey|ruin|abbey|52.983|-3.187;Strata Florida Abbey|ruin|abbey t=low|52.275|-3.838;Barafundle Bay|coast|beach|51.619|-4.903;South Stack Lighthouse~South Stack|coast|lighthouse cot=1|53.307|-4.699;Portmeirion|garden|garden house=1|52.913|-4.097;Aberglasney Gardens~Aberglasney|garden|garden|51.874|-4.124;Llyn Idwal|countryside|hills lake=1|53.118|-4.023","Scotland":"Palace of Holyroodhouse~Holyroodhouse|house|house W=40 f=3 r=flat tw=round|55.952|-3.172;Linlithgow Palace|ruin|castle moat=1 ruin=1 keep=1|55.977|-3.601;Doune Castle|castle|castle keep=tall trees=1|56.185|-4.050;Castle Stalker|castle|castle moat=1 keep=tall|56.571|-5.389;Dunnottar Castle|castle|island v=crag|56.946|-2.197;Kilchurn Castle|castle|castle moat=1 ruin=1 keep=tall|56.404|-5.029;Inveraray Castle|house|house W=40 f=3 r=flat tw=round|56.237|-5.074;Blair Castle|castle|castle keep=1 trees=1|56.767|-3.845;Cawdor Castle|castle|castle keep=1 trees=1|57.524|-3.927;Craigievar Castle|castle|house W=26 f=4 r=flat tw=round|57.174|-2.722;Crathes Castle|castle|house W=28 f=4 r=gable tw=round tr=1|57.059|-2.442;Dunrobin Castle|castle|house W=44 f=3 r=mansard tw=round|57.982|-3.945;Caerlaverock Castle|castle|castle moat=1 ruin=1 round=1|55.004|-3.524;Tantallon Castle|castle|castle hill=1 ruin=1|56.056|-2.651;St Andrews Cathedral|ruin|abbey|56.340|-2.786;Dryburgh Abbey|ruin|abbey t=low|55.577|-2.649;Jedburgh Abbey|ruin|abbey|55.477|-2.555;Iona Abbey|ruin|abbey t=low|56.334|-6.392;Maeshowe|ruin|mound|58.997|-3.188;Ring of Brodgar|ruin|stones|59.001|-3.230;Glenfinnan Monument~Glenfinnan|countryside|column|56.871|-5.432;Fingal's Cave|coast|hexagons|56.433|-6.338;Old Man of Storr|countryside|summit s=crag|57.507|-6.180;Neist Point|coast|lighthouse cot=1|57.423|-6.788;Inverewe Garden~Inverewe|garden|garden|57.775|-5.596;Royal Botanic Garden Edinburgh~Edinburgh Botanics|garden|garden house=1|55.965|-3.209","Northern Ireland":"Castle Coole|house|house W=36 w=2 f=2 r=flat p=1|54.338|-7.616;Marble Arch Caves|countryside|hills v=gorge|54.258|-7.810;The Dark Hedges|countryside|park oak=1|55.134|-6.381;Whiterocks Beach|coast|cliffs v=arch|55.205|-6.618;Murlough Nature Reserve~Murlough|coast|beach|54.243|-5.840;Grey Abbey|ruin|abbey|54.537|-5.552;Nendrum Monastic Site~Nendrum|ruin|abbey t=low|54.505|-5.684;Tollymore Forest Park~Tollymore|countryside|hills woods=1|54.222|-5.940"};
+const HILLS = [["summit-ben-chonzie","Ben Chonzie","",931,56.4539,-3.9921,"Munros","Southern Highlands","summit s=twin"],["summit-ben-vorlich-loch-earn","Ben Vorlich (Loch Earn)","Ben Vorlich",985,56.3427,-4.2194,"Munros","Southern Highlands","summit s=pyr"],["summit-stuc-a-chroin","Stuc a' Chroin","",973,56.3293,-4.2375,"Munros","Southern Highlands","summit s=pyr tarn=1"],["summit-ben-more-crianlarich","Ben More (Crianlarich)","Ben More",1174,56.386,-4.5401,"Munros","Southern Highlands","summit s=flat"],["summit-stob-binnein","Stob Binnein","",1165,56.3707,-4.5358,"Munros","Southern Highlands","summit s=twin"],["summit-cruach-ardrain","Cruach Ardrain","",1046,56.3564,-4.5762,"Munros","Southern Highlands","summit s=crag"],["summit-an-caisteal","An Caisteal","",996,56.3386,-4.6244,"Munros","Southern Highlands","summit s=dome tarn=1"],["summit-ben-lomond","Ben Lomond","",974,56.1903,-4.633,"Munros","Southern Highlands","summit s=pyr loch=1"],["summit-beinn-tulaichean","Beinn Tulaichean","",946,56.3422,-4.5633,"Munros","Southern Highlands","summit s=cone"],["summit-beinn-chabhair","Beinn Chabhair","",932,56.3258,-4.6415,"Munros","Southern Highlands","summit s=pyr"],["summit-ben-lui","Ben Lui","",1131,56.397,-4.8105,"Munros","Southern Highlands","summit s=pyr"],["summit-ben-oss","Ben Oss","",1029,56.3893,-4.7755,"Munros","Southern Highlands","summit s=crag"],["summit-beinn-ime","Beinn Ime","",1012,56.2368,-4.8171,"Munros","Southern Highlands","summit s=crag"],["summit-beinn-dubhchraig","Beinn Dubhchraig","",978,56.3913,-4.7432,"Munros","Southern Highlands","summit s=cone"],["summit-beinn-bhuidhe","Beinn Bhuidhe","",948,56.3267,-4.9067,"Munros","Southern Highlands","summit s=pyr"],["summit-ben-vorlich-loch-lomond","Ben Vorlich (Loch Lomond)","Ben Vorlich",943,56.274,-4.755,"Munros","Southern Highlands","summit s=pyr"],["summit-beinn-narnain","Beinn Narnain","",927,56.221,-4.789,"Munros","Southern Highlands","summit s=crag"],["summit-beinn-a-chleibh","Beinn a' Chleibh","",916,56.3902,-4.8356,"Munros","Southern Highlands","summit s=cone"],["summit-ben-vane","Ben Vane","",916,56.2498,-4.7817,"Munros","Southern Highlands","summit s=crag"],["summit-schiehallion","Schiehallion","",1083,56.6669,-4.1002,"Munros","Glen Lyon and Loch Tay","summit s=cone"],["summit-beinn-a-chreachain","Beinn a' Chreachain","",1081,56.5604,-4.6476,"Munros","Glen Lyon and Loch Tay","summit s=whale"],["summit-beinn-dorain","Beinn Dorain","",1076,56.5029,-4.7222,"Munros","Glen Lyon and Loch Tay","summit s=cone tarn=1"],["summit-carn-mairg","Carn Mairg","",1042,56.6346,-4.1456,"Munros","Glen Lyon and Loch Tay","summit s=pyr"],["summit-beinn-achaladair","Beinn Achaladair","",1039,56.5519,-4.6945,"Munros","Glen Lyon and Loch Tay","summit s=cone"],["summit-carn-gorm","Carn Gorm","",1029,56.6225,-4.226,"Munros","Glen Lyon and Loch Tay","summit s=dome"],["summit-beinn-an-dothaidh","Beinn an Dothaidh","",1004,56.5301,-4.714,"Munros","Glen Lyon and Loch Tay","summit s=pyr tarn=1"],["summit-meall-na-aighean","Meall na Aighean","",981,56.6206,-4.1287,"Munros","Glen Lyon and Loch Tay","summit s=flat"],["summit-meall-garbh-carn-mairg","Meall Garbh (Carn Mairg)","Meall Garbh",968,56.6374,-4.2075,"Munros","Glen Lyon and Loch Tay","summit s=pyr tarn=1"],["summit-stuc-an-lochain","Stuc an Lochain","",960,56.5709,-4.4706,"Munros","Glen Lyon and Loch Tay","summit s=flat"],["summit-beinn-mhanach","Beinn Mhanach","",953,56.534,-4.646,"Munros","Glen Lyon and Loch Tay","summit s=crag"],["summit-meall-buidhe-glen-lyon","Meall Buidhe (Glen Lyon)","Meall Buidhe",932,56.6172,-4.4486,"Munros","Glen Lyon and Loch Tay","summit s=flat"],["summit-ben-lawers","Ben Lawers","",1214,56.5449,-4.2209,"Munros","Glen Lyon and Loch Tay","summit s=whale snow=1"],["summit-an-stuc","An Stuc","",1117,56.5601,-4.2162,"Munros","Glen Lyon and Loch Tay","summit s=crag"],["summit-meall-garbh-ben-lawers","Meall Garbh (Ben Lawers)","Meall Garbh",1123,56.5661,-4.2077,"Munros","Glen Lyon and Loch Tay","summit s=whale"],["summit-beinn-ghlas","Beinn Ghlas","",1103,56.536,-4.237,"Munros","Glen Lyon and Loch Tay","summit s=whale tarn=1"],["summit-beinn-sheasgarnaich","Beinn Sheasgarnaich","",1077,56.5103,-4.5792,"Munros","Glen Lyon and Loch Tay","summit s=cone"],["summit-meall-corranaich","Meall Corranaich","",1069,56.5409,-4.2535,"Munros","Glen Lyon and Loch Tay","summit s=cone"],["summit-creag-mhor","Creag Mhor","",1047,56.4895,-4.614,"Munros","Glen Lyon and Loch Tay","summit s=pyr"],["summit-meall-nan-tarmachan","Meall nan Tarmachan","",1044,56.5217,-4.3013,"Munros","Glen Lyon and Loch Tay","summit s=flat"],["summit-meall-ghaordaidh","Meall Ghaordaidh","",1040,56.5258,-4.4167,"Munros","Glen Lyon and Loch Tay","summit s=dome"],["summit-beinn-challuim","Beinn Challuim","",1025,56.4546,-4.6192,"Munros","Glen Lyon and Loch Tay","summit s=whale"],["summit-meall-greigh","Meall Greigh","",1001,56.5674,-4.1596,"Munros","Glen Lyon and Loch Tay","summit s=flat"],["summit-meall-glas","Meall Glas","",959,56.4557,-4.5468,"Munros","Glen Lyon and Loch Tay","summit s=twin tarn=1"],["summit-meall-a-choire-leith","Meall a' Choire Leith","",926,56.5663,-4.2596,"Munros","Glen Lyon and Loch Tay","summit s=twin"],["summit-sgiath-chuil","Sgiath Chuil","",920,56.4532,-4.4956,"Munros","Glen Lyon and Loch Tay","summit s=crag"],["summit-sgorr-nam-fiannaidh-aonach-eagach","Sgorr nam Fiannaidh (Aonach Eagach)","Sgorr nam Fiannaidh",968,56.6794,-5.0371,"Munros","Glen Coe and Glen Etive","summit s=twin"],["summit-meall-dearg-aonach-eagach","Meall Dearg (Aonach Eagach)","Meall Dearg",952,56.6807,-5.0032,"Munros","Glen Coe and Glen Etive","summit s=whale"],["summit-bidean-nam-bian","Bidean nam Bian","",1149,56.6428,-5.0293,"Munros","Glen Coe and Glen Etive","summit s=twin"],["summit-stob-coire-sgreamhach","Stob Coire Sgreamhach","",1072,56.6383,-5.0103,"Munros","Glen Coe and Glen Etive","summit s=twin"],["summit-sgorr-dhearg-beinn-a-bheithir","Sgorr Dhearg (Beinn a' Bheithir)","Sgorr Dhearg",1024,56.6539,-5.1715,"Munros","Glen Coe and Glen Etive","summit s=crag"],["summit-buachaille-etive-mor","Buachaille Etive Mòr","Buachaille",1021,56.6462,-4.9004,"Munros","Glen Coe and Glen Etive","summit s=pyr"],["summit-sgorr-dhonuill-beinn-a-bheithir","Sgorr Dhonuill (Beinn a' Bheithir)","Sgorr Dhonuill",1001,56.6505,-5.1979,"Munros","Glen Coe and Glen Etive","summit s=pyr"],["summit-sgurr-na-h-ulaidh","Sgurr na h-Ulaidh","",994,56.6198,-5.0801,"Munros","Glen Coe and Glen Etive","summit s=whale"],["summit-beinn-fhionnlaidh-glen-etive","Beinn Fhionnlaidh (Glen Etive)","Beinn Fhionnlaidh",959,56.601,-5.1047,"Munros","Glen Coe and Glen Etive","summit s=flat"],["summit-stob-dubh-buachaille-etive-beag","Stob Dubh (Buachaille Etive Beag)","Stob Dubh",958,56.6382,-4.9707,"Munros","Glen Coe and Glen Etive","summit s=dome"],["summit-stob-na-broige-buachaille-etive-mor","Stob na Broige (Buachaille Etive Mor)","Stob na Broige",953,56.6299,-4.9512,"Munros","Glen Coe and Glen Etive","summit s=flat tarn=1"],["summit-beinn-sgulaird","Beinn Sgulaird","",937,56.5662,-5.1704,"Munros","Glen Coe and Glen Etive","summit s=twin"],["summit-stob-coire-raineach-buachaille-etive-beag","Stob Coire Raineach (Buachaille Etive Beag)","Stob Coire Raineach",924,56.6499,-4.9516,"Munros","Glen Coe and Glen Etive","summit s=pyr tarn=1"],["summit-ben-cruachan","Ben Cruachan","",1127,56.4268,-5.1318,"Munros","Glen Coe and Glen Etive","summit s=cone"],["summit-meall-a-bhuiridh","Meall a' Bhuiridh","",1108,56.6122,-4.8521,"Munros","Glen Coe and Glen Etive","summit s=pyr tarn=1"],["summit-creise","Creise","",1100,56.6144,-4.872,"Munros","Glen Coe and Glen Etive","summit s=pyr"],["summit-stob-ghabhar","Stob Ghabhar","",1089,56.5681,-4.8821,"Munros","Glen Coe and Glen Etive","summit s=whale"],["summit-ben-starav","Ben Starav","",1080,56.5389,-5.0497,"Munros","Glen Coe and Glen Etive","summit s=crag"],["summit-stob-coir-an-albannaich","Stob Coir' an Albannaich","",1044,56.5549,-4.9798,"Munros","Glen Coe and Glen Etive","summit s=pyr"],["summit-stob-daimh","Stob Daimh","",999,56.4313,-5.0913,"Munros","Glen Coe and Glen Etive","summit s=pyr"],["summit-glas-bheinn-mhor","Glas Bheinn Mhor","",998,56.5424,-5.0053,"Munros","Glen Coe and Glen Etive","summit s=dome"],["summit-beinn-eunaich","Beinn Eunaich","",989,56.4504,-5.0266,"Munros","Glen Coe and Glen Etive","summit s=crag"],["summit-beinn-a-chochuill","Beinn a' Chochuill","",980,56.4498,-5.0686,"Munros","Glen Coe and Glen Etive","summit s=cone"],["summit-beinn-nan-aighenan","Beinn nan Aighenan","",960,56.5202,-5.0112,"Munros","Glen Coe and Glen Etive","summit s=flat"],["summit-stob-a-choire-odhair","Stob a' Choire Odhair","",945,56.5733,-4.8383,"Munros","Glen Coe and Glen Etive","summit s=crag"],["summit-meall-nan-eun","Meall nan Eun","",928,56.5612,-4.9429,"Munros","Glen Coe and Glen Etive","summit s=whale"],["summit-ben-nevis","Ben Nevis","",1345,56.7969,-5.0037,"Munros","Ben Nevis and Loch Treig","summit s=crag snow=1"],["summit-aonach-beag-nevis-range","Aonach Beag (Nevis Range)","Aonach Beag",1234,56.8,-4.9541,"Munros","Ben Nevis and Loch Treig","summit s=pyr snow=1"],["summit-aonach-mor","Aonach Mor","",1220,56.8129,-4.9617,"Munros","Ben Nevis and Loch Treig","summit s=twin"],["summit-carn-mor-dearg","Carn Mor Dearg","",1220,56.8052,-4.9866,"Munros","Ben Nevis and Loch Treig","summit s=pyr snow=1"],["summit-stob-choire-claurigh","Stob Choire Claurigh","",1177,56.8238,-4.8496,"Munros","Ben Nevis and Loch Treig","summit s=crag"],["summit-binnein-mor","Binnein Mor","",1130,56.7544,-4.9258,"Munros","Ben Nevis and Loch Treig","summit s=twin"],["summit-stob-coire-an-laoigh","Stob Coire an Laoigh","",1116,56.8109,-4.8849,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-stob-coire-easain","Stob Coire Easain","",1115,56.8182,-4.7737,"Munros","Ben Nevis and Loch Treig","summit s=pyr tarn=1"],["summit-stob-a-choire-mheadhoin","Stob a' Choire Mheadhoin","",1105,56.8237,-4.7602,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-sgurr-a-mhaim","Sgurr a' Mhaim","",1099,56.7559,-5.0037,"Munros","Ben Nevis and Loch Treig","summit s=flat"],["summit-sgurr-choinnich-mor","Sgurr Choinnich Mor","",1094,56.8004,-4.904,"Munros","Ben Nevis and Loch Treig","summit s=twin"],["summit-na-gruagaichean","Na Gruagaichean","",1054,56.7437,-4.9399,"Munros","Ben Nevis and Loch Treig","summit s=twin"],["summit-am-bodach","Am Bodach","",1032,56.7417,-4.9834,"Munros","Ben Nevis and Loch Treig","summit s=dome tarn=1"],["summit-sgurr-eilde-mor","Sgurr Eilde Mor","",1010,56.75,-4.8954,"Munros","Ben Nevis and Loch Treig","summit s=cone"],["summit-stob-ban-mamores","Stob Ban (Mamores)","Stob Ban",1000,56.7437,-5.0303,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-an-gearanach","An Gearanach","",982,56.7592,-4.9662,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-stob-coire-a-chairn","Stob Coire a' Chairn","",981,56.7508,-4.969,"Munros","Ben Nevis and Loch Treig","summit s=whale"],["summit-stob-ban-grey-corries","Stob Ban (Grey Corries)","Stob Ban",977,56.8107,-4.8409,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-binnein-beag","Binnein Beag","",943,56.767,-4.9112,"Munros","Ben Nevis and Loch Treig","summit s=pyr"],["summit-mullach-nan-coirean","Mullach nan Coirean","",939,56.7499,-5.0724,"Munros","Ben Nevis and Loch Treig","summit s=cone"],["summit-ben-alder","Ben Alder","",1148,56.8138,-4.4651,"Munros","Ben Nevis and Loch Treig","summit s=pyr"],["summit-geal-charn-ben-alder","Geal-charn (Ben Alder)","Geal-charn",1132,56.8378,-4.5097,"Munros","Ben Nevis and Loch Treig","summit s=flat"],["summit-aonach-beag-ben-alder","Aonach Beag (Ben Alder)","Aonach Beag",1116,56.8335,-4.5292,"Munros","Ben Nevis and Loch Treig","summit s=cone"],["summit-beinn-eibhinn","Beinn Eibhinn","",1103,56.8253,-4.5421,"Munros","Ben Nevis and Loch Treig","summit s=crag"],["summit-beinn-a-chlachair","Beinn a' Chlachair","",1087,56.8695,-4.5097,"Munros","Ben Nevis and Loch Treig","summit s=dome"],["summit-geal-charn-loch-laggan","Geal Charn (Loch Laggan)","Geal Charn",1049,56.8978,-4.4572,"Munros","Ben Nevis and Loch Treig","summit s=cone"],["summit-chno-dearg","Chno Dearg","",1046,56.8301,-4.6608,"Munros","Ben Nevis and Loch Treig","summit s=whale"],["summit-carn-dearg-ben-alder","Carn Dearg (Ben Alder)","Carn Dearg",1034,56.8552,-4.4547,"Munros","Ben Nevis and Loch Treig","summit s=twin"],["summit-beinn-bheoil","Beinn Bheoil","",1019,56.8133,-4.4307,"Munros","Ben Nevis and Loch Treig","summit s=cone tarn=1"],["summit-stob-coire-sgriodain","Stob Coire Sgriodain","",979,56.8317,-4.6949,"Munros","Ben Nevis and Loch Treig","summit s=cone"],["summit-sgor-gaibhre","Sgor Gaibhre","",955,56.7726,-4.5465,"Munros","Ben Nevis and Loch Treig","summit s=crag"],["summit-carn-dearg-loch-ossian","Carn Dearg (Loch Ossian)","Carn Dearg",941,56.7599,-4.5899,"Munros","Ben Nevis and Loch Treig","summit s=pyr"],["summit-beinn-na-lap","Beinn na Lap","",935,56.7894,-4.66,"Munros","Ben Nevis and Loch Treig","summit s=flat tarn=1"],["summit-creag-pitridh","Creag Pitridh","",924,56.8997,-4.485,"Munros","Ben Nevis and Loch Treig","summit s=crag"],["summit-beinn-udlamain","Beinn Udlamain","",1010,56.8354,-4.33,"Munros","Drumochter","summit s=pyr"],["summit-sgairneach-mhor","Sgairneach Mhor","",991,56.8284,-4.2978,"Munros","Drumochter","summit s=dome"],["summit-a-mharconaich","A' Mharconaich","",973,56.857,-4.2907,"Munros","Drumochter","summit s=pyr tarn=1"],["summit-meall-chuaich","Meall Chuaich","",951,56.9639,-4.1126,"Munros","Drumochter","summit s=dome"],["summit-carn-na-caim","Carn na Caim","",941,56.9117,-4.1745,"Munros","Drumochter","summit s=crag"],["summit-a-bhuidheanach-bheag","A' Bhuidheanach Bheag","",936,56.8703,-4.199,"Munros","Drumochter","summit s=pyr"],["summit-geal-charn-drumochter","Geal-charn (Drumochter)","Geal-charn",917,56.8744,-4.3045,"Munros","Drumochter","summit s=twin"],["summit-beinn-dearg-atholl","Beinn Dearg (Atholl)","Beinn Dearg",1009,56.8773,-3.8837,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-an-sgarsoch","An Sgarsoch","",1006,56.9321,-3.7543,"Munros","Atholl and Glen Shee","summit s=crag"],["summit-carn-an-fhidhleir","Carn an Fhidhleir","",994,56.936,-3.8015,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-carn-a-chlamain","Carn a' Chlamain","",964,56.861,-3.7796,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-carn-nan-gabhar-beinn-a-ghlo","Carn nan Gabhar (Beinn a' Ghlo)","Carn nan Gabhar",1122,56.8398,-3.688,"Munros","Atholl and Glen Shee","summit s=crag"],["summit-braigh-coire-chruinn-bhalgain-beinn-a-ghlo","Braigh Coire Chruinn-bhalgain (Beinn a' Ghlo)","Braigh Coire Chruinn-bhalgain",1070,56.8311,-3.7295,"Munros","Atholl and Glen Shee","summit s=cone"],["summit-glas-tulaichean","Glas Tulaichean","",1051,56.8658,-3.5582,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-beinn-iutharn-mhor","Beinn Iutharn Mhor","",1045,56.895,-3.5682,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-carn-an-righ","Carn an Righ","",1029,56.8766,-3.5953,"Munros","Atholl and Glen Shee","summit s=whale"],["summit-carn-a-gheoidh","Carn a' Gheoidh","",975,56.8731,-3.4666,"Munros","Atholl and Glen Shee","summit s=twin"],["summit-carn-liath-beinn-a-ghlo","Carn Liath (Beinn a' Ghlo)","Carn Liath",976,56.8078,-3.7441,"Munros","Atholl and Glen Shee","summit s=twin"],["summit-carn-bhac","Carn Bhac","",945,56.9305,-3.5609,"Munros","Atholl and Glen Shee","summit s=whale tarn=1"],["summit-an-socach-glen-shee","An Socach (Glen Shee)","An Socach",944,56.9023,-3.5132,"Munros","Atholl and Glen Shee","summit s=cone"],["summit-the-cairnwell","The Cairnwell","",933,56.8795,-3.4212,"Munros","Atholl and Glen Shee","summit s=flat"],["summit-carn-aosda","Carn Aosda","",915,56.8957,-3.4233,"Munros","Atholl and Glen Shee","summit s=pyr"],["summit-lochnagar","Lochnagar","",1156,56.9603,-3.2453,"Munros","Lochnagar and the Angus Glens","summit s=pyr snow=1"],["summit-carn-a-choire-bhoidheach","Carn a' Choire Bhoidheach","",1110,56.9458,-3.2727,"Munros","Lochnagar and the Angus Glens","summit s=dome"],["summit-glas-maol","Glas Maol","",1068,56.8731,-3.3682,"Munros","Lochnagar and the Angus Glens","summit s=whale"],["summit-cairn-of-claise","Cairn of Claise","",1064,56.8942,-3.3386,"Munros","Lochnagar and the Angus Glens","summit s=flat"],["summit-carn-an-t-sagairt-mor","Carn an t-Sagairt Mor","",1047,56.943,-3.3032,"Munros","Lochnagar and the Angus Glens","summit s=cone"],["summit-carn-an-tuirc","Carn an Tuirc","",1019,56.9083,-3.3571,"Munros","Lochnagar and the Angus Glens","summit s=pyr"],["summit-cairn-bannoch","Cairn Bannoch","",1012,56.9277,-3.2784,"Munros","Lochnagar and the Angus Glens","summit s=twin tarn=1"],["summit-broad-cairn","Broad Cairn","",998,56.9191,-3.2491,"Munros","Lochnagar and the Angus Glens","summit s=whale"],["summit-creag-leacach","Creag Leacach","",988,56.8546,-3.3878,"Munros","Lochnagar and the Angus Glens","summit s=crag"],["summit-tolmount","Tolmount","",958,56.9047,-3.2979,"Munros","Lochnagar and the Angus Glens","summit s=flat"],["summit-tom-buidhe","Tom Buidhe","",957,56.8936,-3.2924,"Munros","Lochnagar and the Angus Glens","summit s=pyr"],["summit-driesh","Driesh","",948,56.848,-3.1965,"Munros","Lochnagar and the Angus Glens","summit s=flat"],["summit-mount-keen","Mount Keen","",939,56.9698,-2.9736,"Munros","Lochnagar and the Angus Glens","summit s=crag"],["summit-mayar","Mayar","",929,56.8489,-3.2463,"Munros","Lochnagar and the Angus Glens","summit s=crag"],["summit-ben-macdui","Ben Macdui","",1309,57.0704,-3.6691,"Munros","Cairngorms","summit s=whale snow=1"],["summit-braeriach","Braeriach","",1296,57.0783,-3.7284,"Munros","Cairngorms","summit s=cone"],["summit-cairn-toul","Cairn Toul","",1291,57.0544,-3.7108,"Munros","Cairngorms","summit s=dome"],["summit-sgor-an-lochain-uaine","Sgor an Lochain Uaine","",1258,57.0584,-3.7259,"Munros","Cairngorms","summit s=crag"],["summit-cairn-gorm","Cairn Gorm","",1245,57.1167,-3.6445,"Munros","Cairngorms","summit s=whale snow=1"],["summit-beinn-a-bhuird","Beinn a' Bhuird","",1197,57.0876,-3.4994,"Munros","Cairngorms","summit s=dome"],["summit-beinn-mheadhoin","Beinn Mheadhoin","",1183,57.0958,-3.6115,"Munros","Cairngorms","summit s=twin"],["summit-ben-avon","Ben Avon","",1172,57.0993,-3.4344,"Munros","Cairngorms","summit s=crag"],["summit-beinn-bhrotain","Beinn Bhrotain","",1157,57.0099,-3.7238,"Munros","Cairngorms","summit s=dome"],["summit-derry-cairngorm","Derry Cairngorm","",1155,57.0628,-3.622,"Munros","Cairngorms","summit s=crag tarn=1"],["summit-sgor-gaoith","Sgor Gaoith","",1118,57.0686,-3.8109,"Munros","Cairngorms","summit s=cone"],["summit-monadh-mor","Monadh Mor","",1113,57.0268,-3.7501,"Munros","Cairngorms","summit s=cone"],["summit-bynack-more","Bynack More","",1090,57.1382,-3.5847,"Munros","Cairngorms","summit s=cone"],["summit-beinn-a-chaorainn-cairngorms","Beinn a' Chaorainn (Cairngorms)","Beinn a' Chaorainn",1083,57.0933,-3.5774,"Munros","Cairngorms","summit s=dome"],["summit-carn-a-mhaim","Carn a' Mhaim","",1037,57.0369,-3.6584,"Munros","Cairngorms","summit s=pyr"],["summit-mullach-clach-a-bhlair","Mullach Clach a' Bhlair","",1019,57.0119,-3.8413,"Munros","Cairngorms","summit s=crag"],["summit-the-devil-s-point","The Devil's Point","",1007,57.0357,-3.6888,"Munros","Cairngorms","summit s=whale"],["summit-beinn-bhreac","Beinn Bhreac","",931,57.0551,-3.5535,"Munros","Cairngorms","summit s=crag tarn=1"],["summit-carn-dearg-monadhliath","Carn Dearg (Monadhliath)","Carn Dearg",946,57.0923,-4.2532,"Munros","Creag Meagaidh and Monadhliath","summit s=whale"],["summit-a-chailleach-monadhliath","A' Chailleach (Monadhliath)","A' Chailleach",929,57.1096,-4.1793,"Munros","Creag Meagaidh and Monadhliath","summit s=dome"],["summit-geal-charn-monadhliath","Geal Charn (Monadhliath)","Geal Charn",926,57.0574,-4.3736,"Munros","Creag Meagaidh and Monadhliath","summit s=crag"],["summit-carn-sgulain","Carn Sgulain","",920,57.1244,-4.177,"Munros","Creag Meagaidh and Monadhliath","summit s=crag"],["summit-creag-meagaidh","Creag Meagaidh","",1128,56.952,-4.6021,"Munros","Creag Meagaidh and Monadhliath","summit s=whale"],["summit-stob-poite-coire-ardair","Stob Poite Coire Ardair","",1054,56.964,-4.5858,"Munros","Creag Meagaidh and Monadhliath","summit s=dome tarn=1"],["summit-beinn-a-chaorainn-glen-spean","Beinn a' Chaorainn (Glen Spean)","Beinn a' Chaorainn",1049,56.9286,-4.6536,"Munros","Creag Meagaidh and Monadhliath","summit s=pyr"],["summit-carn-liath","Carn Liath","",1006,56.9788,-4.5153,"Munros","Creag Meagaidh and Monadhliath","summit s=crag"],["summit-beinn-teallach","Beinn Teallach","",915,56.9359,-4.6948,"Munros","Creag Meagaidh and Monadhliath","summit s=dome tarn=1"],["summit-gleouraich","Gleouraich","",1035,57.0972,-5.238,"Munros","Knoydart and Glen Shiel","summit s=pyr tarn=1"],["summit-sgurr-a-mhaoraich","Sgurr a' Mhaoraich","",1027,57.1058,-5.3305,"Munros","Knoydart and Glen Shiel","summit s=twin"],["summit-aonach-air-chrith","Aonach air Chrith","",1020,57.1246,-5.2213,"Munros","Knoydart and Glen Shiel","summit s=whale"],["summit-sgurr-an-doire-leathain","Sgurr an Doire Leathain","",1010,57.1369,-5.2815,"Munros","Knoydart and Glen Shiel","summit s=dome"],["summit-the-saddle","The Saddle","",1012,57.1624,-5.4147,"Munros","Knoydart and Glen Shiel","summit s=dome"],["summit-sgurr-an-lochain","Sgurr an Lochain","",1004,57.1413,-5.2975,"Munros","Knoydart and Glen Shiel","summit s=flat"],["summit-spidean-mialach","Spidean Mialach","",996,57.089,-5.1936,"Munros","Knoydart and Glen Shiel","summit s=twin"],["summit-druim-shionnach","Druim Shionnach","",985,57.1268,-5.1828,"Munros","Knoydart and Glen Shiel","summit s=flat"],["summit-maol-chinn-dearg","Maol Chinn-dearg","",980,57.1276,-5.2527,"Munros","Knoydart and Glen Shiel","summit s=crag tarn=1"],["summit-beinn-sgritheall","Beinn Sgritheall","",974,57.1538,-5.5797,"Munros","Knoydart and Glen Shiel","summit s=pyr"],["summit-creag-a-mhaim","Creag a' Mhaim","",946,57.121,-5.16,"Munros","Knoydart and Glen Shiel","summit s=cone tarn=1"],["summit-sgurr-na-sgine","Sgurr na Sgine","",946,57.1471,-5.3966,"Munros","Knoydart and Glen Shiel","summit s=pyr"],["summit-creag-nan-damh","Creag nan Damh","",917,57.1473,-5.335,"Munros","Knoydart and Glen Shiel","summit s=twin"],["summit-sgurr-na-ciche","Sgurr na Ciche","",1040,57.0135,-5.4569,"Munros","Knoydart and Glen Shiel","summit s=pyr"],["summit-ladhar-bheinn","Ladhar Bheinn","",1020,57.0753,-5.5917,"Munros","Knoydart and Glen Shiel","summit s=cone"],["summit-garbh-chioch-mhor","Garbh Chioch Mhor","",1013,57.0086,-5.4443,"Munros","Knoydart and Glen Shiel","summit s=flat"],["summit-sgurr-mor-loch-quoich","Sgurr Mor (Loch Quoich)","Sgurr Mor",1003,57.0284,-5.3542,"Munros","Knoydart and Glen Shiel","summit s=crag"],["summit-sgurr-nan-coireachan-glen-dessary","Sgurr nan Coireachan (Glen Dessary)","Sgurr nan Coireachan",954,57.0072,-5.4054,"Munros","Knoydart and Glen Shiel","summit s=crag"],["summit-meall-buidhe-knoydart","Meall Buidhe (Knoydart)","Meall Buidhe",946,57.0316,-5.5463,"Munros","Knoydart and Glen Shiel","summit s=cone"],["summit-luinne-bheinn","Luinne Bheinn","",939,57.0483,-5.5136,"Munros","Knoydart and Glen Shiel","summit s=crag"],["summit-gairich","Gairich","",919,57.0449,-5.2558,"Munros","Knoydart and Glen Shiel","summit s=flat"],["summit-sron-a-choire-ghairbh","Sron a' Choire Ghairbh","",937,57.0078,-4.9287,"Munros","Knoydart and Glen Shiel","summit s=dome"],["summit-meall-na-teanga","Meall na Teanga","",917,56.989,-4.931,"Munros","Knoydart and Glen Shiel","summit s=twin"],["summit-gulvain","Gulvain","",987,56.9362,-5.2845,"Munros","Knoydart and Glen Shiel","summit s=pyr"],["summit-sgurr-thuilm","Sgurr Thuilm","",963,56.9371,-5.3892,"Munros","Knoydart and Glen Shiel","summit s=cone"],["summit-sgurr-nan-coireachan-glenfinnan","Sgurr nan Coireachan (Glenfinnan)","Sgurr nan Coireachan",956,56.9357,-5.4486,"Munros","Knoydart and Glen Shiel","summit s=crag"],["summit-carn-eighe","Carn Eighe","",1183,57.2877,-5.1152,"Munros","Kintail and Glen Affric","summit s=pyr snow=1"],["summit-mam-sodhail","Mam Sodhail","",1179,57.2798,-5.1203,"Munros","Kintail and Glen Affric","summit s=pyr snow=1"],["summit-sgurr-nan-ceathramhnan","Sgurr nan Ceathramhnan","",1151,57.2549,-5.2227,"Munros","Kintail and Glen Affric","summit s=pyr snow=1"],["summit-tom-a-choinich","Tom a' Choinich","",1112,57.2995,-5.049,"Munros","Kintail and Glen Affric","summit s=whale tarn=1"],["summit-sgurr-fhuaran","Sgurr Fhuaran","",1069,57.1962,-5.3476,"Munros","Kintail and Glen Affric","summit s=twin"],["summit-toll-creagach","Toll Creagach","",1054,57.3092,-4.9999,"Munros","Kintail and Glen Affric","summit s=crag"],["summit-sgurr-a-bhealaich-dheirg","Sgurr a' Bhealaich Dheirg","",1036,57.1778,-5.2522,"Munros","Kintail and Glen Affric","summit s=whale tarn=1"],["summit-beinn-fhada","Beinn Fhada","",1032,57.221,-5.2835,"Munros","Kintail and Glen Affric","summit s=dome"],["summit-sgurr-na-ciste-duibhe","Sgurr na Ciste Duibhe","",1027,57.1809,-5.3371,"Munros","Kintail and Glen Affric","summit s=cone"],["summit-beinn-fhionnlaidh-glen-affric","Beinn Fhionnlaidh (Glen Affric)","Beinn Fhionnlaidh",1005,57.306,-5.1299,"Munros","Kintail and Glen Affric","summit s=crag"],["summit-sgurr-na-carnach","Sgurr na Carnach","",1002,57.189,-5.3492,"Munros","Kintail and Glen Affric","summit s=crag"],["summit-aonach-meadhoin","Aonach Meadhoin","",1001,57.173,-5.2292,"Munros","Kintail and Glen Affric","summit s=whale"],["summit-mullach-na-dheiragain","Mullach na Dheiragain","",982,57.2834,-5.1864,"Munros","Kintail and Glen Affric","summit s=pyr"],["summit-ciste-dhubh","Ciste Dhubh","",981,57.1992,-5.209,"Munros","Kintail and Glen Affric","summit s=pyr"],["summit-saileag","Saileag","",956,57.1813,-5.2813,"Munros","Kintail and Glen Affric","summit s=twin"],["summit-an-socach-glen-affric","An Socach (Glen Affric)","An Socach",920,57.2576,-5.1713,"Munros","Kintail and Glen Affric","summit s=pyr"],["summit-a-ghlas-bheinn","A' Ghlas-bheinn","",918,57.2551,-5.3037,"Munros","Kintail and Glen Affric","summit s=flat"],["summit-a-chraileag","A' Chraileag","",1120,57.1842,-5.1548,"Munros","Kintail and Glen Affric","summit s=pyr"],["summit-sgurr-nan-conbhairean","Sgurr nan Conbhairean","",1109,57.1776,-5.0954,"Munros","Kintail and Glen Affric","summit s=cone"],["summit-mullach-fraoch-choire","Mullach Fraoch-choire","",1102,57.2054,-5.1557,"Munros","Kintail and Glen Affric","summit s=cone"],["summit-sail-chaorainn","Sail Chaorainn","",999,57.1916,-5.0912,"Munros","Kintail and Glen Affric","summit s=twin"],["summit-carn-ghluasaid","Carn Ghluasaid","",957,57.166,-5.0682,"Munros","Kintail and Glen Affric","summit s=crag"],["summit-sgurr-a-choire-ghlais","Sgurr a' Choire Ghlais","",1083,57.4443,-4.9038,"Munros","Strathfarrar and Monar","summit s=dome"],["summit-sgurr-a-chaorachain","Sgurr a' Chaorachain","",1053,57.4525,-5.1893,"Munros","Strathfarrar and Monar","summit s=whale"],["summit-sgurr-fhuar-thuill","Sgurr Fhuar-thuill","",1049,57.4497,-4.9418,"Munros","Strathfarrar and Monar","summit s=whale"],["summit-maoile-lunndaidh","Maoile Lunndaidh","",1005,57.4645,-5.111,"Munros","Strathfarrar and Monar","summit s=dome"],["summit-sgurr-choinnich","Sgurr Choinnich","",999,57.451,-5.2079,"Munros","Strathfarrar and Monar","summit s=crag"],["summit-sgurr-na-ruaidhe","Sgurr na Ruaidhe","",993,57.4415,-4.8525,"Munros","Strathfarrar and Monar","summit s=pyr"],["summit-carn-nan-gobhar-strathfarrar","Carn nan Gobhar (Strathfarrar)","Carn nan Gobhar",992,57.4523,-4.8799,"Munros","Strathfarrar and Monar","summit s=dome tarn=1"],["summit-lurg-mhor","Lurg Mhor","",987,57.4131,-5.2237,"Munros","Strathfarrar and Monar","summit s=cone"],["summit-bidein-a-choire-sheasgaich","Bidein a' Choire Sheasgaich","",945,57.4197,-5.2505,"Munros","Strathfarrar and Monar","summit s=crag"],["summit-moruisg","Moruisg","",928,57.4997,-5.1706,"Munros","Strathfarrar and Monar","summit s=cone"],["summit-sgurr-na-lapaich","Sgurr na Lapaich","",1151,57.3693,-5.0597,"Munros","Strathfarrar and Monar","summit s=crag"],["summit-an-riabhachan","An Riabhachan","",1129,57.3624,-5.1047,"Munros","Strathfarrar and Monar","summit s=dome"],["summit-an-socach-mullardoch","An Socach (Mullardoch)","An Socach",1069,57.3502,-5.1586,"Munros","Strathfarrar and Monar","summit s=cone"],["summit-carn-nan-gobhar-mullardoch","Carn nan Gobhar (Mullardoch)","Carn nan Gobhar",993,57.3633,-5.0245,"Munros","Strathfarrar and Monar","summit s=cone"],["summit-spidean-a-choire-leith-liathach","Spidean a' Choire Leith (Liathach)","Spidean a' Choire Leith",1055,57.5642,-5.4636,"Munros","Torridon","summit s=pyr"],["summit-mullach-an-rathain-liathach","Mullach an Rathain (Liathach)","Mullach an Rathain",1024,57.5609,-5.4925,"Munros","Torridon","summit s=crag"],["summit-ruadh-stac-mor-beinn-eighe","Ruadh-stac Mor (Beinn Eighe)","Ruadh-stac Mor",1010,57.5937,-5.4295,"Munros","Torridon","summit s=twin"],["summit-spidean-coire-nan-clach-beinn-eighe","Spidean Coire nan Clach (Beinn Eighe)","Spidean Coire nan Clach",993,57.5821,-5.4037,"Munros","Torridon","summit s=crag"],["summit-sgurr-mor-beinn-alligin","Sgurr Mor (Beinn Alligin)","Sgurr Mor",986,57.5908,-5.5728,"Munros","Torridon","summit s=cone"],["summit-tom-na-gruagaich-beinn-alligin","Tom na Gruagaich (Beinn Alligin)","Tom na Gruagaich",922,57.5805,-5.5819,"Munros","Torridon","summit s=pyr"],["summit-sgorr-ruadh","Sgorr Ruadh","",961,57.4986,-5.4077,"Munros","Torridon","summit s=whale"],["summit-maol-chean-dearg","Maol Chean-dearg","",933,57.4917,-5.4655,"Munros","Torridon","summit s=twin"],["summit-beinn-liath-mhor","Beinn Liath Mhor","",926,57.5121,-5.4006,"Munros","Torridon","summit s=crag"],["summit-bidein-a-ghlas-thuill-an-teallach","Bidein a' Ghlas Thuill (An Teallach)","Bidein a' Ghlas Thuill",1063,57.8071,-5.2518,"Munros","Fisherfield and the Fannichs","summit s=flat"],["summit-sgurr-fiona-an-teallach","Sgurr Fiona (An Teallach)","Sgurr Fiona",1059,57.8007,-5.2594,"Munros","Fisherfield and the Fannichs","summit s=pyr"],["summit-mullach-coire-mhic-fhearchair","Mullach Coire Mhic Fhearchair","",1015,57.709,-5.2714,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-sgurr-ban","Sgurr Ban","",989,57.7185,-5.2659,"Munros","Fisherfield and the Fannichs","summit s=pyr"],["summit-slioch","Slioch","",981,57.6671,-5.3471,"Munros","Fisherfield and the Fannichs","summit s=whale"],["summit-a-mhaighdean","A' Mhaighdean","",967,57.7197,-5.3467,"Munros","Fisherfield and the Fannichs","summit s=twin tarn=1"],["summit-beinn-tarsuinn","Beinn Tarsuinn","",934,57.7021,-5.2916,"Munros","Fisherfield and the Fannichs","summit s=pyr"],["summit-ruadh-stac-mor","Ruadh Stac Mor","",919,57.7268,-5.3293,"Munros","Fisherfield and the Fannichs","summit s=pyr"],["summit-sgurr-mor-fannichs","Sgurr Mor (Fannichs)","Sgurr Mor",1109,57.7001,-5.0168,"Munros","Fisherfield and the Fannichs","summit s=whale tarn=1"],["summit-sgurr-nan-clach-geala","Sgurr nan Clach Geala","",1093,57.6963,-5.0482,"Munros","Fisherfield and the Fannichs","summit s=cone"],["summit-sgurr-breac","Sgurr Breac","",1000,57.6919,-5.0913,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-a-chailleach-fannichs","A' Chailleach (Fannichs)","A' Chailleach",999,57.6938,-5.1287,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-beinn-liath-mhor-fannaich","Beinn Liath Mhor Fannaich","",954,57.7061,-4.9898,"Munros","Fisherfield and the Fannichs","summit s=crag tarn=1"],["summit-meall-gorm","Meall Gorm","",950,57.6808,-4.9838,"Munros","Fisherfield and the Fannichs","summit s=flat"],["summit-meall-a-chrasgaidh","Meall a' Chrasgaidh","",934,57.7129,-5.0487,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-fionn-bheinn","Fionn Bheinn","",933,57.6111,-5.1027,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-sgurr-nan-each","Sgurr nan Each","",923,57.681,-5.0464,"Munros","Fisherfield and the Fannichs","summit s=twin"],["summit-an-coileachan","An Coileachan","",924,57.6676,-4.9495,"Munros","Fisherfield and the Fannichs","summit s=crag"],["summit-beinn-dearg-ullapool","Beinn Dearg (Ullapool)","Beinn Dearg",1084,57.7863,-4.9296,"Munros","Beinn Dearg and Ben Wyvis","summit s=flat"],["summit-cona-mheall","Cona' Mheall","",978,57.7911,-4.9034,"Munros","Beinn Dearg and Ben Wyvis","summit s=pyr"],["summit-meall-nan-ceapraichean","Meall nan Ceapraichean","",977,57.7985,-4.934,"Munros","Beinn Dearg and Ben Wyvis","summit s=cone"],["summit-am-faochagach","Am Faochagach","",953,57.7718,-4.8539,"Munros","Beinn Dearg and Ben Wyvis","summit s=pyr"],["summit-eididh-nan-clach-geala","Eididh nan Clach Geala","",927,57.8135,-4.9342,"Munros","Beinn Dearg and Ben Wyvis","summit s=dome"],["summit-seana-bhraigh","Seana Bhraigh","",926,57.8473,-4.8966,"Munros","Beinn Dearg and Ben Wyvis","summit s=dome"],["summit-ben-wyvis","Ben Wyvis","",1046,57.6789,-4.5793,"Munros","Beinn Dearg and Ben Wyvis","summit s=pyr tarn=1"],["summit-ben-hope","Ben Hope","",927,58.4131,-4.6079,"Munros","Sutherland","summit s=twin"],["summit-ben-klibreck","Ben Klibreck","",962,58.2352,-4.4111,"Munros","Sutherland","summit s=twin tarn=1"],["summit-ben-more-assynt","Ben More Assynt","",998,58.1382,-4.8582,"Munros","Sutherland","summit s=flat"],["summit-conival","Conival","",987,58.1357,-4.8835,"Munros","Sutherland","summit s=cone"],["summit-sgurr-alasdair","Sgurr Alasdair","",992,57.2066,-6.2242,"Munros","Skye and Mull","summit s=crag"],["summit-inaccessible-pinnacle","Inaccessible Pinnacle","",986,57.2133,-6.2348,"Munros","Skye and Mull","summit s=dome"],["summit-sgurr-a-ghreadaidh","Sgurr a' Ghreadaidh","",972,57.2273,-6.2344,"Munros","Skye and Mull","summit s=crag"],["summit-sgurr-na-banachdich","Sgurr na Banachdich","",965,57.221,-6.2416,"Munros","Skye and Mull","summit s=flat"],["summit-sgurr-nan-gillean","Sgurr nan Gillean","",966,57.2482,-6.1932,"Munros","Skye and Mull","summit s=pyr"],["summit-bruach-na-frithe","Bruach na Frithe","",959,57.2467,-6.2108,"Munros","Skye and Mull","summit s=flat tarn=1"],["summit-sgurr-mhic-choinnich","Sgurr Mhic Choinnich","",948,57.2089,-6.2241,"Munros","Skye and Mull","summit s=dome"],["summit-sgurr-dubh-mor","Sgurr Dubh Mor","",944,57.2049,-6.2114,"Munros","Skye and Mull","summit s=dome tarn=1"],["summit-am-basteir","Am Basteir","",934,57.2479,-6.203,"Munros","Skye and Mull","summit s=cone"],["summit-blabheinn","Blabheinn","",929,57.2196,-6.0932,"Munros","Skye and Mull","summit s=cone"],["summit-sgurr-nan-eag","Sgurr nan Eag","",926,57.1958,-6.2113,"Munros","Skye and Mull","summit s=pyr tarn=1"],["summit-sgurr-a-mhadaidh","Sgurr a' Mhadaidh","",918,57.2309,-6.2319,"Munros","Skye and Mull","summit s=twin tarn=1"],["summit-ben-more-mull","Ben More (Mull)","Ben More",966,56.4248,-6.014,"Munros","Skye and Mull","summit s=whale"],["summit-beinn-a-chroin","Beinn a' Chroin","",941,56.332,-4.6096,"Munros","Southern Highlands","summit s=pyr"],["summit-skiddaw","Skiddaw","",930,54.6514,-3.1478,"Wainwrights","Northern Fells","summit s=whale"],["summit-blencathra","Blencathra","",868,54.6399,-3.0498,"Wainwrights","Northern Fells","summit s=twin"],["summit-skiddaw-little-man","Skiddaw Little Man","",865,54.6399,-3.1376,"Wainwrights","Northern Fells","summit s=twin"],["summit-carl-side","Carl Side","",747,54.6424,-3.156,"Wainwrights","Northern Fells","summit s=pyr"],["summit-long-side","Long Side","",734,54.6455,-3.1656,"Wainwrights","Northern Fells","summit s=crag"],["summit-lonscale-fell","Lonscale Fell","",715,54.6344,-3.1085,"Wainwrights","Northern Fells","summit s=crag"],["summit-knott","Knott","",710,54.687,-3.0933,"Wainwrights","Northern Fells","summit s=whale"],["summit-bowscale-fell","Bowscale Fell","",702,54.6655,-3.035,"Wainwrights","Northern Fells","summit s=crag"],["summit-ullock-pike","Ullock Pike","",690,54.6483,-3.1725,"Wainwrights","Northern Fells","summit s=pyr"],["summit-great-calva","Great Calva","",691,54.6708,-3.1011,"Wainwrights","Northern Fells","summit s=flat tarn=1"],["summit-bannerdale-crags","Bannerdale Crags","",684,54.6519,-3.0317,"Wainwrights","Northern Fells","summit s=cone tarn=1"],["summit-bakestall","Bakestall","",673,54.6665,-3.1389,"Wainwrights","Northern Fells","summit s=whale"],["summit-carrock-fell","Carrock Fell","",662,54.6935,-3.0229,"Wainwrights","Northern Fells","summit s=crag"],["summit-high-pike-caldbeck","High Pike (Caldbeck)","",658,54.7054,-3.0587,"Wainwrights","Northern Fells","summit s=twin"],["summit-great-sca-fell","Great Sca Fell","",651,54.6951,-3.101,"Wainwrights","Northern Fells","summit s=flat"],["summit-mungrisdale-common","Mungrisdale Common","",632,54.6532,-3.0684,"Wainwrights","Northern Fells","summit s=pyr"],["summit-brae-fell","Brae Fell","",586,54.7064,-3.1054,"Wainwrights","Northern Fells","summit s=cone"],["summit-lord-s-seat","Lord's Seat","",552,54.6278,-3.234,"Wainwrights","North Western Fells","summit s=dome"],["summit-meal-fell","Meal Fell","",549,54.6938,-3.1139,"Wainwrights","Northern Fells","summit s=pyr"],["summit-great-cockup","Great Cockup","",526,54.6897,-3.1288,"Wainwrights","Northern Fells","summit s=cone"],["summit-souther-fell","Souther Fell","",522,54.6532,-3.0017,"Wainwrights","Northern Fells","summit s=crag"],["summit-dodd-skiddaw","Dodd (Skiddaw)","",502,54.6356,-3.1721,"Wainwrights","Northern Fells","summit s=twin"],["summit-longlands-fell","Longlands Fell","",483,54.7084,-3.1253,"Wainwrights","Northern Fells","summit s=twin"],["summit-binsey","Binsey","",447,54.7088,-3.2042,"Wainwrights","Northern Fells","summit s=whale"],["summit-latrigg","Latrigg","",369,54.6124,-3.1179,"Wainwrights","Northern Fells","summit s=whale tarn=1"],["summit-scafell-pike","Scafell Pike","",978,54.4543,-3.2117,"Wainwrights","Southern Fells","summit s=crag"],["summit-scafell","Scafell","",964,54.4475,-3.2247,"Wainwrights","Southern Fells","summit s=crag tarn=1"],["summit-great-end","Great End","",910,54.4649,-3.1945,"Wainwrights","Southern Fells","summit s=cone"],["summit-bowfell","Bowfell","",903,54.4478,-3.1662,"Wainwrights","Southern Fells","summit s=whale"],["summit-great-gable","Great Gable","",899,54.4821,-3.2193,"Wainwrights","Western Fells","summit s=pyr"],["summit-pillar","Pillar","",892,54.4975,-3.2811,"Wainwrights","Western Fells","summit s=pyr"],["summit-esk-pike","Esk Pike","",885,54.4572,-3.1792,"Wainwrights","Southern Fells","summit s=whale"],["summit-crinkle-crags","Crinkle Crags","",859,54.4337,-3.1598,"Wainwrights","Southern Fells","summit s=pyr"],["summit-grasmoor","Grasmoor","",852,54.5716,-3.2779,"Wainwrights","North Western Fells","summit s=flat"],["summit-scoat-fell","Scoat Fell","",841,54.4909,-3.2992,"Wainwrights","Western Fells","summit s=pyr"],["summit-crag-hill","Crag Hill","",839,54.5718,-3.2502,"Wainwrights","North Western Fells","summit s=crag tarn=1"],["summit-red-pike-wasdale","Red Pike (Wasdale)","",826,54.4839,-3.2899,"Wainwrights","Western Fells","summit s=flat"],["summit-steeple","Steeple","",819,54.4934,-3.3022,"Wainwrights","Western Fells","summit s=flat"],["summit-lingmell","Lingmell","",807,54.4628,-3.2213,"Wainwrights","Southern Fells","summit s=whale"],["summit-kirk-fell","Kirk Fell","",802,54.4833,-3.2441,"Wainwrights","Western Fells","summit s=flat"],["summit-green-gable","Green Gable","",801,54.4857,-3.2138,"Wainwrights","Western Fells","summit s=pyr tarn=1"],["summit-haycock","Haycock","",797,54.4846,-3.3216,"Wainwrights","Western Fells","summit s=dome"],["summit-grisedale-pike","Grisedale Pike","",791,54.5917,-3.2421,"Wainwrights","North Western Fells","summit s=dome"],["summit-allen-crags","Allen Crags","",785,54.4664,-3.1792,"Wainwrights","Southern Fells","summit s=crag"],["summit-glaramara","Glaramara","",783,54.4838,-3.1653,"Wainwrights","Southern Fells","summit s=twin"],["summit-sail","Sail","",773,54.5713,-3.2418,"Wainwrights","North Western Fells","summit s=flat"],["summit-wandope","Wandope","",774,54.5663,-3.2571,"Wainwrights","North Western Fells","summit s=whale"],["summit-hopegill-head","Hopegill Head","",770,54.5881,-3.2617,"Wainwrights","North Western Fells","summit s=dome"],["summit-high-raise","High Raise","",762,54.476,-3.1113,"Wainwrights","Central Fells","summit s=dome"],["summit-slight-side","Slight Side","",762,54.4344,-3.2196,"Wainwrights","Southern Fells","summit s=pyr"],["summit-red-pike-buttermere","Red Pike (Buttermere)","",755,54.5274,-3.2985,"Wainwrights","Western Fells","summit s=crag"],["summit-dale-head","Dale Head","",753,54.5272,-3.2023,"Wainwrights","North Western Fells","summit s=dome"],["summit-high-crag-buttermere","High Crag (Buttermere)","",745,54.5146,-3.2674,"Wainwrights","Western Fells","summit s=pyr"],["summit-robinson","Robinson","",737,54.5408,-3.2351,"Wainwrights","North Western Fells","summit s=cone tarn=1"],["summit-harrison-stickle","Harrison Stickle","",736,54.4569,-3.1095,"Wainwrights","Central Fells","summit s=pyr tarn=1"],["summit-sergeant-man","Sergeant Man","",736,54.4704,-3.1026,"Wainwrights","Central Fells","summit s=twin"],["summit-hindscarth","Hindscarth","",727,54.5378,-3.2138,"Wainwrights","North Western Fells","summit s=crag"],["summit-ullscarf","Ullscarf","",723,54.4999,-3.0955,"Wainwrights","Central Fells","summit s=cone"],["summit-thunacar-knott","Thunacar Knott","",723,54.4622,-3.1127,"Wainwrights","Central Fells","summit s=twin"],["summit-brandreth","Brandreth","",715,54.4965,-3.2143,"Wainwrights","Western Fells","summit s=crag tarn=1"],["summit-pike-of-stickle","Pike of Stickle","",708,54.4564,-3.1214,"Wainwrights","Central Fells","summit s=crag"],["summit-whiteside","Whiteside","",707,54.5859,-3.2852,"Wainwrights","North Western Fells","summit s=dome"],["summit-pike-of-blisco","Pike of Blisco","",705,54.4281,-3.1249,"Wainwrights","Southern Fells","summit s=cone"],["summit-cold-pike","Cold Pike","",700,54.4226,-3.1376,"Wainwrights","Southern Fells","summit s=dome tarn=1"],["summit-pavey-ark","Pavey Ark","",700,54.4615,-3.1052,"Wainwrights","Central Fells","summit s=flat"],["summit-grey-knotts","Grey Knotts","",697,54.5024,-3.2102,"Wainwrights","Western Fells","summit s=crag"],["summit-caw-fell","Caw Fell","",697,54.4869,-3.3413,"Wainwrights","Western Fells","summit s=crag"],["summit-seatallan","Seatallan","",692,54.4641,-3.3283,"Wainwrights","Western Fells","summit s=cone"],["summit-loft-crag","Loft Crag","",682,54.4544,-3.116,"Wainwrights","Central Fells","summit s=cone"],["summit-scar-crags","Scar Crags","",672,54.575,-3.226,"Wainwrights","North Western Fells","summit s=pyr"],["summit-whiteless-pike","Whiteless Pike","",660,54.5594,-3.2693,"Wainwrights","North Western Fells","summit s=crag"],["summit-high-spy","High Spy","",653,54.5356,-3.1851,"Wainwrights","North Western Fells","summit s=dome tarn=1"],["summit-rossett-pike","Rossett Pike","",651,54.4579,-3.1598,"Wainwrights","Southern Fells","summit s=pyr"],["summit-fleetwith-pike","Fleetwith Pike","",649,54.5166,-3.2282,"Wainwrights","Western Fells","summit s=flat"],["summit-base-brown","Base Brown","",646,54.4926,-3.1978,"Wainwrights","Western Fells","summit s=twin tarn=1"],["summit-causey-pike","Causey Pike","",637,54.5768,-3.2101,"Wainwrights","North Western Fells","summit s=crag"],["summit-starling-dodd","Starling Dodd","",633,54.5297,-3.3272,"Wainwrights","Western Fells","summit s=crag"],["summit-yewbarrow","Yewbarrow","",629,54.4649,-3.2769,"Wainwrights","Western Fells","summit s=crag"],["summit-great-borne","Great Borne","",616,54.5349,-3.3554,"Wainwrights","Western Fells","summit s=pyr"],["summit-illgill-head","Illgill Head","",609,54.4329,-3.2826,"Wainwrights","Southern Fells","summit s=twin tarn=1"],["summit-high-seat","High Seat","",609,54.5526,-3.1038,"Wainwrights","Central Fells","summit s=whale"],["summit-seathwaite-fell","Seathwaite Fell","",601,54.481,-3.1912,"Wainwrights","Southern Fells","summit s=flat"],["summit-haystacks","Haystacks","",597,54.5072,-3.2473,"Wainwrights","Western Fells","summit s=crag tarn=1"],["summit-bleaberry-fell","Bleaberry Fell","",590,54.5664,-3.1062,"Wainwrights","Central Fells","summit s=twin"],["summit-middle-fell","Middle Fell","",582,54.4532,-3.3113,"Wainwrights","Western Fells","summit s=crag"],["summit-ard-crags","Ard Crags","",581,54.5669,-3.2281,"Wainwrights","North Western Fells","summit s=cone"],["summit-maiden-moor","Maiden Moor","",575,54.5532,-3.1816,"Wainwrights","North Western Fells","summit s=cone"],["summit-blake-fell","Blake Fell","",573,54.5646,-3.3772,"Wainwrights","Western Fells","summit s=crag"],["summit-sergeant-s-crag","Sergeant's Crag","",571,54.4925,-3.1225,"Wainwrights","Central Fells","summit s=cone"],["summit-outerside","Outerside","",568,54.5822,-3.2222,"Wainwrights","North Western Fells","summit s=flat"],["summit-knott-rigg","Knott Rigg","",556,54.5587,-3.2426,"Wainwrights","North Western Fells","summit s=whale"],["summit-steel-fell","Steel Fell","",553,54.4911,-3.0522,"Wainwrights","Central Fells","summit s=whale tarn=1"],["summit-rosthwaite-fell","Rosthwaite Fell","",551,54.5022,-3.1469,"Wainwrights","Southern Fells","summit s=whale"],["summit-tarn-crag-easedale","Tarn Crag (Easedale)","",549,54.4743,-3.076,"Wainwrights","Central Fells","summit s=twin"],["summit-hard-knott","Hard Knott","",549,54.411,-3.185,"Wainwrights","Southern Fells","summit s=pyr"],["summit-blea-rigg","Blea Rigg","",541,54.4611,-3.0788,"Wainwrights","Central Fells","summit s=dome"],["summit-lank-rigg","Lank Rigg","",541,54.4948,-3.404,"Wainwrights","Western Fells","summit s=crag"],["summit-calf-crag","Calf Crag","",537,54.4842,-3.0795,"Wainwrights","Central Fells","summit s=crag tarn=1"],["summit-whin-rigg-wasdale","Whin Rigg (Wasdale)","",537,54.4202,-3.3099,"Wainwrights","Southern Fells","summit s=crag"],["summit-gavel-fell","Gavel Fell","",524,54.554,-3.3675,"Wainwrights","Western Fells","summit s=crag"],["summit-eagle-crag","Eagle Crag","",525,54.4991,-3.1205,"Wainwrights","Central Fells","summit s=pyr tarn=1"],["summit-crag-fell","Crag Fell","",523,54.5167,-3.3961,"Wainwrights","Western Fells","summit s=cone"],["summit-whinlatter","Whinlatter","",517,54.6149,-3.254,"Wainwrights","North Western Fells","summit s=pyr"],["summit-high-tove","High Tove","",515,54.5389,-3.1002,"Wainwrights","Central Fells","summit s=dome"],["summit-mellbreak","Mellbreak","",512,54.5556,-3.3183,"Wainwrights","Western Fells","summit s=cone"],["summit-broom-fell","Broom Fell","",510,54.6322,-3.2479,"Wainwrights","North Western Fells","summit s=crag"],["summit-hen-comb","Hen Comb","",506,54.5508,-3.3433,"Wainwrights","Western Fells","summit s=crag"],["summit-grike","Grike","",488,54.5138,-3.4149,"Wainwrights","Western Fells","summit s=crag tarn=1"],["summit-armboth-fell","Armboth Fell","",475,54.532,-3.0897,"Wainwrights","Central Fells","summit s=crag"],["summit-burnbank-fell","Burnbank Fell","",475,54.5759,-3.3783,"Wainwrights","Western Fells","summit s=crag"],["summit-lingmoor-fell","Lingmoor Fell","",470,54.4321,-3.0764,"Wainwrights","Southern Fells","summit s=crag"],["summit-barf","Barf","",469,54.6297,-3.2181,"Wainwrights","North Western Fells","summit s=pyr tarn=1"],["summit-raven-crag","Raven Crag","",461,54.5592,-3.0787,"Wainwrights","Central Fells","summit s=cone"],["summit-barrow","Barrow","",455,54.5857,-3.1975,"Wainwrights","North Western Fells","summit s=dome"],["summit-graystones","Graystones","",450,54.628,-3.2776,"Wainwrights","North Western Fells","summit s=flat"],["summit-catbells","Catbells","",451,54.5683,-3.1707,"Wainwrights","North Western Fells","summit s=twin loch=1"],["summit-great-crag-stonethwaite","Great Crag (Stonethwaite)","",449,54.5222,-3.1293,"Wainwrights","Central Fells","summit s=twin"],["summit-low-fell","Low Fell","",423,54.5914,-3.3366,"Wainwrights","Western Fells","summit s=pyr"],["summit-gibson-knott","Gibson Knott","",420,54.4811,-3.0558,"Wainwrights","Central Fells","summit s=dome"],["summit-fellbarrow","Fellbarrow","",416,54.6058,-3.3447,"Wainwrights","Western Fells","summit s=flat"],["summit-grange-fell","Grange Fell","",417,54.5364,-3.138,"Wainwrights","Central Fells","summit s=whale"],["summit-buckbarrow","Buckbarrow","",423,54.4432,-3.3343,"Wainwrights","Western Fells","summit s=cone"],["summit-helm-crag","Helm Crag","",405,54.475,-3.0408,"Wainwrights","Central Fells","summit s=cone"],["summit-silver-how","Silver How","",394,54.4507,-3.0429,"Wainwrights","Central Fells","summit s=cone tarn=1"],["summit-walla-crag","Walla Crag","",379,54.5816,-3.1204,"Wainwrights","Central Fells","summit s=crag"],["summit-ling-fell","Ling Fell","",374,54.6452,-3.2723,"Wainwrights","North Western Fells","summit s=pyr"],["summit-rannerdale-knotts","Rannerdale Knotts","",355,54.5526,-3.289,"Wainwrights","North Western Fells","summit s=whale"],["summit-sale-fell","Sale Fell","",359,54.6556,-3.2502,"Wainwrights","North Western Fells","summit s=cone tarn=1"],["summit-loughrigg-fell","Loughrigg Fell","",335,54.4375,-3.0084,"Wainwrights","Central Fells","summit s=flat tarn=1"],["summit-black-fell","Black Fell","",323,54.4055,-3.018,"Wainwrights","Southern Fells","summit s=whale"],["summit-castle-crag","Castle Crag","",290,54.5332,-3.1616,"Wainwrights","North Western Fells","summit s=pyr"],["summit-helvellyn","Helvellyn","",950,54.527,-3.0175,"Wainwrights","Eastern Fells","summit s=crag tarn=1"],["summit-nethermost-pike","Nethermost Pike","",891,54.519,-3.0154,"Wainwrights","Eastern Fells","summit s=twin"],["summit-catstye-cam","Catstye Cam","",890,54.5335,-3.0089,"Wainwrights","Eastern Fells","summit s=whale tarn=1"],["summit-raise","Raise","",883,54.5477,-3.0175,"Wainwrights","Eastern Fells","summit s=twin"],["summit-fairfield","Fairfield","",873,54.4971,-2.9916,"Wainwrights","Eastern Fells","summit s=cone tarn=1"],["summit-white-side","White Side","",863,54.5409,-3.0251,"Wainwrights","Eastern Fells","summit s=crag"],["summit-dollywaggon-pike","Dollywaggon Pike","",858,54.5087,-3.0112,"Wainwrights","Eastern Fells","summit s=twin"],["summit-great-dodd","Great Dodd","",857,54.5757,-3.0194,"Wainwrights","Eastern Fells","summit s=dome"],["summit-stybarrow-dodd","Stybarrow Dodd","",844,54.5611,-3.0174,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-st-sunday-crag","St Sunday Crag","",841,54.5119,-2.9758,"Wainwrights","Eastern Fells","summit s=twin tarn=1"],["summit-high-street","High Street","",828,54.4917,-2.8649,"Wainwrights","Far Eastern Fells","summit s=pyr"],["summit-hart-crag","Hart Crag","",823,54.4928,-2.977,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-high-raise-high-street","High Raise (High Street)","",804,54.5134,-2.8538,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-rampsgill-head","Rampsgill Head","",792,54.5081,-2.8613,"Wainwrights","Far Eastern Fells","summit s=pyr"],["summit-dove-crag","Dove Crag","",792,54.4854,-2.9669,"Wainwrights","Eastern Fells","summit s=twin"],["summit-watson-s-dodd","Watson's Dodd","",789,54.5669,-3.029,"Wainwrights","Eastern Fells","summit s=twin"],["summit-thornthwaite-crag","Thornthwaite Crag","",784,54.4826,-2.879,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-kidsty-pike","Kidsty Pike","",781,54.5055,-2.855,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-harter-fell-mardale","Harter Fell (Mardale)","",779,54.4764,-2.8353,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-red-screes","Red Screes","",776,54.4706,-2.9326,"Wainwrights","Eastern Fells","summit s=flat"],["summit-great-rigg","Great Rigg","",766,54.4849,-2.9957,"Wainwrights","Eastern Fells","summit s=twin"],["summit-stony-cove-pike","Stony Cove Pike","",764,54.4821,-2.9001,"Wainwrights","Far Eastern Fells","summit s=whale tarn=1"],["summit-mardale-ill-bell","Mardale Ill Bell","",760,54.4834,-2.8541,"Wainwrights","Far Eastern Fells","summit s=flat"],["summit-ill-bell","Ill Bell","",757,54.462,-2.8708,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-hart-side","Hart Side","",756,54.5687,-2.9929,"Wainwrights","Eastern Fells","summit s=cone"],["summit-the-knott-high-street","The Knott (High Street)","",739,54.5063,-2.8708,"Wainwrights","Far Eastern Fells","summit s=flat"],["summit-seat-sandal","Seat Sandal","",737,54.4949,-3.014,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-kentmere-pike","Kentmere Pike","",730,54.4627,-2.826,"Wainwrights","Far Eastern Fells","summit s=cone"],["summit-clough-head","Clough Head","",726,54.5937,-3.0324,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-froswick","Froswick","",720,54.4689,-2.873,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-birkhouse-moor","Birkhouse Moor","",718,54.535,-2.9853,"Wainwrights","Eastern Fells","summit s=crag"],["summit-branstree","Branstree","",712,54.4827,-2.8076,"Wainwrights","Far Eastern Fells","summit s=pyr tarn=1"],["summit-yoke","Yoke","",707,54.4529,-2.8687,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-gray-crag","Gray Crag","",698,54.4975,-2.8854,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-rest-dodd","Rest Dodd","",696,54.5149,-2.878,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-sheffield-pike","Sheffield Pike","",676,54.5549,-2.977,"Wainwrights","Eastern Fells","summit s=crag"],["summit-loadpot-hill","Loadpot Hill","",672,54.5547,-2.8421,"Wainwrights","Far Eastern Fells","summit s=twin"],["summit-wether-hill","Wether Hill","",671,54.5432,-2.8425,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-tarn-crag-sleddale","Tarn Crag (Sleddale)","",664,54.4635,-2.7907,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-place-fell","Place Fell","",657,54.5443,-2.9207,"Wainwrights","Far Eastern Fells","summit s=pyr"],["summit-high-pike-scandale","High Pike (Scandale)","",656,54.471,-2.9668,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-selside-pike","Selside Pike","",655,54.4931,-2.7879,"Wainwrights","Far Eastern Fells","summit s=cone tarn=1"],["summit-middle-dodd","Middle Dodd","",654,54.4779,-2.9316,"Wainwrights","Eastern Fells","summit s=whale"],["summit-grey-crag","Grey Crag","",638,54.4579,-2.7772,"Wainwrights","Far Eastern Fells","summit s=whale"],["summit-little-hart-crag","Little Hart Crag","",637,54.4819,-2.9472,"Wainwrights","Eastern Fells","summit s=flat"],["summit-birks","Birks","",624,54.5207,-2.9591,"Wainwrights","Eastern Fells","summit s=twin"],["summit-hartsop-dodd","Hartsop Dodd","",619,54.4985,-2.9104,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-heron-pike-rydal","Heron Pike (Rydal)","",612,54.4661,-2.9951,"Wainwrights","Eastern Fells","summit s=dome"],["summit-shipman-knotts","Shipman Knotts","",587,54.4486,-2.8147,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-the-nab","The Nab","",576,54.5289,-2.8757,"Wainwrights","Far Eastern Fells","summit s=cone"],["summit-hartsop-above-how","Hartsop Above How","",586,54.4996,-2.954,"Wainwrights","Eastern Fells","summit s=cone"],["summit-angletarn-pikes","Angletarn Pikes","",567,54.5253,-2.908,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-brock-crags","Brock Crags","",561,54.5149,-2.9026,"Wainwrights","Far Eastern Fells","summit s=twin"],["summit-great-mell-fell","Great Mell Fell","",537,54.6198,-2.9356,"Wainwrights","Eastern Fells","summit s=crag"],["summit-arthur-s-pike","Arthur's Pike","",533,54.5784,-2.8358,"Wainwrights","Far Eastern Fells","summit s=dome"],["summit-bonscale-pike","Bonscale Pike","",524,54.573,-2.8469,"Wainwrights","Far Eastern Fells","summit s=twin tarn=1"],["summit-high-hartsop-dodd","High Hartsop Dodd","",519,54.4886,-2.9377,"Wainwrights","Eastern Fells","summit s=whale"],["summit-sallows","Sallows","",516,54.4281,-2.87,"Wainwrights","Far Eastern Fells","summit s=pyr tarn=1"],["summit-beda-fell","Beda Fell","",509,54.5465,-2.8844,"Wainwrights","Far Eastern Fells","summit s=flat"],["summit-low-pike","Low Pike","",508,54.4621,-2.968,"Wainwrights","Eastern Fells","summit s=twin"],["summit-little-mell-fell","Little Mell Fell","",505,54.608,-2.8945,"Wainwrights","Eastern Fells","summit s=dome"],["summit-stone-arthur","Stone Arthur","",504,54.4743,-3.0084,"Wainwrights","Eastern Fells","summit s=whale tarn=1"],["summit-baystones","Baystones","",487,54.4382,-2.9218,"Wainwrights","Far Eastern Fells","summit s=whale"],["summit-sour-howes","Sour Howes","",483,54.4212,-2.8836,"Wainwrights","Far Eastern Fells","summit s=flat"],["summit-gowbarrow-fell","Gowbarrow Fell","",481,54.5881,-2.9182,"Wainwrights","Eastern Fells","summit s=pyr"],["summit-nab-scar","Nab Scar","",450,54.4564,-2.9958,"Wainwrights","Eastern Fells","summit s=dome"],["summit-glenridding-dodd","Glenridding Dodd","",442,54.5495,-2.9592,"Wainwrights","Eastern Fells","summit s=whale"],["summit-arnison-crag","Arnison Crag","",433,54.5264,-2.9385,"Wainwrights","Eastern Fells","summit s=whale"],["summit-steel-knotts","Steel Knotts","",432,54.5552,-2.8668,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-hallin-fell","Hallin Fell","",388,54.5704,-2.8785,"Wainwrights","Far Eastern Fells","summit s=crag"],["summit-troutbeck-tongue","Troutbeck Tongue","",364,54.45,-2.8923,"Wainwrights","Far Eastern Fells","summit s=pyr"],["summit-high-rigg","High Rigg","",355,54.5884,-3.0716,"Wainwrights","Central Fells","summit s=pyr tarn=1"],["summit-coniston-old-man","Coniston Old Man","",802,54.3707,-3.1214,"Wainwrights","Southern Fells","summit s=whale tarn=1"],["summit-swirl-how","Swirl How","",802,54.3953,-3.1215,"Wainwrights","Southern Fells","summit s=pyr tarn=1"],["summit-brim-fell","Brim Fell","",796,54.3773,-3.1242,"Wainwrights","Southern Fells","summit s=flat"],["summit-great-carrs","Great Carrs","",785,54.3988,-3.1247,"Wainwrights","Southern Fells","summit s=dome"],["summit-dow-crag","Dow Crag","",778,54.3703,-3.1367,"Wainwrights","Southern Fells","summit s=whale"],["summit-grey-friar","Grey Friar","",773,54.3933,-3.1411,"Wainwrights","Southern Fells","summit s=crag"],["summit-wetherlam","Wetherlam","",763,54.4005,-3.098,"Wainwrights","Southern Fells","summit s=flat"],["summit-harter-fell-eskdale","Harter Fell (Eskdale)","",653,54.3869,-3.2045,"Wainwrights","Southern Fells","summit s=crag tarn=1"],["summit-green-crag","Green Crag","",489,54.3737,-3.2328,"Wainwrights","Southern Fells","summit s=dome"],["summit-holme-fell","Holme Fell","",316,54.3963,-3.0565,"Wainwrights","Southern Fells","summit s=pyr"],["summit-high-stile","High Stile","",806,54.5216,-3.2877,"Wainwrights","Western Fells","summit s=twin"]];
+const OTHER_HEIGHTS = {"summit-arthur-s-seat":251,"summit-yr-wyddfa-snowdon":1085,"summit-glyder-fawr":1001,"summit-tryfan":918,"summit-cadair-idris":893,"summit-pen-y-fan":886,"summit-pumlumon":752,"summit-sugar-loaf":596,"summit-cross-fell":893,"summit-the-cheviot":815,"summit-whernside":737,"summit-ingleborough":724,"summit-pen-y-ghent":694,"summit-kinder-scout":636,"summit-roseberry-topping":320,"summit-high-willhays":622,"summit-dunkery-beacon":519,"summit-worcestershire-beacon":425,"summit-leith-hill":295,"summit-slieve-donard":850,"summit-slieve-binnian":746};
 const BUILTIN = [];
 const splitName = nm => { const [name, short] = nm.split("~"); return { name, short }; };
-for (const r of REGIONS) (RAW[r] || "").split(";").filter(Boolean).forEach(s => {
-  const [nm, type, m] = s.split("|");
-  BUILTIN.push({ id: slug(splitName(nm).name), ...splitName(nm), type, m, region: r });
+const ll = (a, b, id) => a ? [+a, +b] : (COORDS[id] || []);
+for (const r of REGIONS) [RAW[r], NEW_PLACES[r]].filter(Boolean).join(";").split(";").filter(Boolean).forEach(s => {
+  const [nm, type, m, la, lo] = s.split("|"), n = splitName(nm), id = slug(n.name), [lat, lon] = ll(la, lo, id);
+  BUILTIN.push({ id, ...n, type, m, region: r, lat, lon });
 });
+for (const h of HILLS) BUILTIN.push({ id: h[0], name: h[1], short: h[2] || undefined, type: "summit", h: h[3], lat: h[4], lon: h[5], region: h[6], sub: h[7], m: h[8] });
 for (const g of KINDS.summits.groups) (SUMMITS[g] || "").split(";").filter(Boolean).forEach(s => {
-  const [nm, h, m] = s.split("|"), n = splitName(nm);
-  BUILTIN.push({ id: "summit-" + slug(n.name), ...n, type: "summit", h: +h, m, region: g });
+  const [nm, h, m, la, lo] = s.split("|"), n = splitName(nm), id = "summit-" + slug(n.name), [lat, lon] = ll(la, lo, id);
+  BUILTIN.push({ id, ...n, type: "summit", h: +h, m, region: g, lat, lon });
 });
 for (const g of KINDS.trails.groups) (TRAILS[g] || "").split(";").filter(Boolean).forEach(s => {
-  const [nm, mi, km, m] = s.split("|"), n = splitName(nm);
-  BUILTIN.push({ id: "trail-" + slug(n.name), ...n, type: "trail", miles: +mi, km: +km, m, region: g });
+  const [nm, mi, km, m] = s.split("|"), n = splitName(nm), id = "trail-" + slug(n.name), [lat, lon] = ll(0, 0, id);
+  BUILTIN.push({ id, ...n, type: "trail", miles: +mi, km: +km, m, region: g, lat, lon });
 });
+const SUB_ORDER = {}; BUILTIN.forEach(p => { if (p.sub && !(p.sub in SUB_ORDER)) SUB_ORDER[p.sub] = Object.keys(SUB_ORDER).length; });
 function slug(s) { return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
-const DEFAULT_M = { house: "house W=36 f=2 r=hip c=2 tr=1", garden: "garden", castle: "castle", coast: "cliffs v=sisters", countryside: "hills tree=1", ruin: "abbey", summit: "summit s=pyr", trail: "trail v=downs" };
+const DEFAULT_M = { house: "house W=36 f=2 r=hip c=2 tr=1", garden: "garden", castle: "castle", coast: "cliffs v=sisters", countryside: "hills tree=1", ruin: "abbey", summit: "summit s=pyr", trail: "trail v=downs", sauna: "sauna" };
 
 /* ---------- drawing kit (120 x 120 stamp space) ---------- */
 const F = d => `<path d="${d}" fill="currentColor"/>`;
@@ -951,6 +1049,36 @@ M.stones = o => {
   return s + KS("M28 80V62M56 80V56M88 80V62", .5) + gulls(50, 30);
 };
 
+M.sauna = o => {
+  const v = o.v || "hut";
+  const steam = (x, y) => S(`M${x} ${y}q-3 -4 0 -8q3 -4 0 -8M${x + 6} ${y - 2}q-3 -4 0 -8q3 -4 0 -8`, .9);
+  const hut = (x, gy, w = 44) => {
+    const h = 22, cx = x + w / 2;
+    return F(rc(x, gy - h, w, h) + `M${x - 4} ${gy - h}L${cx} ${gy - h - 14}L${x + w + 4} ${gy - h}Z` + rc(x + w - 12, gy - h - 16, 5, 10))
+      + K(rc(cx - 4.5, gy - 15, 9, 15) + rc(x + 5, gy - 16, 7, 5.5))
+      + KS(`M${x} ${gy - h + 6}H${cx - 5}M${x} ${gy - h + 12}H${cx - 5}M${cx + 5} ${gy - h + 6}H${x + w}M${cx + 5} ${gy - h + 12}H${x + w}`, .6)
+      + steam(x + w - 10, gy - h - 18);
+  };
+  if (v === "barrel") {
+    let s = ground(80) + pine(18, 80, 1) + pine(104, 80, .9);
+    s += F("M32 80V64Q32 44 60 44Q88 44 88 64V80Z" + rc(78, 36, 5, 12)) + K(circ(60, 62, 8) + rc(30, 80, 60, 0.1));
+    s += KS("M40 49V80M50 45.5V54M70 45.5V54M80 49V80M32 66H52M68 66H88", .7);
+    return s + steam(79, 34);
+  }
+  if (v === "lake" || v === "float") {
+    let s = waves(86) + waves(90.5) + waves(95);
+    if (v === "lake") s += S("M-5 58Q20 48 40 54Q64 44 88 52Q104 46 125 52", .9) + pine(14, 74, .9) + pine(26, 74, .7) + F("M-5 74Q20 70 40 74V82H-5Z");
+    s += F(rc(28, 80, 64, 3)) + (v === "float" ? F("M26 83h68l-4 4h-60Z") : F(rc(32, 83, 2.4, 10) + rc(86, 83, 2.4, 10))) + hut(38, 80);
+    if (v === "float") s += S("M-5 56Q30 46 60 52Q90 44 125 54", .8) + gulls(86, 30);
+    return s;
+  }
+  if (v === "sea") {
+    let s = waves(84, 64) + waves(88.5, 64) + waves(93, 64) + F("M-5 100V80Q30 76 66 82L72 100Z") + gulls(84, 34);
+    return s + hut(12, 80) + KS("M20 92q4 -2 8 0M44 94q4 -2 8 0", .7);
+  }
+  return ground(80) + pine(16, 80, 1.1) + pine(106, 80, 1) + pine(96, 80, .7) + hut(38, 80);
+};
+
 const DEFAULT_ICON = "hills";
 
 /* ---------- frames ---------- */
@@ -985,7 +1113,7 @@ const FR = {
   shield: { clip: "M12.5 31H107.5V58Q107.5 80 94 89H26Q12.5 80 12.5 58Z", scale: .92, rings: S("M8 8H112V58Q112 96 60 114Q8 96 8 58Z", 2.6) + S("M12.5 12.5H107.5V58Q107.5 92 60 109Q12.5 92 12.5 58Z", .9) + S("M12.5 31H107.5M26 89H94", 1.2), text: (n, d) => ({ defs: "", el: lineText(n, 26, 88, 8.8, 6.4) + lineText(d, 99.5, 50, 7.6, 6.4) }) },
   octagon: { clip: "M21.7 31H98.3L107.6 40.3V79.7L97.3 90H22.7L12.4 79.7V40.3Z", scale: .9, rings: S(octPath(56), 2.6) + S(octPath(51.5), .9) + S("M21.7 31H98.3M22.7 90H97.3", 1.2), text: (n, d) => ({ defs: "", el: lineText(n, 26.5, 56, 8.6, 6.4) + lineText(d, 101, 52, 7.8, 6.4) }) }
 };
-const FRAME_BY_TYPE = { summit: ["octagon", "round"], trail: ["rect", "shield"], house: ["rect", "oval"], castle: ["shield", "octagon"], garden: ["scallop", "oval"], coast: ["round", "scallop"], countryside: ["oval", "round"], ruin: ["octagon", "round"] };
+const FRAME_BY_TYPE = { sauna: ["scallop", "rect"], summit: ["octagon", "round"], trail: ["rect", "shield"], house: ["rect", "oval"], castle: ["shield", "octagon"], garden: ["scallop", "oval"], coast: ["round", "scallop"], countryside: ["oval", "round"], ruin: ["octagon", "round"] };
 function pickFrame(p, label) {
   const opts = FRAME_BY_TYPE[p.type] || ["round"];
   let f = opts[hash(p.id + "frame") % opts.length];
@@ -1034,57 +1162,102 @@ function allPlaces() { return BUILTIN.concat(state.custom || []); }
 /* ---------- render ---------- */
 const $ = s => document.querySelector(s);
 function kindItems(kind) { return allPlaces().filter(p => kindOf(p) === kind); }
+const PLACEHOLDER = { places: "Search places, e.g. Tyntesfield", summits: "Search summits, e.g. Helvellyn", trails: "Search trails, e.g. Cotswold Way", saunas: "Search saunas" };
+let slotIndex = new Map(), lazyObs = null;
+function miles(a, b) {
+  const R = 3958.8, r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+const fmtMi = d => d < 10 ? d.toFixed(1) + " mi" : fmtN(d) + " mi";
 function render() {
   const stamps = state.stamps || {};
-  const ids = new Set(allPlaces().map(p => p.id));
+  const all = allPlaces(), ids = new Set(all.map(p => p.id));
   $("#t-count").textContent = Object.keys(stamps).filter(id => ids.has(id)).length;
   for (const k of Object.keys(KINDS)) {
-    const items = kindItems(k);
+    const items = all.filter(p => kindOf(p) === k);
     $(`#t-${k}`).textContent = items.filter(p => stamps[p.id]).length;
     $(`#t-${k}-of`).textContent = "of " + items.length;
   }
   document.querySelectorAll("[data-kind]").forEach(b => b.setAttribute("aria-selected", b.dataset.kind === filter.kind));
   const K_ = KINDS[filter.kind], groups = K_.groups;
   if (filter.region !== "All" && !groups.includes(filter.region)) filter.region = "All";
-  $("#q").placeholder = { places: "Search places, e.g. Tyntesfield", summits: "Search summits, e.g. Helvellyn", trails: "Search trails, e.g. Cotswold Way" }[filter.kind];
+  $("#q").placeholder = PLACEHOLDER[filter.kind];
+  $("#near-btn").setAttribute("aria-pressed", !!filter.near);
+  $("#chips").hidden = !!filter.near;
   $("#chips").innerHTML = ["All", ...groups].map(r => `<button type="button" class="chip" data-region="${esc(r)}" aria-pressed="${filter.region === r}">${esc(r)}</button>`).join("");
 
-  const items = kindItems(filter.kind);
+  const items = all.filter(p => kindOf(p) === filter.kind);
   let summary = "";
-  if (filter.kind === "summits") {
+  if (filter.kind === "summits" && !filter.near) {
     const metres = items.filter(p => stamps[p.id] && p.h).reduce((a, p) => a + p.h, 0);
-    summary = `<div class="summary"><div class="stat"><b>${metres.toLocaleString("en-GB")}</b><span>metres of summit stamped</span></div>${BUILTIN_SETS.filter(x => x.summary).map(st => { const got = st.ids.filter(id => stamps[id]).length; const full = got === st.ids.length; return `<div class="set${full ? " full" : ""}"><span class="set-name">${esc(st.name)}</span><span class="dots" aria-label="${got} of ${st.ids.length}">${st.ids.map(id => `<i class="${stamps[id] ? "on" : ""}"></i>`).join("")}</span><span class="set-state">${full ? "Complete" : `${got} / ${st.ids.length}`}</span></div>`; }).join("")}</div>`;
+    const of = g => { const l = items.filter(p => p.region === g && !p.id.startsWith("c-")); return `<div class="stat"><b>${l.filter(p => stamps[p.id]).length}</b><span>of ${l.length} ${g}</span></div>`; };
+    summary = `<div class="summary"><div class="stat"><b>${fmtN(metres)}</b><span>metres of summit stamped</span></div>${of("Munros")}${of("Wainwrights")}${BUILTIN_SETS.filter(x => x.summary).map(st => { const got = st.ids.filter(id => stamps[id]).length; const full = got === st.ids.length; return `<div class="set${full ? " full" : ""}"><span class="set-name">${esc(st.name)}</span><span class="dots" aria-label="${got} of ${st.ids.length}">${st.ids.map(id => `<i class="${stamps[id] ? "on" : ""}"></i>`).join("")}</span><span class="set-state">${full ? "Complete" : `${got} / ${st.ids.length}`}</span></div>`; }).join("")}</div>`;
   }
-  if (filter.kind === "trails") {
-    const miles = items.filter(p => stamps[p.id] && p.miles).reduce((a, p) => a + p.miles, 0);
-    summary = `<div class="summary"><div class="stat"><b>${miles.toLocaleString("en-GB")}</b><span>miles of trail completed</span></div></div>`;
+  if (filter.kind === "trails" && !filter.near) {
+    const mi = items.filter(p => stamps[p.id] && p.miles).reduce((a, p) => a + p.miles, 0);
+    summary = `<div class="summary"><div class="stat"><b>${fmtN(mi)}</b><span>miles of trail completed</span></div></div>`;
   }
 
   const q = filter.q.trim().toLowerCase();
-  let pageNo = 0, html = "";
-  for (const r of groups) {
-    pageNo++;
-    if (filter.region !== "All" && filter.region !== r) continue;
-    const inRegion = items.filter(p => p.region === r);
-    const done = inRegion.filter(p => stamps[p.id]).length;
-    let list = inRegion.filter(p => !q || p.name.toLowerCase().includes(q));
-    if (filter.show === "done") list = list.filter(p => stamps[p.id]);
-    if (filter.show === "todo") list = list.filter(p => !stamps[p.id]);
-    if (!list.length) continue;
-    list.sort((a, b) => (stamps[b.id] ? 1 : 0) - (stamps[a.id] ? 1 : 0) || (b.h || 0) - (a.h || 0) || (b.miles || 0) - (a.miles || 0) || a.name.localeCompare(b.name));
-    const hid = "h-" + filter.kind + "-" + slug(r);
-    html += `<section class="page" aria-labelledby="${hid}">
-      <div class="page-head"><h2 id="${hid}">${esc(r)}</h2>
-        <div class="page-meta"><span>${done} / ${inRegion.length}</span><span class="bar" aria-hidden="true"><i style="width:${inRegion.length ? done / inRegion.length * 100 : 0}%"></i></span><span>Page ${String(pageNo).padStart(2, "0")}</span></div></div>
-      <div class="grid">${list.map(p => slotHTML(p, stamps[p.id])).join("")}</div></section>`;
+  const keep = p => (!q || p.name.toLowerCase().includes(q)) && (filter.show !== "done" || stamps[p.id]) && (filter.show !== "todo" || !stamps[p.id]);
+  let html = "";
+  slotIndex = new Map();
+  if (filter.near) {
+    const here = filter.near;
+    const list = items.filter(p => p.lat != null && keep(p)).map(p => ({ p, d: miles(here, p) })).sort((a, b) => a.d - b.d).slice(0, 48);
+    const noLoc = items.filter(p => p.lat == null && keep(p)).length;
+    if (list.length) html = `<section class="page"><div class="page-head"><h2>Nearest to you</h2><div class="page-meta"><span>${list.length} closest ${K_.noun}</span><span>Within ${fmtMi(list[list.length - 1].d)}</span></div></div>
+      <div class="grid">${list.map(({ p, d }) => slotHTML(p, stamps[p.id], fmtMi(d))).join("")}</div>${noLoc ? `<p class="p-intro near-note">${noLoc} of your own ${noLoc === 1 ? "entry has" : "entries have"} no location, so ${noLoc === 1 ? "it isn't" : "they aren't"} shown here.</p>` : ""}</section>`;
+  } else {
+    let pageNo = 0;
+    for (const r of groups) {
+      pageNo++;
+      if (filter.region !== "All" && filter.region !== r) continue;
+      const inRegion = items.filter(p => p.region === r);
+      const done = inRegion.filter(p => stamps[p.id]).length;
+      const list = inRegion.filter(keep);
+      if (!list.length) continue;
+      const order = (a, b) => (stamps[b.id] ? 1 : 0) - (stamps[a.id] ? 1 : 0) || (b.h || 0) - (a.h || 0) || (b.miles || 0) - (a.miles || 0) || a.name.localeCompare(b.name);
+      const hid = "h-" + filter.kind + "-" + slug(r);
+      let body;
+      if (list.some(p => p.sub)) {
+        const subs = [...new Set(list.map(p => p.sub || "Your own"))].sort((a, b) => (SUB_ORDER[a] ?? 999) - (SUB_ORDER[b] ?? 999));
+        body = subs.map(sb => { const l = list.filter(p => (p.sub || "Your own") === sb).sort(order), all = inRegion.filter(p => (p.sub || "Your own") === sb); return `<h3 class="subhead">${esc(sb)} <span>${all.filter(p => stamps[p.id]).length} / ${all.length}</span></h3><div class="grid">${l.map(p => slotHTML(p, stamps[p.id])).join("")}</div>`; }).join("");
+      } else body = `<div class="grid">${list.sort(order).map(p => slotHTML(p, stamps[p.id])).join("")}</div>`;
+      html += `<section class="page" aria-labelledby="${hid}">
+        <div class="page-head"><h2 id="${hid}">${esc(r)}</h2>
+          <div class="page-meta"><span>${done} / ${inRegion.length}</span><span class="bar" aria-hidden="true"><i style="width:${inRegion.length ? done / inRegion.length * 100 : 0}%"></i></span><span>Page ${String(pageNo).padStart(2, "0")}</span></div></div>
+        ${body}</section>`;
+    }
   }
-  $("#pages").innerHTML = summary + (html || `<p class="empty">No ${K_.noun} match. Try another search, or add it yourself.</p>`);
+  const empty = filter.kind === "saunas" && !items.length
+    ? `<div class="empty"><p><b>No saunas yet.</b></p><p>Tap <b>Add your own</b> to add your first sauna. It gets its own stamp, with a hut, barrel, lakeside or seaside picture.</p></div>`
+    : `<p class="empty">No ${K_.noun} match. Try another search, or add it yourself.</p>`;
+  $("#pages").innerHTML = summary + (html || empty);
+  hydrate();
   freshId = null;
 }
 function detail(p) { return p.h ? `${p.h.toLocaleString("en-GB")} m` : p.miles ? `${p.miles} miles · ${p.km} km` : TYPES[p.type]; }
-function slotHTML(p, s) {
-  if (s) return `<button type="button" class="slot done" data-id="${esc(p.id)}"><span class="face">${stampSVG(p, s.date, p.id === freshId ? "fresh" : "")}</span><span class="name">${esc(p.name)}</span></button>`;
-  return `<button type="button" class="slot" data-id="${esc(p.id)}"><span class="face">${stampSVG(p, "", "", true)}</span><span class="name">${esc(p.name)}</span><span class="sub">${detail(p)}</span></button>`;
+function visitCount(id) { const s = state.stamps[id]; return s ? 1 + (s.visits ? s.visits.length : 0) : 0; }
+function slotHTML(p, s, sub) {
+  slotIndex.set(p.id, p);
+  const vc = visitCount(p.id);
+  const face = `<span class="face" data-face="${esc(p.id)}"${p.id === freshId ? ' data-fresh="1"' : ""}></span>`;
+  if (s) return `<button type="button" class="slot done" data-id="${esc(p.id)}">${face}${vc > 1 ? `<span class="vc" aria-label="${vc} visits">×${vc}</span>` : ""}<span class="name">${esc(p.name)}</span>${sub ? `<span class="sub">${sub}</span>` : ""}</button>`;
+  return `<button type="button" class="slot" data-id="${esc(p.id)}">${face}<span class="name">${esc(p.name)}</span><span class="sub">${sub || detail(p)}</span></button>`;
+}
+function fillFace(el) {
+  const p = slotIndex.get(el.dataset.face); if (!p || el.firstChild) return;
+  const s = state.stamps[p.id];
+  el.innerHTML = s ? stampSVG(p, s.date, el.dataset.fresh ? "fresh" : "") : stampSVG(p, "", "", true);
+}
+function hydrate() {
+  const faces = document.querySelectorAll("#pages .face[data-face]");
+  if (!("IntersectionObserver" in window)) { faces.forEach(fillFace); return; }
+  if (lazyObs) lazyObs.disconnect();
+  lazyObs = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { fillFace(e.target); lazyObs.unobserve(e.target); } }), { rootMargin: "800px 0px" });
+  faces.forEach(f => lazyObs.observe(f));
 }
 
 /* ---------- persistence (this device) ---------- */
@@ -1096,7 +1269,13 @@ try { if (navigator.storage && navigator.storage.persist) navigator.storage.pers
 
 /* ---------- backup & restore ---------- */
 let toastTimer;
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
+function toast(msg, undoSnap) {
+  const t = $("#toast");
+  t.innerHTML = `<span></span>${undoSnap ? '<button type="button" class="t-undo">Undo</button>' : ""}`;
+  t.firstChild.textContent = msg; t.hidden = false;
+  if (undoSnap) t.querySelector(".t-undo").onclick = () => { restoreSnapshot(undoSnap); toast("Undone"); };
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, undoSnap ? 7000 : 3200);
+}
 async function saveBackup() {
   const name = `waystamp-backup-${today()}.json`;
   const json = JSON.stringify({ app: "waystamp", version: 2, exported: new Date().toISOString(), stamps: state.stamps, custom: state.custom, sets: state.sets, settings: state.settings }, null, 2);
@@ -1107,9 +1286,9 @@ async function restoreBackup(file) {
     const d = JSON.parse(await file.text());
     if (!d || typeof d.stamps !== "object" || Array.isArray(d.stamps)) throw new Error();
     let added = 0;
-    for (const [id, v] of Object.entries(d.stamps)) if (v && typeof v.date === "string" && !state.stamps[id]) { state.stamps[id] = { date: v.date.slice(0, 10), note: String(v.note || "").slice(0, 500) }; added++; }
+    for (const [id, v] of Object.entries(d.stamps)) if (v && typeof v.date === "string") { const inc = [{ date: v.date, note: v.note }, ...(Array.isArray(v.visits) ? v.visits : [])].filter(x => x && typeof x.date === "string").map(x => ({ date: x.date.slice(0, 10), note: String(x.note || "").slice(0, 500) })); const had = allVisits(id), seen = new Set(had.map(x => x.date + "|" + x.note)), fresh = inc.filter(x => !seen.has(x.date + "|" + x.note)); if (fresh.length) { if (!had.length) added++; setVisits(id, [...had, ...fresh]); } }
     const known = new Set(allPlaces().map(p => p.id));
-    for (const p of (Array.isArray(d.custom) ? d.custom : [])) if (p && p.id && p.name && !known.has(p.id) && TYPES[p.type] && KINDS[kindOf(p)].groups.includes(p.region)) { const c = { id: String(p.id), name: String(p.name).slice(0, 60), region: p.region, type: p.type }; if (typeof p.m === "string" && /^[a-z]+( [a-z]+=[a-z0-9.]+)*$/.test(p.m)) c.m = p.m; if (+p.h > 0) c.h = +p.h; if (+p.miles > 0) { c.miles = +p.miles; c.km = +p.km || Math.round(p.miles * 1.609); } state.custom.push(c); known.add(p.id); }
+    for (const p of (Array.isArray(d.custom) ? d.custom : [])) if (p && p.id && p.name && !known.has(p.id) && TYPES[p.type] && KINDS[kindOf(p)].groups.includes(p.region)) { const c = { id: String(p.id), name: String(p.name).slice(0, 60), region: p.region, type: p.type }; if (typeof p.m === "string" && /^[a-z]+( [a-z]+=[a-z0-9.]+)*$/.test(p.m)) c.m = p.m; if (+p.h > 0) c.h = +p.h; if (+p.miles > 0) { c.miles = +p.miles; c.km = +p.km || Math.round(p.miles * 1.609); } if (isFinite(+p.lat) && isFinite(+p.lon) && p.lat !== null && p.lat !== undefined) { c.lat = +p.lat; c.lon = +p.lon; } state.custom.push(c); known.add(p.id); }
     const haveSets = new Set(state.sets.map(x => x.id));
     for (const st of (Array.isArray(d.sets) ? d.sets : [])) if (st && st.id && st.name && Array.isArray(st.ids) && !haveSets.has(st.id)) state.sets.push({ id: String(st.id), name: String(st.name).slice(0, 50), ids: st.ids.map(String) });
     persist(); render();
@@ -1125,44 +1304,67 @@ addEventListener("appinstalled", () => { $("#install").hidden = true; toast("Ins
 if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) $("#ios-hint").hidden = false;
 
 /* ---------- interactions ---------- */
-let current = null;
+let current = null, editMode = "new";
 const dlgS = $("#dlg-stamp");
 function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function allVisits(id) { const s = state.stamps[id]; if (!s) return []; return [{ date: s.date, note: s.note || "" }, ...(s.visits || [])].map((v, i) => ({ date: v.date, note: v.note || "", i })); }
+function setVisits(id, list) {
+  list = list.filter(v => v && v.date).sort((a, b) => a.date.localeCompare(b.date));
+  if (!list.length) { delete state.stamps[id]; return; }
+  const [f, ...rest] = list;
+  state.stamps[id] = { date: f.date, note: f.note || "" };
+  if (rest.length) state.stamps[id].visits = rest.map(v => ({ date: v.date, note: v.note || "" }));
+}
+function showForm(mode) {
+  editMode = mode;
+  const p = current;
+  $("#s-view").hidden = true; $("#s-edit").hidden = false;
+  $("#s-editbtn").hidden = true; $("#s-again").hidden = true; $("#s-remove").hidden = true; $("#s-save").hidden = false;
+  $("#s-save").textContent = mode === "new" ? "Stamp it" : mode === "visit" ? "Log visit" : "Save changes";
+  $("#s-date-label").textContent = mode === "visit" ? "Date of this visit" : p.type === "trail" ? "Date finished" : p.type === "summit" ? "Date summited" : "Date of visit";
+}
 function openStamp(id) {
   const p = allPlaces().find(x => x.id === id); if (!p) return;
   current = p;
   const s = state.stamps[id];
-  $("#s-kicker").textContent = p.region + " · " + (p.h || p.miles ? TYPES[p.type] + " · " + detail(p) : TYPES[p.type]);
-  $("#s-date-label").textContent = p.type === "trail" ? "Date finished" : p.type === "summit" ? "Date summited" : "Date of visit";
+  $("#s-kicker").textContent = p.region + (p.sub ? " · " + p.sub : "") + " · " + (p.h || p.miles ? TYPES[p.type] + " · " + detail(p) : TYPES[p.type]);
   $("#s-title").textContent = p.name;
   $("#s-confirm").hidden = true;
   $("#s-actions").hidden = false;
   $("#s-delplace").hidden = !p.id.startsWith("c-") || !!s;
   if (s) {
+    editMode = "view";
     $("#s-view").hidden = false; $("#s-edit").hidden = true;
     $("#s-big").innerHTML = stampSVG(p, s.date, "big");
+    const vs = allVisits(id);
     $("#s-note").textContent = s.note || "";
-    $("#s-note").hidden = !s.note;
-    $("#s-remove").hidden = false; $("#s-editbtn").hidden = false; $("#s-save").hidden = true;
+    $("#s-note").hidden = !s.note || vs.length > 1;
+    $("#s-visits").innerHTML = vs.length > 1 ? `<h4 class="p-sub">${vs.length} visits</h4><ul class="vlist">${vs.slice().sort((a, b) => a.date.localeCompare(b.date)).map(v => `<li><div><span class="v-date">${fmtLong(v.date)}</span>${v.note ? `<span class="v-note">${esc(v.note)}</span>` : ""}</div><button type="button" class="btn ghost small v-del" data-vi="${v.i}">Remove</button></li>`).join("")}</ul>` : "";
+    $("#s-remove").hidden = false; $("#s-editbtn").hidden = false; $("#s-again").hidden = false; $("#s-save").hidden = true;
     $("#s-date").value = s.date; $("#s-memo").value = s.note || "";
   } else {
-    $("#s-view").hidden = true; $("#s-edit").hidden = false;
-    $("#s-remove").hidden = true; $("#s-editbtn").hidden = true; $("#s-save").hidden = false;
-    $("#s-save").textContent = "Stamp it";
+    $("#s-visits").innerHTML = "";
+    showForm("new");
     $("#s-date").value = today(); $("#s-memo").value = "";
   }
-  dlgS.showModal();
+  if (!dlgS.open) dlgS.showModal();
 }
 $("#pages").addEventListener("click", e => { const b = e.target.closest(".slot"); if (b) openStamp(b.dataset.id); });
 $("#s-cancel").onclick = () => dlgS.close();
-$("#s-editbtn").onclick = () => {
-  $("#s-view").hidden = true; $("#s-edit").hidden = false;
-  $("#s-editbtn").hidden = true; $("#s-save").hidden = false; $("#s-save").textContent = "Save changes";
-};
+$("#s-editbtn").onclick = () => { const s = state.stamps[current.id]; $("#s-date").value = s.date; $("#s-memo").value = s.note || ""; showForm("edit"); };
+$("#s-again").onclick = () => { $("#s-date").value = today(); $("#s-memo").value = ""; showForm("visit"); };
+$("#s-visits").addEventListener("click", e => {
+  const b = e.target.closest(".v-del"); if (!b) return;
+  const snap = snapshot(), id = current.id;
+  setVisits(id, allVisits(id).filter(v => v.i !== +b.dataset.vi));
+  persist(); render(); openStamp(id);
+  toast("Visit removed", snap);
+});
 let confirmMode = "stamp";
 function askConfirm(mode) {
   confirmMode = mode;
-  $("#s-confirm-text").textContent = mode === "place" ? "Delete this place from your book? It's removed from any sets too." : "Remove this stamp? The date and note go with it.";
+  const n = visitCount(current.id);
+  $("#s-confirm-text").textContent = mode === "place" ? "Delete this place from your book? It's removed from any sets too." : n > 1 ? `Remove this stamp? All ${n} visits, with their dates and notes, go with it.` : "Remove this stamp? The date and note go with it.";
   $("#s-remove-yes").textContent = mode === "place" ? "Delete place" : "Remove stamp";
   $("#s-confirm").hidden = false; $("#s-actions").hidden = true;
 }
@@ -1170,25 +1372,29 @@ $("#s-remove").onclick = () => askConfirm("stamp");
 $("#s-delplace").onclick = () => askConfirm("place");
 $("#s-keep").onclick = () => { $("#s-confirm").hidden = true; $("#s-actions").hidden = false; };
 $("#s-remove-yes").onclick = () => {
+  const snap = snapshot();
   delete state.stamps[current.id];
   if (confirmMode === "place") {
     state.custom = state.custom.filter(p => p.id !== current.id);
     state.sets.forEach(st => st.ids = st.ids.filter(id => id !== current.id));
-    toast("Place deleted");
   }
   persist(); render(); dlgS.close();
+  toast(confirmMode === "place" ? "Place deleted" : "Stamp removed", snap);
 };
 $("#f-stamp").addEventListener("submit", e => {
   e.preventDefault();
   const date = $("#s-date").value || today();
   const note = $("#s-memo").value.trim().slice(0, 500);
-  const wasNew = !state.stamps[current.id];
+  const id = current.id, mode = editMode;
   const before = computeBadges().earned;
-  state.stamps[current.id] = { date, note };
-  if (wasNew) freshId = current.id;
+  if (mode === "visit") setVisits(id, [...allVisits(id), { date, note }]);
+  else if (mode === "edit") { const vs = allVisits(id); vs[0] = { date, note, i: 0 }; setVisits(id, vs); }
+  else { state.stamps[id] = { date, note }; freshId = id; }
   persist(); render(); dlgS.close();
+  if (mode !== "edit") thud();
   const after = computeBadges().earned, fresh = BADGES.filter(b => after[b.id] && !before[b.id]);
-  if (fresh.length) setTimeout(() => toast(`Badge earned: ${fresh[0].label}${fresh.length > 1 ? ` and ${fresh.length - 1} more` : ""}`), 450);
+  if (mode === "visit") toast(`Visit logged. That's ${visitCount(id)} visits to ${current.name}.`);
+  if (fresh.length) setTimeout(() => toast(`Badge earned: ${fresh[0].label}${fresh.length > 1 ? ` and ${fresh.length - 1} more` : ""}`), mode === "visit" ? 2600 : 450);
 });
 
 const dlgA = $("#dlg-add");
@@ -1200,7 +1406,8 @@ $("#a-type").addEventListener("change", () => { fillRegions(); fillPictures(); u
 $("#add-btn").onclick = () => {
   draftId = "c-" + Date.now().toString(36);
   $("#a-name").value = $("#q").value.trim(); $("#a-h").value = ""; $("#a-mi").value = "";
-  $("#a-type").value = filter.kind === "summits" ? "summit" : filter.kind === "trails" ? "trail" : "house";
+  draftLoc = null; $("#a-loc").textContent = "Use my location"; $("#a-loc-state").textContent = "Optional. Puts it on your map and in Nearest to me.";
+  $("#a-type").value = filter.kind === "summits" ? "summit" : filter.kind === "trails" ? "trail" : filter.kind === "saunas" ? "sauna" : "house";
   fillRegions(); fillPictures(); updatePreview();
   dlgA.showModal();
 };
@@ -1211,6 +1418,7 @@ $("#f-add").addEventListener("submit", e => {
   const d = draftPlace(), p = { id: d.id, name, region: d.region, type: d.type, m: d.m };
   if (d.h > 0) p.h = Math.round(d.h);
   if (d.miles > 0) { p.miles = Math.round(d.miles); p.km = d.km; }
+  if (draftLoc) { p.lat = draftLoc.lat; p.lon = draftLoc.lon; }
   state.custom.push(p);
   persist();
   filter.q = ""; $("#q").value = ""; filter.kind = kindOf(p); filter.region = "All";
@@ -1218,7 +1426,7 @@ $("#f-add").addEventListener("submit", e => {
   setTimeout(() => openStamp(p.id), 60);
 });
 document.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => {
-  filter.kind = b.dataset.kind; filter.region = "All";
+  filter.kind = b.dataset.kind; filter.region = "All"; filter.q = ""; $("#q").value = "";
   try { history.replaceState(null, "", "#" + filter.kind); } catch (e) {}
   render(); window.scrollTo({ top: 0 });
 });
@@ -1278,14 +1486,17 @@ function openPanel(title, html) {
   $("#p-body").scrollTop = 0;
 }
 $("#p-close").onclick = () => dlgP.close();
-document.querySelectorAll("[data-panel]").forEach(b => b.onclick = () => ({ year: () => yearPanel(), badges: badgesPanel, sets: () => setsPanel(), cover: coverPanel })[b.dataset.panel]());
 
 /* ---------- sets ---------- */
 const idsWhere = (type, region) => BUILTIN.filter(p => p.type === type && p.region === region).map(p => p.id);
 const BUILTIN_SETS = [
   { id: "three-peaks", name: "National Three Peaks", note: "The highest summits in Scotland, England and Wales.", ids: ["summit-ben-nevis", "summit-scafell-pike", "summit-yr-wyddfa-snowdon"], summary: true },
   { id: "yorkshire-three-peaks", name: "Yorkshire Three Peaks", note: "Pen-y-ghent, Ingleborough and Whernside.", ids: ["summit-pen-y-ghent", "summit-ingleborough", "summit-whernside"], summary: true },
-  { id: "lake-tops", name: "Lake District tops", note: "Every Lake District summit in the book.", ids: idsWhere("summit", "Lake District") },
+  { id: "munros", name: "All the Munros", note: "All 282 Scottish mountains over 3,000 feet.", ids: idsWhere("summit", "Munros") },
+  { id: "wainwrights", name: "All the Wainwrights", note: "All 214 fells in Wainwright's Lakeland guides.", ids: idsWhere("summit", "Wainwrights") },
+  { id: "cairngorms", name: "Cairngorm Munros", note: "The Munros of the Cairngorms.", ids: BUILTIN.filter(p => p.sub === "Cairngorms").map(p => p.id) },
+  { id: "glencoe", name: "Glen Coe and Glen Etive", note: "The Munros around Glen Coe.", ids: BUILTIN.filter(p => p.sub === "Glen Coe and Glen Etive").map(p => p.id) },
+  { id: "lake-tops", name: "Lake District classics", note: "Eight much-loved Lake District fells.", ids: ["summit-scafell-pike", "summit-helvellyn", "summit-skiddaw", "summit-great-gable", "summit-blencathra", "summit-coniston-old-man", "summit-haystacks", "summit-catbells"] },
   { id: "welsh-peaks", name: "Welsh peaks", note: "Every Welsh summit in the book.", ids: idsWhere("summit", "Wales") },
   { id: "edward-castles", name: "Castles of Edward I", note: "The four great castles of north Wales.", ids: ["caernarfon-castle", "conwy-castle", "harlech-castle", "beaumaris-castle"] },
   { id: "scottish-castles", name: "Scottish castles", note: "Six of Scotland's best-known castles.", ids: ["edinburgh-castle", "stirling-castle", "eilean-donan", "urquhart-castle", "culzean-castle", "glamis-castle"] },
@@ -1366,32 +1577,46 @@ const BADGES = [
   { id: "summits-15", group: "Summits and trails", big: "15", unit: "SUMMITS", label: "15 summits", val: s => s.summits, goal: 15, left: d => `${d} more summit${d === 1 ? "" : "s"}` },
   { id: "trails-1", group: "Summits and trails", big: "1", unit: "TRAIL", label: "First trail finished", val: s => s.trails, goal: 1, left: () => "Finish a trail" },
   { id: "trails-5", group: "Summits and trails", big: "5", unit: "TRAILS", label: "5 trails finished", val: s => s.trails, goal: 5, left: d => `${d} more trail${d === 1 ? "" : "s"}` },
+  ...[1, 10, 50, 100].map(n => ({ id: "munros-" + n, group: "Munros and Wainwrights", big: fmtN(n), unit: n === 1 ? "MUNRO" : "MUNROS", label: n === 1 ? "First Munro" : `${n} Munros`, val: s => s.munros, goal: n, left: d => `${d} more Munro${d === 1 ? "" : "s"}` })),
+  { id: "munros-all", group: "Munros and Wainwrights", big: "282", unit: "MUNROS", label: "Every Munro", val: s => s.munros, goal: 282, left: d => `${d} Munros to go` },
+  ...[1, 10, 50, 100].map(n => ({ id: "wainwrights-" + n, group: "Munros and Wainwrights", big: fmtN(n), unit: n === 1 ? "FELL" : "FELLS", label: n === 1 ? "First Wainwright" : `${n} Wainwrights`, val: s => s.wains, goal: n, left: d => `${d} more Wainwright${d === 1 ? "" : "s"}` })),
+  { id: "wainwrights-all", group: "Munros and Wainwrights", big: "214", unit: "FELLS", label: "Every Wainwright", val: s => s.wains, goal: 214, left: d => `${d} Wainwrights to go` },
+  { id: "saunas-1", group: "Saunas and return visits", big: "1", unit: "SAUNA", label: "First sauna", val: s => s.saunas, goal: 1, left: () => "Stamp a sauna" },
+  { id: "saunas-10", group: "Saunas and return visits", big: "10", unit: "SAUNAS", label: "10 saunas", val: s => s.saunas, goal: 10, left: d => `${d} more sauna${d === 1 ? "" : "s"}` },
+  { id: "repeat-1", group: "Saunas and return visits", big: "2×", unit: "BACK AGAIN", label: "First return visit", val: s => s.repeats, goal: 1, left: () => "Log a second visit somewhere" },
+  { id: "repeat-10", group: "Saunas and return visits", big: "10", unit: "RETURNS", label: "10 return visits", val: s => s.repeats, goal: 10, left: d => `${d} more return visit${d === 1 ? "" : "s"}` },
   { id: "inks", group: "Variety", big: "8", unit: "INKS", label: "One of every kind", val: s => s.types, goal: 8, left: d => `${d} more kind${d === 1 ? "" : "s"} of stamp` },
   { id: "regions", group: "Variety", big: "8", unit: "REGIONS", label: "A place in every region", val: s => s.regions, goal: KINDS.places.groups.length, left: d => `${d} more region${d === 1 ? "" : "s"}` },
   { id: "sets-1", group: "Sets", big: "1", unit: "SET", label: "First set complete", val: s => s.sets, goal: 1, left: () => "Complete a set" },
   { id: "sets-3", group: "Sets", big: "3", unit: "SETS", label: "3 sets complete", val: s => s.sets, goal: 3, left: d => `${d} more set${d === 1 ? "" : "s"}` }
 ];
 function computeBadges() {
-  const st = { total: 0, metres: 0, miles: 0, summits: 0, trails: 0, types: 0, regions: 0, sets: 0 };
+  const st = { total: 0, metres: 0, miles: 0, summits: 0, trails: 0, types: 0, regions: 0, sets: 0, munros: 0, wains: 0, saunas: 0, repeats: 0 };
   const types = new Set(), regions = new Set(), have = new Set(), earned = {};
   const byId = new Map(allPlaces().map(p => [p.id, p]));
   const sets = allSets().map(s => s.ids.filter(id => byId.has(id))).filter(ids => ids.length);
-  for (const e of stampLog()) {
-    have.add(e.p.id); st.total++;
-    if (e.p.h) st.metres += e.p.h;
-    if (e.p.miles) st.miles += e.p.miles;
-    if (e.p.type === "summit") st.summits++;
-    if (e.p.type === "trail") st.trails++;
-    types.add(e.p.type); st.types = types.size;
-    if (kindOf(e.p) === "places") { regions.add(e.p.region); st.regions = regions.size; }
-    st.sets = sets.filter(ids => ids.every(id => have.has(id))).length;
+  for (const e of visitLog()) {
+    if (e.n > 1) st.repeats++;
+    else {
+      have.add(e.p.id); st.total++;
+      if (e.p.h) st.metres += e.p.h;
+      if (e.p.miles) st.miles += e.p.miles;
+      if (e.p.type === "summit") st.summits++;
+      if (e.p.type === "trail") st.trails++;
+      if (e.p.type === "sauna") st.saunas++;
+      if (e.p.region === "Munros") st.munros++;
+      if (e.p.region === "Wainwrights") st.wains++;
+      if (e.p.type !== "sauna") { types.add(e.p.type); st.types = types.size; }
+      if (kindOf(e.p) === "places") { regions.add(e.p.region); st.regions = regions.size; }
+      st.sets = sets.filter(ids => ids.every(id => have.has(id))).length;
+    }
     for (const b of BADGES) if (!earned[b.id] && b.val(st) >= b.goal) earned[b.id] = e.date;
   }
   return { earned, st };
 }
 function badgeSVG(b, on, cls = "") {
-  const fs = b.big.length > 3 ? 26 : b.big.length > 2 ? 31 : 38;
-  return `<svg class="badge ${on ? "on" : ""} ${cls}" viewBox="0 0 120 120" aria-hidden="true"><path class="b-fill" d="${scallopPath(54, 26)}"/><circle class="b-ring" cx="60" cy="60" r="43"/><text class="b-big" x="60" y="${b.big.length > 3 ? 66 : 69}" text-anchor="middle" font-size="${fs}">${esc(b.big)}</text><text class="b-unit" x="60" y="85" text-anchor="middle">${esc(b.unit)}</text></svg>`;
+  const fs = b.big.length > 3 ? 26 : b.big.length > 2 ? 31 : 38, uf = b.unit.length > 8 ? 7.5 : 9;
+  return `<svg class="badge ${on ? "on" : ""} ${cls}" viewBox="0 0 120 120" aria-hidden="true"><path class="b-fill" d="${scallopPath(54, 26)}"/><circle class="b-ring" cx="60" cy="60" r="43"/><text class="b-big" x="60" y="${b.big.length > 3 ? 66 : 69}" text-anchor="middle" font-size="${fs}">${esc(b.big)}</text><text class="b-unit" x="60" y="85" text-anchor="middle" font-size="${uf}">${esc(b.unit)}</text></svg>`;
 }
 function badgesPanel() {
   const { earned, st } = computeBadges();
@@ -1408,7 +1633,11 @@ function yearsWithStamps() { return [...new Set(stampLog().map(e => +e.date.slic
 function reviewData(y) {
   const log = stampLog().filter(e => +e.date.slice(0, 4) === y);
   const months = Array(12).fill(0); log.forEach(e => months[+e.date.slice(5, 7) - 1]++);
-  const kinds = { places: 0, summits: 0, trails: 0 }; log.forEach(e => kinds[kindOf(e.p)]++);
+  const kinds = { places: 0, summits: 0, trails: 0, saunas: 0 }; log.forEach(e => kinds[kindOf(e.p)]++);
+  const returns = visitLog().filter(e => e.n > 1 && +e.date.slice(0, 4) === y);
+  const counts = {}; visitLog().filter(e => +e.date.slice(0, 4) === y).forEach(e => counts[e.p.id] = (counts[e.p.id] || 0) + 1);
+  const fav = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  const mostVisited = fav && fav[1] > 1 ? { p: allPlaces().find(p => p.id === fav[0]), n: fav[1] } : null;
   const metres = log.reduce((a, e) => a + (e.p.h || 0), 0), miles = log.reduce((a, e) => a + (e.p.miles || 0), 0);
   const reg = {}; log.filter(e => kindOf(e.p) === "places").forEach(e => reg[e.p.region] = (reg[e.p.region] || 0) + 1);
   const topRegion = Object.entries(reg).sort((a, b) => b[1] - a[1])[0];
@@ -1417,7 +1646,7 @@ function reviewData(y) {
   const longest = log.filter(e => e.p.miles).sort((a, b) => b.p.miles - a.p.miles)[0];
   const { earned } = computeBadges();
   const badges = BADGES.filter(b => earned[b.id] && +earned[b.id].slice(0, 4) === y);
-  return { y, log, months, max, kinds, metres, miles, topRegion, busiest, highest, longest, badges, first: log[0], last: log[log.length - 1] };
+  return { y, log, months, max, kinds, metres, miles, topRegion, busiest, highest, longest, badges, returns: returns.length, mostVisited, first: log[0], last: log[log.length - 1] };
 }
 function highlights(d) {
   const h = [];
@@ -1425,6 +1654,8 @@ function highlights(d) {
   if (d.highest) h.push(["Highest summit", `${d.highest.p.name}, ${fmtN(d.highest.p.h)} m`]);
   if (d.longest) h.push(["Longest trail", `${d.longest.p.name}, ${d.longest.p.miles} miles`]);
   if (d.topRegion) h.push(["Favourite region", `${d.topRegion[0]}, ${d.topRegion[1]} place${d.topRegion[1] === 1 ? "" : "s"}`]);
+  if (d.returns) h.push(["Return visits", `${d.returns} ${d.returns === 1 ? "visit" : "visits"} to places already stamped`]);
+  if (d.mostVisited) h.push(["Most visited", `${d.mostVisited.p.name}, ${d.mostVisited.n} times`]);
   if (d.max > 1) h.push(["Busiest month", `${MONTH_NAMES[d.busiest]}, ${d.max} stamps`]);
   if (d.last && d.last !== d.first) h.push(["Latest stamp", `${d.last.p.name}, ${fmtLong(d.last.date).replace(/ \d{4}$/, "")}`]);
   return h;
@@ -1435,7 +1666,7 @@ function yearPanel(y) {
   const thisYear = new Date().getFullYear();
   y = y || (years.includes(thisYear) ? thisYear : years[0]);
   const d = reviewData(y);
-  const stats = [[d.log.length, "Stamps"], [d.kinds.places, "Places"], [d.kinds.summits, "Summits"], [d.kinds.trails, "Trails"], [fmtN(d.metres), "Metres up"], [fmtN(d.miles), "Miles walked"]];
+  const stats = [[d.log.length, "New stamps"], [d.kinds.places, "Places"], [d.kinds.summits, "Summits"], [d.kinds.trails, "Trails"], ...(d.kinds.saunas ? [[d.kinds.saunas, "Saunas"]] : []), [fmtN(d.metres), "Metres up"], [fmtN(d.miles), "Miles walked"]];
   const shown = d.log.slice().reverse().slice(0, 12);
   openPanel("Your year", `${years.length > 1 ? `<div class="chips yr-pick">${years.map(v => `<button type="button" class="chip" data-year="${v}" aria-pressed="${v === y}">${v}</button>`).join("")}</div>` : ""}
     <div class="review">
@@ -1456,7 +1687,7 @@ function yearPanel(y) {
     $("#yr-save").disabled = false; $("#yr-save").textContent = "Save as image";
   };
 }
-const INK_HEX = { house: "#c03d2a", garden: "#3d7438", castle: "#2c4c9c", coast: "#0f7480", countryside: "#87660f", ruin: "#7a3a8a", summit: "#3a4d68", trail: "#b0501a" };
+const INK_HEX = { sauna: "#a8326e", house: "#c03d2a", garden: "#3d7438", castle: "#2c4c9c", coast: "#0f7480", countryside: "#87660f", ruin: "#7a3a8a", summit: "#3a4d68", trail: "#b0501a" };
 function exportStampSVG(p, date, paper) {
   let s = stampSVG(p, date).trim();
   const rot = (s.match(/--r:(-?\d+)deg/) || [])[1] || 0;
@@ -1497,12 +1728,6 @@ async function reviewImage(d) {
   return await new Promise(r => c.toBlob(r, "image/png"));
 }
 
-/* ---------- cover colour panel ---------- */
-function coverPanel() {
-  openPanel("Cover colour", `<p class="p-intro">Choose the colour of your book's cover. It also colours the selected tab and your badges.</p><div class="swatches">${Object.entries(COVERS).map(([k, c]) => `<button type="button" class="swatch" data-cover="${k}" aria-pressed="${(state.settings.cover || "indigo") === k}"><span class="sw" style="background:${c.light}"></span><span>${c.name}</span></button>`).join("")}</div>`);
-  document.querySelectorAll("[data-cover]").forEach(b => b.onclick = () => { state.settings.cover = b.dataset.cover; applyCover(); persist(); coverPanel(); });
-}
-
 /* ---------- pictures for your own places ---------- */
 const PRESETS = {
   house: [["Manor house", "house W=36 f=2 r=hip c=2 tr=1"], ["Grand house with portico", "house W=36 w=2 f=3 r=flat p=1"], ["Palace with a dome", "house W=36 w=2 f=2 r=flat p=1 d=dome"], ["Tudor timber-frame", "house W=36 f=3 r=gable g=3 tudor=1"], ["Gabled hall", "house W=40 f=2 r=gable g=3 c=3 tr=1"], ["House with turrets", "house W=40 f=3 r=flat tw=round tr=1"], ["Cottage", "cottage"], ["Watermill", "mill v=wheel"]],
@@ -1512,6 +1737,7 @@ const PRESETS = {
   countryside: [["Hills and a tree", "hills tree=1"], ["Woods", "hills woods=1"], ["Lake in the hills", "hills lake=1 pines=1"], ["Gorge", "hills v=gorge"], ["Ridge", "hills v=ridge"], ["Parkland with deer", "park"], ["Big old trees", "park oak=1"], ["Windpump and reeds", "windpump"], ["River and mill", "mill"]],
   ruin: [["Abbey ruin", "abbey"], ["Standing stones", "stones"], ["Stone circle", "stones v=henge"], ["Roman wall", "roman"], ["Roman mosaic", "roman v=mosaic"], ["Burial mounds", "mound"], ["Old mine", "mine"]],
   summit: [["Pointed peak", "summit s=pyr"], ["Flat top", "summit s=flat"], ["Twin tops", "summit s=twin"], ["Whaleback", "summit s=whale"], ["Cone", "summit s=cone"], ["Craggy peak", "summit s=crag"], ["Rocky tor", "summit s=tor"], ["Rounded hill", "summit s=dome"], ["Snowy peak", "summit s=crag snow=1"], ["Peak above a lake", "summit s=pyr tarn=1"]],
+  sauna: [["Wooden hut in the trees", "sauna"], ["Barrel sauna", "sauna v=barrel"], ["Lakeside sauna on a jetty", "sauna v=lake"], ["Seaside sauna", "sauna v=sea"], ["Floating sauna", "sauna v=float"]],
   trail: [["Rolling downs", "trail v=downs"], ["Coast path", "trail v=coast"], ["Ridge", "trail v=ridge"], ["Moorland", "trail v=moor"], ["Along a wall", "trail v=wall"], ["Riverside", "trail v=river"], ["Mountains and loch", "trail v=glen"]]
 };
 let draftId = null;
@@ -1526,8 +1752,190 @@ function updatePreview() {
   $("#a-preview").innerHTML = stampSVG(draftPlace(), today(), "preview");
 }
 
+/* ---------- undo ---------- */
+function snapshot() { return JSON.stringify({ stamps: state.stamps, custom: state.custom, sets: state.sets }); }
+function restoreSnapshot(snap) {
+  const s = JSON.parse(snap);
+  state.stamps = s.stamps; state.custom = s.custom; state.sets = s.sets;
+  persist(); render();
+  if (dlgP.open && $("#p-title").textContent === "Sets") setsPanel();
+  if (dlgP.open && $("#p-title").textContent === "Journal") journalPanel();
+}
+
+/* ---------- every visit, in order ---------- */
+function visitLog() {
+  const all = new Map(allPlaces().map(p => [p.id, p])), out = [];
+  for (const [id, s] of Object.entries(state.stamps)) {
+    const p = all.get(id); if (!p || !s || !s.date) continue;
+    allVisits(id).sort((a, b) => a.date.localeCompare(b.date)).forEach((v, n) => out.push({ p, date: v.date, note: v.note, n: n + 1 }));
+  }
+  return out.sort((a, b) => a.date.localeCompare(b.date) || a.p.name.localeCompare(b.p.name) || a.n - b.n);
+}
+const ORD = n => n + (["th", "st", "nd", "rd"][(n % 100 - 20) % 10] || ["th", "st", "nd", "rd"][n % 100] || "th");
+
+/* ---------- journal ---------- */
+function journalPanel(limit = 40) {
+  const log = visitLog().reverse();
+  if (!log.length) { openPanel("Journal", `<p class="p-intro">Your journal lists every stamp and visit in date order, with your notes. Stamp your first place to start it.</p>`); return; }
+  let html = `<p class="p-intro">${log.length} ${log.length === 1 ? "entry" : "entries"}, newest first. Tap one to open its stamp.</p>`, month = "";
+  for (const e of log.slice(0, limit)) {
+    const m = e.date.slice(0, 7);
+    if (m !== month) { month = m; html += `<h4 class="p-sub j-month">${MONTH_NAMES[+m.slice(5) - 1]} ${m.slice(0, 4)}</h4>`; }
+    html += `<button type="button" class="jrow" data-open="${esc(e.p.id)}"><span class="j-stamp">${stampSVG(e.p, e.date, "mini")}</span><span class="j-text"><span class="j-name">${esc(e.p.name)}</span><span class="j-meta">${fmtLong(e.date)} · ${e.n > 1 ? ORD(e.n) + " visit" : TYPES[e.p.type]}</span>${e.note ? `<span class="j-note">${esc(e.note)}</span>` : ""}</span></button>`;
+  }
+  if (log.length > limit) html += `<div><button type="button" class="btn ghost" id="j-more">Show more</button></div>`;
+  openPanel("Journal", html);
+  const more = $("#j-more"); if (more) more.onclick = () => { const top = $("#p-body").scrollTop; journalPanel(limit + 40); $("#p-body").scrollTop = top; };
+}
+$("#p-body").addEventListener("click", e => {
+  const r = e.target.closest("[data-open]"); if (!r) return;
+  dlgP.close(); openStamp(r.dataset.open);
+});
+
+/* ---------- map ---------- */
+const MAP = {"W":766.5,"H":1130.0,"lat0":54.5,"k":100,"lon0":-11.0,"top":61.0,"paths":{"IMN":"M382.6 681.5L370.8 694.1L366.1 691.9L360.9 692.7L363.2 688.1L365.9 677.5L370.8 673.3L377.0 662.3L381.8 659.3L383.5 659.7L384.6 660.7L386.9 673.1L383.7 677.5L382.6 681.5Z","GBR":"M483.9 937.7L479.5 941.9L465.8 946.1L459.9 950.4L449.5 960.2L447.5 961.0L431.9 958.6L420.3 946.0L412.8 940.8L409.8 940.2L399.8 943.4L392.9 943.1L396.4 937.3L401.2 934.0L390.5 931.7L387.5 930.0L384.1 925.9L375.6 925.2L371.6 926.2L364.8 931.6L354.1 937.4L341.2 929.4L338.6 925.9L338.7 919.2L336.8 913.9L333.2 912.0L337.8 905.0L343.3 900.4L355.5 895.8L373.9 884.9L384.2 880.3L393.8 872.3L397.8 867.4L403.6 852.5L407.6 845.8L403.7 844.2L401.9 839.2L402.4 834.1L404.2 829.6L399.7 818.0L400.6 808.5L393.2 808.7L385.8 810.3L372.6 818.5L366.8 819.4L366.9 815.6L369.4 810.9L383.0 798.6L387.4 789.5L390.9 785.5L400.0 778.1L417.6 769.7L420.2 769.2L427.1 770.2L433.8 768.9L439.7 765.9L445.6 765.3L458.9 774.0L454.9 760.5L460.8 757.3L469.3 769.5L472.5 770.7L479.1 769.0L476.5 766.9L473.5 766.8L469.6 765.0L466.3 761.1L460.8 748.7L461.1 741.4L468.9 726.7L465.5 725.3L462.7 722.6L461.9 715.6L463.0 709.4L470.4 703.9L472.6 695.6L473.5 686.5L472.3 682.3L464.9 682.9L458.2 687.4L454.9 687.2L445.9 677.1L431.5 653.2L430.2 643.6L437.6 622.7L449.0 609.3L462.5 604.7L459.9 603.8L439.4 603.6L432.6 605.3L426.3 610.7L419.1 613.0L408.9 621.9L402.1 621.3L398.8 622.1L394.4 616.3L391.8 615.3L388.9 616.4L382.7 621.3L376.4 624.2L368.9 621.1L359.0 615.4L357.0 617.5L354.8 622.8L353.6 631.1L346.5 623.9L340.6 614.2L338.5 608.2L338.4 601.4L341.6 598.8L345.2 601.2L350.4 585.1L364.6 557.9L367.2 549.9L366.8 544.6L364.4 540.2L354.7 530.1L355.9 512.6L359.6 506.0L372.6 506.1L367.5 503.3L357.5 494.9L360.0 484.2L356.8 488.5L352.7 497.2L350.1 499.2L343.0 501.3L341.7 505.5L340.6 506.7L337.0 507.1L336.0 511.1L335.2 511.4L334.1 500.0L335.5 493.4L338.2 488.3L348.6 476.7L343.5 480.3L332.0 491.0L324.6 500.5L324.1 504.8L326.8 517.2L326.0 523.0L316.1 561.0L312.5 566.9L306.0 566.6L303.8 563.7L303.8 560.5L308.9 537.6L313.3 527.9L319.1 519.8L315.1 520.8L312.3 518.7L313.0 494.5L316.2 486.5L317.4 474.9L325.7 448.5L329.3 444.4L330.3 438.1L337.5 424.2L315.7 443.4L310.5 446.8L303.5 445.9L298.2 443.8L294.0 439.4L292.2 431.0L287.0 430.8L282.6 429.3L282.6 428.2L288.3 423.6L297.5 422.0L306.0 414.7L298.4 409.7L299.0 408.2L305.7 403.9L314.1 389.8L315.8 376.7L311.8 370.6L310.3 366.6L302.3 362.1L300.9 356.4L301.9 353.2L304.5 350.1L314.6 345.3L309.0 342.8L306.9 339.9L305.2 333.2L308.1 322.2L313.1 311.9L328.2 312.2L329.9 309.6L331.6 309.5L339.3 311.9L338.1 309.4L325.6 295.6L324.4 293.0L328.0 285.6L327.8 278.8L328.8 276.1L332.8 274.9L344.9 275.0L347.9 273.7L343.7 265.5L343.2 261.5L344.6 248.0L347.4 243.3L352.8 241.2L359.5 242.7L362.0 244.6L364.9 249.0L377.9 243.2L381.3 248.7L395.5 244.3L414.6 242.3L426.1 239.4L438.2 238.3L449.5 235.0L461.5 236.5L461.9 238.4L458.2 248.5L458.7 256.6L458.0 259.1L452.2 267.9L440.7 276.0L419.6 294.8L407.1 304.1L404.4 314.8L411.9 316.0L414.8 318.1L413.0 321.3L401.9 332.3L398.7 342.2L407.2 341.9L414.1 340.0L441.2 329.2L447.5 329.0L462.5 332.8L467.7 331.1L472.9 330.8L508.5 331.9L518.3 329.8L524.9 332.3L530.3 338.8L535.5 350.6L535.4 352.6L532.2 358.0L526.4 364.8L521.5 374.1L517.4 389.7L507.5 413.7L497.9 426.9L493.5 436.3L488.2 443.8L483.1 448.6L477.6 451.7L461.8 455.1L452.1 461.6L446.6 463.7L453.1 463.4L459.5 461.1L471.2 460.2L484.7 468.2L483.5 474.7L478.1 479.8L465.7 480.6L454.2 492.0L449.0 495.5L443.5 497.2L436.7 496.7L424.2 493.7L418.7 490.5L423.7 495.7L429.3 498.4L461.7 504.8L474.0 497.4L487.8 497.3L514.1 509.7L532.5 532.8L542.6 543.0L545.3 550.2L556.2 597.4L563.8 622.6L567.2 629.6L571.7 634.6L594.7 645.9L599.8 649.6L617.3 672.1L625.3 681.0L633.9 688.2L629.7 691.9L626.8 697.8L629.0 705.8L645.5 739.1L640.9 735.9L634.5 735.6L623.1 726.3L612.0 728.4L600.5 727.6L610.6 730.6L621.7 730.8L646.2 753.2L654.5 766.5L659.4 784.0L656.1 791.9L650.9 797.0L641.4 809.4L655.0 819.1L661.0 817.5L671.2 803.3L679.7 802.3L693.9 804.7L700.1 804.1L712.6 807.5L719.0 810.6L735.0 824.6L738.4 832.3L740.0 842.1L740.2 853.1L734.4 872.1L731.2 888.0L729.3 891.3L720.9 900.5L715.2 904.3L712.9 902.6L710.3 902.9L710.1 905.1L712.7 909.8L712.8 915.5L707.8 919.7L702.7 921.5L694.2 919.2L682.5 927.0L690.9 931.1L692.6 935.3L690.5 942.9L685.2 946.2L673.2 948.1L668.2 949.9L663.4 953.4L669.5 951.6L673.6 953.2L676.3 959.5L678.6 961.3L690.4 964.0L711.8 962.5L718.5 962.5L720.9 963.7L719.9 981.8L718.1 984.5L699.4 995.3L695.6 1002.8L694.5 1007.4L683.6 1006.6L678.5 1011.4L669.7 1014.7L656.2 1022.4L650.7 1023.7L626.9 1018.6L612.6 1019.0L593.2 1023.5L588.2 1022.7L580.7 1018.4L573.0 1015.5L564.1 1014.3L556.5 1010.3L561.3 1017.9L550.7 1025.3L545.8 1026.7L540.8 1026.5L530.4 1028.5L520.8 1027.5L522.3 1032.7L524.8 1037.2L522.8 1039.2L520.6 1039.7L502.3 1036.3L499.7 1036.9L497.5 1040.1L490.8 1038.4L484.4 1033.0L477.5 1029.4L470.3 1027.8L464.6 1028.3L441.1 1036.8L436.4 1045.2L434.0 1057.2L430.6 1067.8L425.1 1076.0L418.5 1077.1L412.3 1071.4L400.5 1065.1L396.5 1060.9L395.2 1060.7L393.9 1062.2L389.2 1064.1L384.5 1064.2L377.1 1065.9L364.2 1071.0L347.9 1083.9L345.6 1086.6L341.5 1096.2L335.3 1097.9L329.7 1091.7L323.2 1089.6L316.4 1091.7L312.3 1094.9L310.4 1092.3L310.3 1086.8L315.3 1080.3L328.5 1075.4L340.2 1062.6L348.2 1050.5L351.0 1047.7L354.6 1046.6L356.5 1041.8L372.6 1022.4L376.1 1002.3L389.3 997.3L395.6 981.1L397.3 979.9L415.6 976.9L429.3 977.1L442.8 980.3L449.7 980.6L456.7 979.5L462.1 975.1L471.5 959.4L488.4 939.1L497.5 925.9L483.9 937.7ZM395.1 767.9L397.5 769.7L403.6 769.4L401.6 773.6L384.8 786.6L382.2 782.2L379.1 782.4L374.4 774.0L373.5 761.4L379.7 758.1L388.2 758.3L395.1 767.9ZM490.8 176.9L484.2 177.0L487.6 171.1L491.5 169.6L499.0 170.2L497.7 172.9L490.8 176.9ZM578.2 48.6L576.8 49.8L571.1 39.6L575.3 28.0L580.4 28.3L581.2 31.4L580.7 34.2L578.1 34.4L577.9 35.3L578.7 40.7L578.2 48.6ZM562.8 46.2L564.0 53.3L567.0 51.5L571.5 58.2L573.9 58.2L577.7 55.6L576.9 61.8L570.3 88.6L569.1 99.3L566.5 102.9L564.2 111.3L563.3 112.1L560.0 108.9L564.7 88.5L563.8 84.7L562.0 81.2L557.0 81.0L552.7 82.7L551.7 77.8L550.7 76.9L545.1 77.1L543.5 76.3L542.2 71.7L547.2 70.2L552.0 70.8L558.9 66.7L554.6 53.1L548.8 51.9L547.5 50.6L548.6 48.3L551.8 47.0L556.6 40.1L559.6 39.0L563.2 39.2L562.8 46.2ZM593.8 18.8L590.8 28.4L590.8 31.6L586.0 31.3L585.2 30.3L584.3 25.4L584.9 20.3L587.0 18.4L588.5 19.4L591.0 16.8L592.2 16.9L593.8 18.8ZM455.0 220.6L451.7 221.9L448.4 221.8L443.2 216.0L441.3 211.8L441.6 209.0L443.8 208.1L448.8 209.5L451.3 214.3L452.3 218.6L455.4 219.9L455.0 220.6ZM468.7 225.8L466.0 224.3L462.5 217.7L468.0 216.4L470.6 217.2L468.7 225.8ZM461.2 197.0L460.5 199.5L464.9 199.4L471.3 201.5L475.1 201.8L478.4 204.4L476.6 209.3L474.7 210.7L472.5 210.9L464.9 206.1L454.9 208.1L452.9 207.5L451.1 204.4L451.0 201.0L450.5 200.0L446.9 203.3L445.3 202.9L444.4 201.3L444.4 193.5L446.5 186.9L450.1 185.6L455.5 186.4L461.6 190.1L463.4 192.4L463.4 194.2L461.2 197.0ZM480.3 181.3L475.3 183.8L473.2 181.8L472.6 175.3L463.8 170.9L461.5 167.6L462.1 166.6L466.0 165.3L472.6 171.2L475.3 175.9L480.2 177.3L480.8 178.1L480.3 181.3ZM255.1 441.5L251.8 442.1L251.5 440.6L257.3 433.9L261.0 432.8L262.3 433.4L255.1 441.5ZM342.3 555.1L335.0 555.2L329.2 551.9L325.6 538.2L326.9 533.3L329.9 529.1L333.8 528.3L337.7 530.9L339.1 533.3L342.3 542.6L342.9 550.6L342.3 555.1ZM303.2 465.6L280.1 471.1L272.2 470.6L271.4 467.9L273.0 466.1L279.6 464.3L282.3 450.9L272.3 444.8L271.8 443.1L272.6 440.1L279.8 435.7L284.4 435.4L288.6 439.0L293.4 446.5L299.9 447.7L304.2 450.9L303.2 465.6ZM282.9 506.9L287.0 527.7L287.1 530.5L285.2 534.2L275.6 539.3L272.6 539.3L274.7 533.0L272.8 527.2L273.7 522.7L272.8 521.9L271.0 522.6L264.1 529.6L261.8 530.3L264.5 516.8L268.6 512.9L270.4 512.6L272.3 514.4L277.8 509.5L282.9 506.9ZM292.1 518.5L290.9 519.6L287.9 519.3L286.2 515.2L286.2 510.7L288.0 507.4L295.5 502.5L292.1 500.8L293.9 495.5L302.0 489.1L304.2 488.0L306.3 488.1L302.1 499.4L292.1 518.5ZM278.8 263.7L271.4 281.1L268.5 281.5L266.0 285.9L258.1 290.7L265.0 290.8L266.9 292.4L267.0 295.9L265.7 297.9L256.8 305.9L250.7 308.9L244.1 317.2L240.8 317.3L237.5 322.7L234.8 325.0L231.5 323.8L227.4 318.6L234.8 313.5L235.5 310.6L240.6 307.6L232.1 302.5L229.0 299.7L229.3 298.2L233.1 295.0L227.8 292.1L227.1 290.5L227.3 281.8L230.6 277.8L231.6 277.1L235.2 278.2L238.9 281.7L243.2 280.4L248.2 281.1L244.6 271.6L245.3 269.8L247.2 267.8L258.8 261.7L276.6 249.7L279.1 256.5L278.8 263.7ZM274.1 403.5L272.4 404.8L270.2 404.6L268.1 402.9L265.2 398.2L271.6 394.9L274.2 396.9L275.2 399.0L274.1 403.5ZM281.9 349.5L280.8 359.1L282.5 368.6L286.4 371.6L297.3 373.7L307.4 373.1L309.4 374.7L309.6 377.3L308.0 380.2L293.3 395.5L289.5 394.8L288.4 379.9L280.9 381.8L274.9 381.6L271.6 379.8L264.7 367.3L251.1 363.7L247.3 358.8L246.2 355.8L246.6 354.1L249.5 350.4L253.0 351.7L256.5 349.3L254.5 343.7L268.4 339.7L269.6 333.3L272.6 332.8L276.0 334.9L280.7 341.5L281.9 349.5ZM220.3 331.7L226.9 337.3L221.7 346.7L213.7 346.6L202.4 339.8L203.3 336.4L206.7 334.4L209.5 335.5L213.4 333.7L216.5 334.3L220.3 331.7ZM217.8 388.5L212.1 388.5L210.1 386.9L207.8 377.1L208.6 370.2L208.4 361.9L215.1 361.6L216.8 362.8L217.8 388.5ZM208.1 403.5L203.0 404.8L201.1 404.0L201.9 399.3L205.8 398.1L208.7 400.0L209.1 401.7L208.1 403.5ZM277.7 691.1L272.7 690.5L267.0 693.9L252.6 694.1L251.8 691.5L252.8 683.7L251.5 681.5L245.8 680.4L243.7 678.6L240.5 673.1L239.4 667.1L236.0 662.6L231.8 659.3L229.4 659.2L220.5 669.8L223.3 676.0L211.7 687.9L208.5 686.3L200.7 686.6L197.1 685.6L192.9 681.3L182.6 678.5L180.9 671.6L167.3 658.6L165.8 654.6L171.6 648.8L186.2 642.9L188.5 640.5L188.9 638.4L180.8 633.4L179.4 630.2L181.6 628.2L189.5 629.0L200.3 623.2L206.1 612.3L209.0 599.7L210.4 597.2L219.6 590.8L221.9 594.3L226.4 595.2L230.5 591.9L235.3 581.7L238.7 581.1L242.5 581.9L249.8 580.7L262.8 575.9L268.6 575.8L276.7 578.3L282.9 578.3L288.3 585.5L291.2 597.0L297.9 608.4L306.8 618.3L307.1 624.3L304.0 627.5L297.4 631.6L297.4 635.9L305.5 632.7L314.6 633.7L317.8 638.0L321.1 650.0L320.3 655.8L317.9 654.0L315.4 648.7L309.5 645.0L310.9 652.2L310.3 661.8L311.7 662.7L316.0 662.9L313.2 672.7L307.3 675.4L300.4 676.4L294.0 691.1L289.2 694.9L283.4 694.1L277.7 691.1ZM576.9 1031.0L572.0 1034.4L569.3 1040.1L566.1 1041.1L562.9 1041.1L550.8 1033.0L548.0 1033.4L550.8 1029.7L558.3 1026.6L562.5 1022.7L572.3 1026.5L576.9 1031.0Z","IRL":"M61.1 708.7L60.8 711.5L56.5 707.9L54.4 704.0L42.6 702.2L47.6 698.3L50.0 699.5L58.3 699.6L60.6 701.3L61.1 708.7ZM219.6 590.8L210.4 597.2L209.0 599.7L206.1 612.3L200.3 623.2L189.5 629.0L181.6 628.2L179.4 630.2L180.8 633.4L188.9 638.4L188.5 640.5L186.2 642.9L171.6 648.8L165.8 654.6L167.3 658.6L180.9 671.6L182.6 678.5L192.9 681.3L197.1 685.6L200.7 686.6L208.5 686.3L211.7 687.9L213.4 686.7L214.5 684.4L223.3 676.0L220.5 669.8L229.4 659.2L231.8 659.3L236.0 662.6L239.4 667.1L240.5 673.1L243.7 678.6L245.8 680.4L251.5 681.5L252.8 683.7L251.8 691.5L252.6 694.1L267.0 693.9L272.7 690.5L277.7 691.1L280.1 694.6L281.2 698.3L277.0 699.6L272.5 698.9L270.3 701.3L270.2 705.9L271.7 711.8L274.7 716.0L279.0 735.9L282.1 742.2L282.9 760.9L281.5 763.4L287.7 790.9L288.8 807.3L282.8 819.3L280.5 826.2L278.8 833.7L277.7 845.7L270.3 859.8L267.1 863.3L263.5 865.5L271.5 875.3L264.9 879.7L257.8 881.1L249.9 878.6L244.9 879.0L238.7 884.1L237.2 883.1L234.3 875.0L232.1 883.4L227.5 886.1L219.7 885.5L206.7 887.7L201.7 890.1L196.0 900.7L181.6 906.5L177.0 913.4L170.9 917.4L165.8 918.6L157.4 910.9L150.4 911.1L152.6 912.4L154.0 915.2L154.7 920.7L153.9 926.1L150.5 928.8L146.5 929.3L140.0 934.9L131.6 936.4L127.0 941.5L98.9 950.2L89.3 947.1L85.1 947.8L73.3 952.6L67.6 951.7L74.9 939.6L84.6 933.6L85.7 931.9L82.5 931.1L63.9 935.3L57.5 938.9L51.1 939.9L54.0 934.4L62.3 926.9L69.5 922.0L72.6 917.6L81.4 912.6L53.2 922.9L45.8 921.6L44.0 918.8L38.3 920.1L36.1 913.1L44.6 902.5L49.6 898.0L61.2 892.0L63.3 887.7L60.6 886.3L43.6 887.4L35.4 886.5L35.9 883.1L37.4 879.3L45.8 872.8L50.4 871.8L54.5 872.4L61.7 876.2L71.3 875.0L67.3 870.9L66.6 862.5L63.5 859.6L67.4 855.7L71.9 853.4L79.4 845.3L82.1 844.1L96.9 842.1L112.9 837.9L128.7 832.0L120.6 828.8L116.7 824.5L110.5 833.2L106.0 836.5L93.2 838.3L83.6 834.6L80.2 837.7L71.8 842.0L62.9 843.0L73.2 835.2L86.2 821.9L89.1 817.7L93.3 810.4L92.0 807.1L89.3 805.3L98.8 790.2L102.1 787.5L108.2 787.1L116.3 783.8L120.2 779.3L114.2 776.4L108.0 775.0L86.3 776.2L82.4 772.8L81.2 767.7L79.8 766.6L68.2 768.0L65.3 765.7L70.0 760.5L63.9 759.3L57.8 760.3L52.8 758.7L52.6 755.4L54.9 752.2L51.9 749.1L51.3 745.1L54.5 743.2L58.0 743.9L65.1 741.0L74.3 739.6L66.4 736.7L63.3 734.2L63.8 727.3L72.9 721.9L82.6 719.5L81.8 715.9L82.5 712.0L72.7 710.9L63.1 713.6L64.1 706.2L66.4 699.6L66.4 690.5L61.9 692.5L61.3 685.8L59.4 681.3L52.7 684.4L52.9 678.4L54.8 674.2L58.3 672.4L68.3 673.1L74.5 670.0L83.5 669.1L97.8 670.1L107.7 679.0L110.2 677.4L114.2 671.8L116.0 671.2L130.8 673.7L140.1 676.9L142.5 675.9L141.2 669.6L138.0 665.3L142.0 659.6L146.9 655.8L157.6 651.5L160.8 649.3L163.0 642.0L166.5 635.9L147.7 639.1L129.9 631.9L132.7 626.8L136.4 623.9L143.0 621.7L143.6 619.1L152.3 611.1L150.3 603.5L151.4 598.0L155.3 594.4L158.3 585.4L166.2 584.0L173.9 580.5L185.6 580.0L188.7 581.4L188.0 575.2L193.5 574.4L195.7 575.6L196.7 580.0L199.2 582.9L200.0 587.8L198.3 591.6L195.4 594.5L198.0 597.5L194.0 602.9L198.3 600.6L204.5 595.3L203.1 585.5L201.4 580.6L202.2 575.2L205.7 571.8L214.8 570.1L211.0 564.0L214.3 563.4L218.0 564.7L223.3 569.5L234.5 576.2L229.0 582.2L222.2 586.3L219.6 590.8Z"}};
+const MAP_C = Math.cos(MAP.lat0 * Math.PI / 180);
+const proj = (lat, lon) => [(lon - MAP.lon0) * MAP_C * MAP.k, (MAP.top - lat) * MAP.k];
+let mapState = { kind: "all", only: false, vb: null };
+function mapPanel() {
+  const kinds = [["all", "All"], ...Object.entries(KINDS).map(([k, K]) => [k, K.label])];
+  openPanel("Map", `<div class="map-tools"><div class="chips" id="m-kinds" role="group" aria-label="Show on map">${kinds.map(([k, l]) => `<button type="button" class="chip" data-mk="${k}" aria-pressed="${mapState.kind === k}">${l}</button>`).join("")}</div>
+    <label class="m-only" for="m-only"><input type="checkbox" id="m-only"${mapState.only ? " checked" : ""}> Stamped only</label></div>
+    <div class="map-wrap"><svg id="map" viewBox="0 0 ${MAP.W} ${MAP.H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Map of your stamps">
+      <path class="land dim" d="${MAP.paths.IRL}"/><path class="land" d="${MAP.paths.GBR}${MAP.paths.IMN}"/><g id="m-dots"></g><g id="m-me"></g></svg>
+      <div class="map-zoom"><button type="button" class="btn ghost small" data-z="in" aria-label="Zoom in">+</button><button type="button" class="btn ghost small" data-z="out" aria-label="Zoom out">−</button><button type="button" class="btn ghost small" data-z="reset">Reset</button></div></div>
+    <div class="map-card" id="m-card" hidden></div>
+    <p class="map-key"><span class="k-on"></span> Stamped <span class="k-off"></span> Not yet. Drag to move, pinch or use + and − to zoom, tap a dot to see what it is.</p>`);
+  const svg = $("#map");
+  if (!mapState.vb) mapState.vb = { x: 0, y: 0, w: MAP.W, h: MAP.H };
+  drawDots(); setVB();
+  $("#m-kinds").onclick = e => { const c = e.target.closest("[data-mk]"); if (!c) return; mapState.kind = c.dataset.mk; document.querySelectorAll("[data-mk]").forEach(b => b.setAttribute("aria-pressed", b === c)); drawDots(); };
+  $("#m-only").onchange = e => { mapState.only = e.target.checked; drawDots(); };
+  document.querySelectorAll("[data-z]").forEach(b => b.onclick = () => { const z = b.dataset.z; if (z === "reset") mapState.vb = { x: 0, y: 0, w: MAP.W, h: MAP.H }; else zoomAt(z === "in" ? .6 : 1 / .6, mapState.vb.x + mapState.vb.w / 2, mapState.vb.y + mapState.vb.h / 2); setVB(); });
+  const pts = new Map(); let moved = 0, pinch = null;
+  const toSvg = (cx, cy) => { const r = svg.getBoundingClientRect(), s = Math.max(mapState.vb.w / r.width, mapState.vb.h / r.height); const ox = (r.width * s - mapState.vb.w) / 2, oy = (r.height * s - mapState.vb.h) / 2; return [mapState.vb.x + (cx - r.left) * s - ox, mapState.vb.y + (cy - r.top) * s - oy, s]; };
+  svg.onpointerdown = e => { svg.setPointerCapture(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]); moved = 0; if (pts.size === 2) { const [a, b] = [...pts.values()]; pinch = Math.hypot(a[0] - b[0], a[1] - b[1]); } };
+  svg.onpointermove = e => {
+    if (!pts.has(e.pointerId)) return;
+    const prev = pts.get(e.pointerId); pts.set(e.pointerId, [e.clientX, e.clientY]);
+    if (pts.size === 2 && pinch) {
+      const [a, b] = [...pts.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      const [mx, my] = toSvg((a[0] + b[0]) / 2, (a[1] + b[1]) / 2); zoomAt(pinch / d, mx, my); pinch = d; moved += 10; setVB(); return;
+    }
+    const s = toSvg(0, 0)[2], dx = e.clientX - prev[0], dy = e.clientY - prev[1];
+    moved += Math.abs(dx) + Math.abs(dy);
+    mapState.vb.x -= dx * s; mapState.vb.y -= dy * s; clampVB(); setVB();
+  };
+  const up = e => {
+    if (pts.has(e.pointerId) && pts.size === 1 && moved < 8) pickDot(...toSvg(e.clientX, e.clientY));
+    pts.delete(e.pointerId); if (pts.size < 2) pinch = null;
+  };
+  svg.onpointerup = up; svg.onpointercancel = e => { pts.delete(e.pointerId); pinch = null; };
+  svg.onwheel = e => { e.preventDefault(); const [mx, my] = toSvg(e.clientX, e.clientY); zoomAt(e.deltaY > 0 ? 1.2 : 1 / 1.2, mx, my); setVB(); };
+}
+function zoomAt(f, mx, my) {
+  const vb = mapState.vb, w = Math.min(MAP.W, Math.max(MAP.W / 40, vb.w * f)), h = w * MAP.H / MAP.W, k = w / vb.w;
+  mapState.vb = { x: mx - (mx - vb.x) * k, y: my - (my - vb.y) * k, w, h }; clampVB();
+}
+function clampVB() { const vb = mapState.vb; vb.x = Math.min(MAP.W - vb.w * .3, Math.max(-vb.w * .7, vb.x)); vb.y = Math.min(MAP.H - vb.h * .3, Math.max(-vb.h * .7, vb.y)); }
+function setVB() {
+  const svg = $("#map"); if (!svg) return; const vb = mapState.vb;
+  svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+  const k = vb.w / MAP.W;
+  svg.style.setProperty("--r-on", (7.5 * k).toFixed(2)); svg.style.setProperty("--r-off", (4.6 * k).toFixed(2)); svg.style.setProperty("--sw", (1.4 * k).toFixed(2));
+  svg.querySelectorAll("circle").forEach(c => c.setAttribute("r", (c.classList.contains("on") ? 7.5 : c.classList.contains("me") ? 9 : 4.6) * k));
+  svg.querySelectorAll(".land").forEach(l => l.style.strokeWidth = 1.2 * k);
+}
+let mapItems = [];
+function drawDots() {
+  const all = allPlaces().filter(p => p.lat != null && (mapState.kind === "all" || kindOf(p) === mapState.kind) && (!mapState.only || state.stamps[p.id]));
+  mapItems = all.map(p => ({ p, xy: proj(p.lat, p.lon), on: !!state.stamps[p.id] }));
+  const off = mapItems.filter(d => !d.on).map(d => `<circle class="off" cx="${d.xy[0].toFixed(1)}" cy="${d.xy[1].toFixed(1)}" r="4.6"/>`).join("");
+  const on = mapItems.filter(d => d.on).map(d => `<circle class="on" cx="${d.xy[0].toFixed(1)}" cy="${d.xy[1].toFixed(1)}" r="7.5" style="fill:var(--i-${d.p.type})"/>`).join("");
+  $("#m-dots").innerHTML = off + on;
+  $("#m-me").innerHTML = filter.near ? `<circle class="me" cx="${proj(filter.near.lat, filter.near.lon)[0]}" cy="${proj(filter.near.lat, filter.near.lon)[1]}" r="9"/>` : "";
+  $("#m-card").hidden = true;
+  setVB();
+}
+function pickDot(x, y, s) {
+  let best = null, bd = 26 * s;
+  for (const d of mapItems) { const dd = Math.hypot(d.xy[0] - x, d.xy[1] - y); if (dd < bd || (best && !best.on && d.on && dd < bd * 1.3)) { best = d; bd = dd; } }
+  const card = $("#m-card");
+  if (!best) { card.hidden = true; return; }
+  const st = state.stamps[best.p.id], n = visitCount(best.p.id);
+  card.innerHTML = `<div class="mc-text"><span class="mc-name">${esc(best.p.name)}</span><span class="mc-meta">${esc(TYPES[best.p.type])} · ${esc(best.p.region)}${best.p.h || best.p.miles ? " · " + detail(best.p) : ""}</span><span class="mc-meta">${st ? `Stamped ${fmtLong(st.date)}${n > 1 ? ` · ${n} visits` : ""}` : "Not stamped yet"}${filter.near ? ` · ${fmtMi(miles(filter.near, best.p))} away` : ""}</span></div><button type="button" class="btn small" data-open="${esc(best.p.id)}">${st ? "Open" : "Stamp it"}</button>`;
+  card.hidden = false;
+}
+
+/* ---------- nearest to me ---------- */
+function locate(done) {
+  if (!navigator.geolocation) { toast("Your browser can't share your location."); return; }
+  toast("Finding where you are…");
+  navigator.geolocation.getCurrentPosition(pos => { const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude }; $("#toast").hidden = true; done(loc); },
+    err => toast(err.code === 1 ? "Location is turned off for Waystamp. Allow it in your browser or phone settings, then try again." : "Couldn't find your location. Try again outside or with signal."),
+    { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+}
+$("#near-btn").onclick = () => {
+  if (filter.near) { filter.near = null; render(); return; }
+  locate(loc => { filter.near = loc; render(); window.scrollTo({ top: 0 }); });
+};
+
+/* ---------- thud and buzz ---------- */
+let actx = null;
+function thud() {
+  if (state.settings.sound === false) return;
+  try { if (navigator.vibrate) navigator.vibrate([22, 40, 14]); } catch (e) {}
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === "suspended") actx.resume();
+    const t = actx.currentTime + .18;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(46, t + .14);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.7, t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + .22);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + .25);
+    const len = Math.floor(actx.sampleRate * .07), buf = actx.createBuffer(1, len, actx.sampleRate), ch = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const n = actx.createBufferSource(), f = actx.createBiquadFilter(), ng = actx.createGain();
+    f.type = "lowpass"; f.frequency.value = 1100; ng.gain.value = .45;
+    n.buffer = buf; n.connect(f); f.connect(ng); ng.connect(actx.destination); n.start(t);
+  } catch (e) {}
+}
+
+/* ---------- settings ---------- */
+function settingsPanel() {
+  openPanel("Settings", `<h4 class="p-sub">Cover colour</h4><p class="p-intro">It also colours the selected tab and your badges.</p><div class="swatches">${Object.entries(COVERS).map(([k, c]) => `<button type="button" class="swatch" data-cover="${k}" aria-pressed="${(state.settings.cover || "indigo") === k}"><span class="sw" style="background:${c.light}"></span><span>${c.name}</span></button>`).join("")}</div>
+    <h4 class="p-sub">Stamping</h4><label class="switch" for="set-sound"><input type="checkbox" id="set-sound"${state.settings.sound === false ? "" : " checked"}><span>Thud and buzz when you stamp</span></label>
+    <p class="p-intro">Plays a soft thud and gives a short vibration on phones that support it. iPhones play the sound only, and only when they aren't on silent.</p>
+    <h4 class="p-sub">Help</h4><div><button type="button" class="btn ghost" id="set-welcome">Show the welcome guide</button></div>`);
+  document.querySelectorAll("[data-cover]").forEach(b => b.onclick = () => { state.settings.cover = b.dataset.cover; applyCover(); persist(); document.querySelectorAll("[data-cover]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+  $("#set-sound").onchange = e => { state.settings.sound = e.target.checked; persist(); if (e.target.checked) thud(); };
+  $("#set-welcome").onclick = () => { dlgP.close(); $("#dlg-welcome").showModal(); };
+}
+
+/* ---------- welcome ---------- */
+$("#w-start").onclick = () => { state.settings.welcomed = true; persist(); $("#dlg-welcome").close(); };
+$("#dlg-welcome").addEventListener("close", () => { if (!state.settings.welcomed) { state.settings.welcomed = true; persist(); } });
+
+/* ---------- location for your own places ---------- */
+let draftLoc = null;
+$("#a-loc").onclick = () => locate(loc => { draftLoc = { lat: +loc.lat.toFixed(4), lon: +loc.lon.toFixed(4) }; $("#a-loc-state").textContent = "Your current location will be saved with it."; $("#a-loc").textContent = "Update location"; });
+
+/* ---------- tidy older data ---------- */
+(function migrate() {
+  let changed = false;
+  for (const p of state.custom) {
+    if (p.type === "summit" && p.region === "Lake District") { p.region = "Wainwrights"; changed = true; }
+    const groups = KINDS[kindOf(p)] ? KINDS[kindOf(p)].groups : null;
+    if (groups && !groups.includes(p.region)) { p.region = groups[0]; changed = true; }
+  }
+  if (!state.settings.welcomed && Object.keys(state.stamps).length) { state.settings.welcomed = true; changed = true; }
+  if (changed) persist();
+})();
+document.querySelectorAll("[data-panel]").forEach(b => b.onclick = () => ({ year: () => yearPanel(), journal: () => journalPanel(), map: mapPanel, badges: badgesPanel, sets: () => setsPanel(), settings: settingsPanel })[b.dataset.panel]());
+
 applyCover();
 render();
+if (!state.settings.welcomed) $("#dlg-welcome").showModal();
 $("#backup").onclick = saveBackup;
 $("#restore-file").addEventListener("change", e => { const f = e.target.files[0]; if (f) restoreBackup(f); e.target.value = ""; });
 $("#install").onclick = async () => { if (!installEvt) return; installEvt.prompt(); try { await installEvt.userChoice; } catch (e) {} installEvt = null; $("#install").hidden = true; };
