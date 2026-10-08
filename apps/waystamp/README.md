@@ -4,7 +4,7 @@ Collect an illustrated stamp for every heritage place, summit and trail you visi
 
 - **300 heritage places** across England, Scotland, Wales and Northern Ireland: houses, castles, gardens, abbeys, coast and countryside
 - **526 summits**, including all 282 Munros and all 214 Wainwrights, each stamp showing its height
-- **Saunas:** a tab of their own, with hut, barrel, lakeside, seaside and floating sauna stamps
+- **104 saunas** across Britain in a tab of their own, with hut, barrel, lakeside, seaside and floating sauna stamps
 - **21 long-distance trails** (National Trails and Scotland's Great Trails), each stamp showing its length
 - **Every stamp is a different original drawing**, with its own frame, ink and angle
 - **Add your own** places, summits or trails, and pick a drawing for each so it gets a proper stamp
