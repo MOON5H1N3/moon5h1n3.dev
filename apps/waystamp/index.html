@@ -158,6 +158,16 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .sync.warn::before { color: var(--i-house); }
 .btn.small { font-size: 13px; padding: 7px 12px; display: inline-flex; align-items: center; }
 label.btn { cursor: pointer; }
+.foot-status { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.safe-banner { margin-top: 12px; margin-bottom: 4px; padding: 12px 14px; border: 1px solid var(--line); border-left: 4px solid var(--signal); border-radius: 10px; background: var(--paper-2); display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; font-size: 14px; }
+.safe-banner[hidden] { display: none; }
+.sb-text { flex: 1 1 260px; }
+.sb-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.safe-list { margin: 0 0 12px; display: grid; gap: 6px; }
+.safe-list > div { display: grid; grid-template-columns: 7.5em 1fr; gap: 8px; }
+.safe-list dt { color: var(--muted); }
+.safe-list dd { margin: 0; }
+.linkish { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 20; background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 8px; font-size: 14px; max-width: calc(100vw - 32px); box-shadow: 0 6px 20px rgba(0,0,0,.2); }
 
 /* Dialogs */
@@ -393,11 +403,12 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
   </div>
 </div>
 
+<div id="safe-banner" class="wrap safe-banner" role="region" aria-label="Keeping your stamps safe" hidden></div>
 <main class="wrap" id="pages"></main>
 
 <footer class="wrap foot">
   <div class="foot-row">
-    <span id="sync" class="sync">Saved on this device</span>
+    <span class="foot-status"><span id="sync" class="sync">Saved on this device</span><span id="last-backup" class="last-backup"></span></span>
     <div class="row">
       <button type="button" class="btn small" id="install" hidden>Install app</button>
       <button type="button" class="btn ghost small" id="backup">Save a backup</button>
@@ -1247,6 +1258,7 @@ function render() {
   $("#pages").innerHTML = summary + (html || empty);
   hydrate();
   freshId = null;
+  updateSafety();
 }
 function detail(p) { return p.h ? `${p.h.toLocaleString("en-GB")} m` : p.miles ? `${p.miles} miles · ${p.km} km` : TYPES[p.type]; }
 function visitCount(id) { const s = state.stamps[id]; return s ? 1 + (s.visits ? s.visits.length : 0) : 0; }
@@ -1275,7 +1287,6 @@ function persist() {
   try { localStorage.setItem(LS, JSON.stringify(state)); $("#sync").textContent = "Saved on this device"; $("#sync").classList.remove("warn"); }
   catch (e) { $("#sync").textContent = "Couldn't save. Private browsing may be blocking storage."; $("#sync").classList.add("warn"); }
 }
-try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}
 
 /* ---------- backup & restore ---------- */
 let toastTimer;
@@ -1286,26 +1297,6 @@ function toast(msg, undoSnap) {
   if (undoSnap) t.querySelector(".t-undo").onclick = () => { restoreSnapshot(undoSnap); toast("Undone"); };
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, undoSnap ? 7000 : 3200);
 }
-async function saveBackup() {
-  const name = `waystamp-backup-${today()}.json`;
-  const json = JSON.stringify({ app: "waystamp", version: 2, exported: new Date().toISOString(), stamps: state.stamps, custom: state.custom, sets: state.sets, settings: state.settings }, null, 2);
-  await shareFile(new File([json], name, { type: "application/json" }), "Waystamp backup", "Backup saved: " + name);
-}
-async function restoreBackup(file) {
-  try {
-    const d = JSON.parse(await file.text());
-    if (!d || typeof d.stamps !== "object" || Array.isArray(d.stamps)) throw new Error();
-    let added = 0;
-    for (const [id, v] of Object.entries(d.stamps)) if (v && typeof v.date === "string") { const inc = [{ date: v.date, note: v.note }, ...(Array.isArray(v.visits) ? v.visits : [])].filter(x => x && typeof x.date === "string").map(x => ({ date: x.date.slice(0, 10), note: String(x.note || "").slice(0, 500) })); const had = allVisits(id), seen = new Set(had.map(x => x.date + "|" + x.note)), fresh = inc.filter(x => !seen.has(x.date + "|" + x.note)); if (fresh.length) { if (!had.length) added++; setVisits(id, [...had, ...fresh]); } }
-    const known = new Set(allPlaces().map(p => p.id));
-    for (const p of (Array.isArray(d.custom) ? d.custom : [])) if (p && p.id && p.name && !known.has(p.id) && TYPES[p.type] && KINDS[kindOf(p)].groups.includes(p.region)) { const c = { id: String(p.id), name: String(p.name).slice(0, 60), region: p.region, type: p.type }; if (typeof p.m === "string" && /^[a-z]+( [a-z]+=[a-z0-9.]+)*$/.test(p.m)) c.m = p.m; if (+p.h > 0) c.h = +p.h; if (+p.miles > 0) { c.miles = +p.miles; c.km = +p.km || Math.round(p.miles * 1.609); } if (isFinite(+p.lat) && isFinite(+p.lon) && p.lat !== null && p.lat !== undefined) { c.lat = +p.lat; c.lon = +p.lon; } state.custom.push(c); known.add(p.id); }
-    const haveSets = new Set(state.sets.map(x => x.id));
-    for (const st of (Array.isArray(d.sets) ? d.sets : [])) if (st && st.id && st.name && Array.isArray(st.ids) && !haveSets.has(st.id)) state.sets.push({ id: String(st.id), name: String(st.name).slice(0, 50), ids: st.ids.map(String) });
-    persist(); render();
-    toast(added ? `Restored ${added} stamp${added === 1 ? "" : "s"}` : "Nothing new in that backup. Your stamps are unchanged.");
-  } catch (e) { toast("That file isn't a Waystamp backup."); }
-}
-
 /* ---------- install ---------- */
 let installEvt = null;
 const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
@@ -1409,6 +1400,7 @@ $("#f-stamp").addEventListener("submit", e => {
   if (mode === "visit") setVisits(id, [...allVisits(id), { date, note }]);
   else if (mode === "edit") { const vs = allVisits(id); vs[0] = { date, note, i: 0 }; setVisits(id, vs); }
   else { state.stamps[id] = { date, note }; freshId = id; }
+  if (!state.settings.firstStampAt) state.settings.firstStampAt = new Date().toISOString();
   persist(); render(); dlgS.close();
   if (mode !== "edit") thud();
   const after = computeBadges().earned, fresh = BADGES.filter(b => (b.id in after) && !(b.id in before));
@@ -1920,15 +1912,157 @@ function thud() {
   } catch (e) {}
 }
 
+/* ---------- keeping stamps safe (v7) ---------- */
+const DAY = 864e5, RESTORE_KEY = "waystamp-before-restore";
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function visitTotal() { return Object.values(state.stamps).reduce((a, s) => a + (s && typeof s.date === "string" ? 1 + (s.visits ? s.visits.length : 0) : 0), 0); }
+function shortDate(iso) { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: d.getFullYear() === new Date().getFullYear() ? undefined : "numeric" }); }
+function backupNeed() {
+  const st = state.settings, n = visitTotal(); if (!n) return null;
+  const since = n - (st.visitsAtBackup || 0), last = st.lastBackup ? Date.parse(st.lastBackup) : (st.firstStampAt ? Date.parse(st.firstStampAt) : Date.now());
+  const days = Math.floor((Date.now() - last) / DAY);
+  if (st.snoozeUntil && Date.now() < Date.parse(st.snoozeUntil) && n - (st.snoozeVisits || 0) < 10) return null;
+  if (since >= 10 || (since > 0 && days >= 30)) return { since, days };
+  return null;
+}
+function updateSafety() {
+  const st = state.settings, b = $("#safe-banner");
+  $("#last-backup").textContent = st.lastBackup ? `Last backup: ${shortDate(st.lastBackup)}` : visitTotal() ? "No backup yet" : "";
+  if (isIOS && !standalone && !st.iosTipSeen && visitTotal() > 0) {
+    b.innerHTML = `<div class="sb-text"><b>Keep your stamps on this iPhone.</b> Safari can clear data from websites you haven't opened for a while. Add Waystamp to your Home Screen and it stays put: tap Share, then <b>Add to Home Screen</b>.</div><div class="sb-actions"><button type="button" class="btn small" data-sb="ios-ok">Got it</button></div>`;
+    b.hidden = false; return;
+  }
+  const need = backupNeed();
+  if (need) {
+    const what = !st.lastBackup ? `You have ${plural(Object.keys(state.stamps).length, "stamp", "stamps")} and no backup yet.` : need.since >= 10 ? `You've logged ${need.since} visits since your last backup.` : `Your last backup was ${need.days} days ago.`;
+    b.innerHTML = `<div class="sb-text"><b>${what}</b> A backup file keeps them safe if you lose or change your phone.</div><div class="sb-actions"><button type="button" class="btn small" data-sb="backup">Save a backup</button><button type="button" class="btn ghost small" data-sb="later">Not now</button></div>`;
+    b.hidden = false; return;
+  }
+  b.hidden = true; b.innerHTML = "";
+}
+$("#safe-banner").addEventListener("click", e => {
+  const a = e.target.closest("[data-sb]"); if (!a) return;
+  if (a.dataset.sb === "ios-ok") { state.settings.iosTipSeen = true; persist(); updateSafety(); }
+  if (a.dataset.sb === "later") { state.settings.snoozeUntil = new Date(Date.now() + 7 * DAY).toISOString(); state.settings.snoozeVisits = visitTotal(); persist(); updateSafety(); toast("We'll remind you again in a week."); }
+  if (a.dataset.sb === "backup") saveBackup();
+});
+function markBackedUp() {
+  state.settings.lastBackup = new Date().toISOString(); state.settings.visitsAtBackup = visitTotal();
+  delete state.settings.snoozeUntil; persist(); updateSafety();
+  if (dlgP.open && $("#p-title").textContent === "Settings") settingsPanel();
+}
+async function saveBackup() {
+  const name = `waystamp-backup-${today()}.json`;
+  const json = JSON.stringify({ app: "waystamp", version: 3, exported: new Date().toISOString(), stamps: state.stamps, custom: state.custom, sets: state.sets, settings: { cover: state.settings.cover, sound: state.settings.sound } }, null, 2);
+  const file = new File([json], name, { type: "application/json" });
+  const coarse = matchMedia("(pointer: coarse)").matches;
+  try {
+    if (coarse && navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "Waystamp backup" }); markBackedUp(); toast("Backup shared. Save it to Files, iCloud Drive or Google Drive."); return; }
+    if (!coarse && window.showSaveFilePicker) {
+      const h = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: "Waystamp backup", accept: { "application/json": [".json"] } }] });
+      const w = await h.createWritable(); await w.write(file); await w.close();
+      markBackedUp(); toast("Backup saved: " + h.name); return;
+    }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const url = URL.createObjectURL(file);
+  const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+  markBackedUp(); toast("Backup saved: " + name);
+}
+
+/* ---------- safer restore: preview, then undo ---------- */
+function mergeInto(d) {
+  const r = { stamps: 0, visits: 0, places: 0, sets: 0 };
+  for (const [id, v] of Object.entries(d.stamps || {})) if (v && typeof v.date === "string") {
+    const inc = [{ date: v.date, note: v.note }, ...(Array.isArray(v.visits) ? v.visits : [])].filter(x => x && typeof x.date === "string").map(x => ({ date: x.date.slice(0, 10), note: String(x.note || "").slice(0, 500) }));
+    const had = allVisits(id), seen = new Set(had.map(x => x.date + "|" + x.note)), fresh = inc.filter(x => !seen.has(x.date + "|" + x.note));
+    if (fresh.length) { if (!had.length) r.stamps++; r.visits += fresh.length; setVisits(id, [...had, ...fresh]); }
+  }
+  const known = new Set(allPlaces().map(p => p.id));
+  for (const p of (Array.isArray(d.custom) ? d.custom : [])) if (p && p.id && p.name && !known.has(p.id) && TYPES[p.type] && KINDS[kindOf(p)].groups.includes(p.region)) {
+    const c = { id: String(p.id), name: String(p.name).slice(0, 60), region: p.region, type: p.type };
+    if (typeof p.m === "string" && /^[a-z]+( [a-z]+=[a-z0-9.]+)*$/.test(p.m)) c.m = p.m;
+    if (+p.h > 0) c.h = +p.h;
+    if (+p.miles > 0) { c.miles = +p.miles; c.km = +p.km || Math.round(p.miles * 1.609); }
+    if (p.lat != null && p.lon != null && isFinite(+p.lat) && isFinite(+p.lon)) { c.lat = +p.lat; c.lon = +p.lon; }
+    state.custom.push(c); known.add(p.id); r.places++;
+  }
+  const haveSets = new Set(state.sets.map(x => x.id));
+  for (const st of (Array.isArray(d.sets) ? d.sets : [])) if (st && st.id && st.name && Array.isArray(st.ids) && !haveSets.has(st.id)) { state.sets.push({ id: String(st.id), name: String(st.name).slice(0, 50), ids: st.ids.map(String) }); r.sets++; }
+  return r;
+}
+function previewMerge(d) {
+  const real = state; state = JSON.parse(JSON.stringify(real));
+  try { return mergeInto(d); } finally { state = real; }
+}
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+async function restoreBackup(file) {
+  let d;
+  try { d = JSON.parse(await file.text()); if (!d || typeof d.stamps !== "object" || Array.isArray(d.stamps)) throw new Error(); }
+  catch (e) { toast("That file isn't a Waystamp backup."); return; }
+  const inFile = Object.values(d.stamps).filter(v => v && typeof v.date === "string");
+  const fileVisits = inFile.reduce((a, v) => a + 1 + (Array.isArray(v.visits) ? v.visits.length : 0), 0);
+  const ch = previewMerge(d);
+  const from = d.exported ? ` from ${shortDate(d.exported)}` : "";
+  const contents = [plural(inFile.length, "stamp", "stamps") + (fileVisits > inFile.length ? ` (${fileVisits} visits)` : ""), Array.isArray(d.custom) && d.custom.length ? plural(d.custom.length, "place you added", "places you added") : "", Array.isArray(d.sets) && d.sets.length ? plural(d.sets.length, "set", "sets") : ""].filter(Boolean).join(", ");
+  const nothing = !ch.visits && !ch.places && !ch.sets;
+  const adds = [ch.stamps ? plural(ch.stamps, "new stamp", "new stamps") : "", ch.visits - ch.stamps > 0 ? plural(ch.visits - ch.stamps, "extra visit", "extra visits") : "", ch.places ? plural(ch.places, "place you added", "places you added") : "", ch.sets ? plural(ch.sets, "set", "sets") : ""].filter(Boolean).join(", ");
+  openPanel("Restore a backup", `<p class="p-intro">This backup${from} has ${contents}.</p>
+    ${nothing ? `<p><b>Everything in it is already in your book.</b> Restoring would change nothing.</p><div class="actions"><button type="button" class="btn" id="rs-cancel">Close</button></div>`
+    : `<p><b>Restoring adds ${adds}.</b> Nothing already in your book is removed or changed.</p><p class="p-intro">If it isn't what you expected, you can undo the restore afterwards from Settings.</p><div class="actions"><button type="button" class="btn ghost" id="rs-cancel">Cancel</button><button type="button" class="btn" id="rs-go">Restore</button></div>`}`);
+  $("#rs-cancel").onclick = () => dlgP.close();
+  const go = $("#rs-go");
+  if (go) go.onclick = () => {
+    const before = snapshot();
+    try { localStorage.setItem(RESTORE_KEY, JSON.stringify({ at: new Date().toISOString(), snap: before })); } catch (e) {}
+    const r = mergeInto(d);
+    persist(); render(); dlgP.close();
+    toast(`Restored: ${r.stamps ? plural(r.stamps, "new stamp", "new stamps") : plural(r.visits, "visit", "visits")} added`, before);
+  };
+}
+function lastRestore() { try { return JSON.parse(localStorage.getItem(RESTORE_KEY) || "null"); } catch (e) { return null; } }
+function undoRestore() {
+  const lr = lastRestore(); if (!lr) return;
+  restoreSnapshot(lr.snap);
+  try { localStorage.removeItem(RESTORE_KEY); } catch (e) {}
+  toast("Restore undone. Your book is back as it was before.");
+  if (dlgP.open) settingsPanel();
+}
+
+/* ---------- storage protection ---------- */
+let storageKept = null;
+async function checkStorage(ask) {
+  try {
+    if (!navigator.storage || !navigator.storage.persisted) { storageKept = null; return; }
+    storageKept = await navigator.storage.persisted();
+    if (!storageKept && ask && navigator.storage.persist) storageKept = await navigator.storage.persist();
+  } catch (e) { storageKept = null; }
+}
+checkStorage(true).then(() => { if (dlgP.open && $("#p-title").textContent === "Settings") settingsPanel(); });
+function safetyHTML() {
+  const st = state.settings, lr = lastRestore();
+  const keep = storageKept === true ? "Protected. Your browser has agreed not to clear Waystamp's data on its own."
+    : storageKept === false ? (isIOS && !standalone ? "Not protected. In Safari, data can be cleared after a few weeks without a visit. Add Waystamp to your Home Screen to keep it." : "Not protected yet. Your browser may clear Waystamp's data if space runs low. Installing the app usually fixes this.")
+    : "Your browser doesn't say whether it keeps Waystamp's data. Keep a backup to be safe.";
+  return `<h4 class="p-sub">Your stamps</h4>
+    <dl class="safe-list"><div><dt>Saved</dt><dd>On this device only</dd></div><div><dt>Last backup</dt><dd>${st.lastBackup ? shortDate(st.lastBackup) : "Never"}</dd></div><div><dt>Storage</dt><dd>${keep}</dd></div></dl>
+    <div class="row"><button type="button" class="btn small" id="set-backup">Save a backup</button><label class="btn ghost small" for="restore-file">Restore a backup</label>${storageKept === false ? '<button type="button" class="btn ghost small" id="set-persist">Ask to keep data</button>' : ""}</div>
+    ${lr ? `<p class="p-intro">Restored a backup on ${shortDate(lr.at)}. <button type="button" class="linkish" id="set-undo-restore">Undo that restore</button></p>` : ""}`;
+}
+
 /* ---------- settings ---------- */
 function settingsPanel() {
   openPanel("Settings", `<h4 class="p-sub">Cover colour</h4><p class="p-intro">It also colours the selected tab and your badges.</p><div class="swatches">${Object.entries(COVERS).map(([k, c]) => `<button type="button" class="swatch" data-cover="${k}" aria-pressed="${(state.settings.cover || "indigo") === k}"><span class="sw" style="background:${c.light}"></span><span>${c.name}</span></button>`).join("")}</div>
     <h4 class="p-sub">Stamping</h4><label class="switch" for="set-sound"><input type="checkbox" id="set-sound"${state.settings.sound === false ? "" : " checked"}><span>Thud and buzz when you stamp</span></label>
     <p class="p-intro">Plays a soft thud and gives a short vibration on phones that support it. iPhones play the sound only, and only when they aren't on silent.</p>
+    ${safetyHTML()}
     <h4 class="p-sub">Help</h4><div><button type="button" class="btn ghost" id="set-welcome">Show the welcome guide</button></div>`);
   document.querySelectorAll("[data-cover]").forEach(b => b.onclick = () => { state.settings.cover = b.dataset.cover; applyCover(); persist(); document.querySelectorAll("[data-cover]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
   $("#set-sound").onchange = e => { state.settings.sound = e.target.checked; persist(); if (e.target.checked) thud(); };
   $("#set-welcome").onclick = () => { dlgP.close(); $("#dlg-welcome").showModal(); };
+  $("#set-backup").onclick = saveBackup;
+  if ($("#set-persist")) $("#set-persist").onclick = () => checkStorage(true).then(() => { settingsPanel(); toast(storageKept ? "Your browser will keep Waystamp's data." : "Your browser said no for now. Installing the app usually helps."); });
+  if ($("#set-undo-restore")) $("#set-undo-restore").onclick = undoRestore;
 }
 
 /* ---------- welcome ---------- */
