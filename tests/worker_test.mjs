@@ -21,6 +21,10 @@ r = await ask("12ab", "https://keep.moon5h1n3.dev"); ok(r.status === 400, "not a
 r = await ask("5039036999999", "https://keep.moon5h1n3.dev", "OPTIONS"); ok(r.status === 204, "preflight answered");
 answer = { status: 404, body: { code: "INVALID_UPC", items: [] } };
 r = await ask("5039036000001"); b = await r.json(); ok(r.status === 200 && b.items.length === 0, "unknown barcode: empty answer");
+answer = { status: 400, body: { code: "INVALID_UPC", message: "Not a valid UPC code." } };
+r = await ask("5039036000009"); b = await r.json(); ok(r.status === 200 && b.items.length === 0, "invalid barcode: nothing found");
+answer = { status: 400, body: { code: "SOMETHING_ELSE", message: "odd" } };
+r = await ask("5039036000008"); b = await r.json(); ok(r.status === 502 && /SOMETHING_ELSE/.test(b.error), "other 400 explained");
 answer = { status: 429, body: {} };
 r = await ask("5039036000002"); ok(r.status === 503, "daily limit explained");
 answer = { status: 500, body: {} };

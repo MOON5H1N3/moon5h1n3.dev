@@ -53,7 +53,11 @@ export async function upc(request, env, ctx, fetcher = fetch, cache = caches.def
   }
   if (res.status === 429) return reply({ error: "UPCitemdb's daily limit is used up; try again later" }, 503, origin);
   if (res.status === 404) res = null;  // UPCitemdb's way of saying it doesn't know the code
-  else if (!res.ok) return reply({ error: `UPCitemdb answered ${res.status}` }, 502, origin);
+  else if (res.status === 400) {      // INVALID_UPC: not a real barcode (or one it can't read), so nothing to find
+    const why = await res.json().catch(() => ({}));
+    if (why.code === "INVALID_UPC" || why.code === "INVALID_QUERY") res = null;
+    else return reply({ error: `UPCitemdb answered 400 ${why.code || ""} ${why.message || ""}`.trim() }, 502, origin);
+  } else if (!res.ok) return reply({ error: `UPCitemdb answered ${res.status}` }, 502, origin);
   const body = trim(res ? await res.json().catch(() => ({})) : {});
   const keep = new Response(JSON.stringify(body), { headers: { "content-type": "application/json",
     "cache-control": `public, max-age=${body.items.length ? FOUND_FOR : MISSING_FOR}` } });
