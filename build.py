@@ -395,12 +395,16 @@ def wk_page(L):
               theme="#14110f", fonts="family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;600",
               css=WK_CSS, extra=jsonld_app(app))]
     s.append(f'<body><header class="top"><div class="wrap"><a class="lockup" href="{L["worth"]}"><span class="mk">{shelf_mark(32)}</span><b>Worth Keeping</b></a>'
-             f'<nav aria-label="Page"><a class="opt" href="#how">How a scan works</a><a href="#install">Install</a>'
-             f'<a class="opt" href="#faq">Questions</a><a href="{app["repo"]}">GitHub</a></nav></div></header>')
+             f'<nav aria-label="Page"><a class="opt" href="#how">How a scan works</a>'
+             + ('<a href="#soon">Coming soon</a>' if app.get("soon") else f'<a href="#install">Install</a>')
+             + f'<a class="opt" href="#faq">Questions</a>' + ("" if app.get("soon") else f'<a href="{app["repo"]}">GitHub</a>') + '</nav></div></header>')
     s.append('<main><div class="wrap hero"><div>')
     s.append('<p class="label">Free and self-hosted, for physical media</p><h1 class="marquee-xl">Worth<br>Keeping</h1>')
     s.append(f'<p class="lede">{app["lede"]}</p><p class="intro">{app["intro"]}</p>')
-    s.append(f'<div class="actions"><a class="btn primary" href="#install">Install with Docker</a><a class="btn" href="{app["repo"]}">Source on GitHub</a></div>')
+    if app.get("soon"):
+        s.append('<div class="actions"><a class="btn primary" href="#soon">Coming soon</a></div>')
+    else:
+        s.append(f'<div class="actions"><a class="btn primary" href="#install">Install with Docker</a><a class="btn" href="{app["repo"]}">Source on GitHub</a></div>')
     s.append(f'<p class="note">Vibe coded, tested by hand. {app["honesty"]}</p></div>')
     s.append('<figure style="margin:0" aria-label="Example scan: a Blu-ray that upgrades a DVD you own, at a good price">'
              '<div class="sechead"><p class="marquee-s">Just scanned</p><span class="label">5 012345 678900</span></div>'
@@ -420,9 +424,13 @@ def wk_page(L):
     t = app["table"]
     s.append(f'<section id="verdicts"><div class="wrap"><h2>{t["h"]}</h2>{table_html(t["cols"], t["rows"])}<p class="prose">{t["after"]}</p></div></section>')
     s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{f}</li>" for f in app["features"]) + "</ul></div></section>")
-    ins = app["install"]
-    s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
     o = app["options"]
+    if app.get("soon"):
+        sn = app["soon"]
+        s.append(f'<section id="soon"><div class="wrap"><div class="prose"><h2>{sn["h"]}</h2>' + "".join(f"<p>{p}</p>" for p in sn["p"]))
+    else:
+        ins = app["install"]
+        s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
     s.append(f'<h3>{o["h"]}</h3></div>{table_html(("Service", "What it adds"), o["rows"])}<p class="prose">{o["after"]}</p></div></section>')
     s.append(f'<section id="faq"><div class="wrap"><h2>Questions</h2><div class="prose">{faq_html(app)}</div></div></section></main>')
     sk, sname, sdesc = app["sibling"]
@@ -474,9 +482,11 @@ def home_page(L):
             href = f'/{app["folder"]}/' if L["home"] == "/" else f'{up}{app["folder"]}/index.html'
             icon = href.replace("index.html", "") + app["icon"]
             s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
-    code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>', f'<a href="{WORTH["repo"]}">Worth Keeping</a>'] + [
+    code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>'] + (
+        [] if WORTH.get("soon") else [f'<a href="{WORTH["repo"]}">Worth Keeping</a>']) + [
         f'<a href="{a["repo"]}">{a["name"]}</a>' for a in EXTRA_APPS if (APPS_DIR / a["folder"] / "index.html").exists()]
-    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed. Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
+    soon = " Worth Keeping's code isn't released yet." if WORTH.get("soon") else ""
+    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed.{soon} Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
     return "\n".join(s)
 
 

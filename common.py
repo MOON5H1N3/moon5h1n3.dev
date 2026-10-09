@@ -67,15 +67,17 @@ def jsonld_app(app):
          "applicationCategory": app["category"], "operatingSystem": "Docker (Linux, Windows, macOS)",
          "softwareRequirements": "Docker with Compose",
          "isAccessibleForFree": True, "offers": {"@type": "Offer", "price": "0", "priceCurrency": "GBP"},
-         "author": author, "sameAs": [app["repo"]], "keywords": app["keywords"]},
-        {"@type": "SoftwareSourceCode", "name": app["name"], "codeRepository": app["repo"],
-         "programmingLanguage": "Python", "author": author},
+         "author": author, "keywords": app["keywords"], **({} if app.get("soon") else {"sameAs": [app["repo"]]})},
+        *([] if app.get("soon") else [{"@type": "SoftwareSourceCode", "name": app["name"], "codeRepository": app["repo"],
+                                       "programmingLanguage": "Python", "author": author}]),
         {"@type": "FAQPage", "@id": url + "#faq", "mainEntity": [
             {"@type": "Question", "name": text(q), "acceptedAnswer": {"@type": "Answer", "text": text(a)}}
             for q, a in app["faq"]]},
     ]
     if lic:
-        graph[0]["license"] = graph[1]["license"] = lic
+        for g in graph[:2]:
+            if g["@type"] != "FAQPage":
+                g["license"] = lic
     return ('<script type="application/ld+json">\n'
             + json.dumps({"@context": "https://schema.org", "@graph": graph}, ensure_ascii=False, indent=1)
             + "\n</script>\n")
@@ -140,12 +142,13 @@ def write_extras(root, mode):
     if mode != "prod":
         return
     (root / "robots.txt").write_text("User-agent: *\nAllow: /\n\nSitemap: https://moon5h1n3.dev/sitemap.xml\n")
-    urls = "".join(f"  <url><loc>{u}</loc><lastmod>2026-10-08</lastmod></url>\n"
+    urls = "".join(f"  <url><loc>{u}</loc><lastmod>2026-10-09</lastmod></url>\n"
                    for u in [SITE["url"]] + [SITE["url"] + a["slug"] + "/" for a in APPS])
     (root / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + "</urlset>\n")
     lines = [f"# {SITE['domain']}", "",
              "> Free, open-source (MIT), self-hosted Docker apps by MOON5H1N3. Both are vibe coded (written with AI coding tools) and tested by hand.", "",
              "## Apps", ""]
     for a in APPS:
-        lines.append(f"- [{a['name']}]({SITE['url']}{a['slug']}/): {a['description']} Source: {a['repo']}")
+        lines.append(f"- [{a['name']}]({SITE['url']}{a['slug']}/): {a['description']} "
+                     + ("Not released yet." if a.get("soon") else f"Source: {a['repo']}"))
     (root / "llms.txt").write_text("\n".join(lines) + "\n")
