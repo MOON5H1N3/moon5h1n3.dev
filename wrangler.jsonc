@@ -1,9 +1,11 @@
-// Cloudflare settings: serve the built site in dist/ as static files.
+// Cloudflare settings: serve the built site in dist/ as static files, plus the small /api/upc relay in worker.js.
 {
   "name": "moon5h1n3-dev",
   "compatibility_date": "2026-09-01",
+  "main": "worker.js",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
   }
 }

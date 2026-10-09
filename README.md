@@ -24,7 +24,7 @@ Then open `preview/index.html` in a browser.
 
 ## Cloudflare settings
 
-The site runs as a Cloudflare Worker that only serves static files (free). `wrangler.jsonc` tells Cloudflare to serve the `dist` folder and use `404.html` for missing pages. When connecting the repo (Workers & Pages, Create, import a repository), use:
+The site runs as a Cloudflare Worker (free). It serves the `dist` folder as static files, using `404.html` for missing pages, and `worker.js` adds one small extra: `/api/upc`, a barcode relay the Worth Keeping phone app uses to look up DVDs and Blu-rays on UPCitemdb (which won't answer web apps directly). Only Worth Keeping on a moon5h1n3.dev address can use it, and answers are kept for a month. Test it with `node tests/worker_test.mjs`. When connecting the repo (Workers & Pages, Create, import a repository), use:
 
 | Setting | Value |
 |---|---|
