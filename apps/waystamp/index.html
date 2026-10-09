@@ -174,6 +174,9 @@ dialog::backdrop { background: rgba(14, 16, 40, .55); }
 .big { display: grid; place-items: center; padding: 6px 0; }
 .big .stamp { width: 210px; height: 210px; }
 .note { font-style: italic; color: var(--muted); margin: 0; white-space: pre-wrap; }
+.dlg .nodate { display: flex; align-items: center; gap: 10px; font-weight: 500; font-size: 14px; cursor: pointer; }
+.nodate input { width: 18px; height: 18px; accent-color: var(--cover); }
+input[type="date"]:disabled { opacity: .45; }
 .confirm { background: var(--paper-2); border-radius: 6px; padding: 10px 12px; font-size: 14px; display: grid; gap: 8px; }
 .cover-nav { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
 .cover-nav button { font: 600 13px var(--f-body); padding: 7px 12px; border-radius: 6px; border: 1px solid color-mix(in srgb, var(--cover-ink) 45%, transparent); background: transparent; color: var(--cover-ink); cursor: pointer; }
@@ -419,6 +422,8 @@ dialog.wide .dlg { max-height: calc(100dvh - 34px); grid-template-rows: auto 1fr
     <div id="s-edit">
       <div style="display:grid;gap:12px">
         <label for="s-date"><span id="s-date-label">Date of visit</span><input id="s-date" type="date" required></label>
+        <label class="nodate" for="s-nodate"><input type="checkbox" id="s-nodate"> I don't remember the date</label>
+        <label for="s-year" id="s-year-wrap" hidden>Year <span class="opt">(optional, if you know roughly when)</span><input id="s-year" type="number" inputmode="numeric" min="1900" max="2100" placeholder="e.g. 2019"></label>
         <label for="s-memo">Note <span style="font-weight:400;color:var(--muted)">(optional)</span><textarea id="s-memo" placeholder="Who you went with, the best bit, the café cake..."></textarea></label>
       </div>
     </div>
@@ -1130,7 +1135,7 @@ function pickFrame(p, label) {
 /* ---------- stamp art ---------- */
 function hash(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-function fmtDate(iso) { const [y, m, d] = (iso || "").split("-"); if (!y) return ""; return `${+d} ${MONTHS[+m - 1]} ${y}`; }
+function fmtDate(iso) { const [y, m, d] = (iso || "").split("-"); if (!y) return ""; if (!m) return y; return `${+d} ${MONTHS[+m - 1]} ${y}`; }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
 
 let UID = 0;
@@ -1149,7 +1154,7 @@ function stampSVG(place, date, cls = "", ghost = false) {
   const label = (place.short || place.name).toUpperCase();
   const fr = FR[pickFrame(place, label)];
   const rot = ghost ? 0 : (hash(place.id) % 23) - 11;
-  const t = fr.text(label, ghost ? "· · ·" : fmtDate(date), id);
+  const t = fr.text(label, ghost ? "· · ·" : fmtDate(date) || "VISITED", id);
   return `<svg class="${ghost ? "ghost" : "stamp " + cls}" viewBox="0 0 120 120" style="--r:${rot}deg;transform:rotate(${rot}deg)${ghost ? "" : `;color:var(--i-${place.type})`}" ${ghost ? 'aria-hidden="true"' : `role="img" aria-label="Stamp: ${esc(place.name)}, ${fmtDate(date)}"`}>
     <defs><clipPath id="c${id}"><path d="${fr.clip}"/></clipPath>${t.defs}</defs>
     <g${ghost ? "" : ' filter="url(#ink)"'}><g clip-path="url(#c${id})"><g transform="translate(60 60) scale(${fr.scale}) translate(-60 -60)">${motif(place)}</g></g>${fr.rings}${t.el}</g>
@@ -1314,12 +1319,19 @@ const dlgS = $("#dlg-stamp");
 function today() { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function allVisits(id) { const s = state.stamps[id]; if (!s) return []; return [{ date: s.date, note: s.note || "" }, ...(s.visits || [])].map((v, i) => ({ date: v.date, note: v.note || "", i })); }
 function setVisits(id, list) {
-  list = list.filter(v => v && v.date).sort((a, b) => a.date.localeCompare(b.date));
+  list = list.filter(v => v && typeof v.date === "string").sort((a, b) => a.date.localeCompare(b.date));
   if (!list.length) { delete state.stamps[id]; return; }
   const [f, ...rest] = list;
   state.stamps[id] = { date: f.date, note: f.note || "" };
   if (rest.length) state.stamps[id].visits = rest.map(v => ({ date: v.date, note: v.note || "" }));
 }
+let nodateSticky = false;
+function setNoDate(on, year) {
+  $("#s-nodate").checked = on; $("#s-date").disabled = on; $("#s-date").required = !on;
+  $("#s-year-wrap").hidden = !on; $("#s-year").value = year || "";
+}
+$("#s-nodate").onchange = e => { setNoDate(e.target.checked, $("#s-year").value); if (!e.target.checked && !$("#s-date").value) $("#s-date").value = today(); };
+function fillDate(d) { if (d && d.length === 10) { $("#s-date").value = d; setNoDate(false); } else { $("#s-date").value = ""; setNoDate(true, d || ""); } }
 function showForm(mode) {
   editMode = mode;
   const p = current;
@@ -1346,18 +1358,18 @@ function openStamp(id) {
     $("#s-note").hidden = !s.note || vs.length > 1;
     $("#s-visits").innerHTML = vs.length > 1 ? `<h4 class="p-sub">${vs.length} visits</h4><ul class="vlist">${vs.slice().sort((a, b) => a.date.localeCompare(b.date)).map(v => `<li><div><span class="v-date">${fmtLong(v.date)}</span>${v.note ? `<span class="v-note">${esc(v.note)}</span>` : ""}</div><button type="button" class="btn ghost small v-del" data-vi="${v.i}">Remove</button></li>`).join("")}</ul>` : "";
     $("#s-remove").hidden = false; $("#s-editbtn").hidden = false; $("#s-again").hidden = false; $("#s-save").hidden = true;
-    $("#s-date").value = s.date; $("#s-memo").value = s.note || "";
+    fillDate(s.date); $("#s-memo").value = s.note || "";
   } else {
     $("#s-visits").innerHTML = "";
     showForm("new");
-    $("#s-date").value = today(); $("#s-memo").value = "";
+    $("#s-date").value = today(); setNoDate(nodateSticky); $("#s-memo").value = "";
   }
   if (!dlgS.open) dlgS.showModal();
 }
 $("#pages").addEventListener("click", e => { const b = e.target.closest(".slot"); if (b) openStamp(b.dataset.id); });
 $("#s-cancel").onclick = () => dlgS.close();
-$("#s-editbtn").onclick = () => { const s = state.stamps[current.id]; $("#s-date").value = s.date; $("#s-memo").value = s.note || ""; showForm("edit"); };
-$("#s-again").onclick = () => { $("#s-date").value = today(); $("#s-memo").value = ""; showForm("visit"); };
+$("#s-editbtn").onclick = () => { const s = state.stamps[current.id]; fillDate(s.date); $("#s-memo").value = s.note || ""; showForm("edit"); };
+$("#s-again").onclick = () => { $("#s-date").value = today(); setNoDate(false); $("#s-memo").value = ""; showForm("visit"); };
 $("#s-visits").addEventListener("click", e => {
   const b = e.target.closest(".v-del"); if (!b) return;
   const snap = snapshot(), id = current.id;
@@ -1388,7 +1400,9 @@ $("#s-remove-yes").onclick = () => {
 };
 $("#f-stamp").addEventListener("submit", e => {
   e.preventDefault();
-  const date = $("#s-date").value || today();
+  const nd = $("#s-nodate").checked, yr = String($("#s-year").value || "").trim();
+  const date = nd ? (/^(19|20)\d\d$/.test(yr) ? yr : "") : ($("#s-date").value || today());
+  if (editMode === "new") nodateSticky = nd;
   const note = $("#s-memo").value.trim().slice(0, 500);
   const id = current.id, mode = editMode;
   const before = computeBadges().earned;
@@ -1397,7 +1411,7 @@ $("#f-stamp").addEventListener("submit", e => {
   else { state.stamps[id] = { date, note }; freshId = id; }
   persist(); render(); dlgS.close();
   if (mode !== "edit") thud();
-  const after = computeBadges().earned, fresh = BADGES.filter(b => after[b.id] && !before[b.id]);
+  const after = computeBadges().earned, fresh = BADGES.filter(b => (b.id in after) && !(b.id in before));
   if (mode === "visit") toast(`Visit logged. That's ${visitCount(id)} visits to ${current.name}.`);
   if (fresh.length) setTimeout(() => toast(`Badge earned: ${fresh[0].label}${fresh.length > 1 ? ` and ${fresh.length - 1} more` : ""}`), mode === "visit" ? 2600 : 450);
 });
@@ -1465,10 +1479,10 @@ function applyCover() {
 /* ---------- shared helpers ---------- */
 const fmtN = n => Math.round(n).toLocaleString("en-GB");
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-function fmtLong(iso) { const [y, m, d] = (iso || "").split("-"); return y ? `${+d} ${MONTH_NAMES[+m - 1]} ${y}` : ""; }
+function fmtLong(iso) { const [y, m, d] = (iso || "").split("-"); return !y ? "Date unknown" : !m ? y : `${+d} ${MONTH_NAMES[+m - 1]} ${y}`; }
 function stampLog() {
   const all = new Map(allPlaces().map(p => [p.id, p]));
-  return Object.entries(state.stamps).filter(([id, s]) => all.has(id) && s && s.date)
+  return Object.entries(state.stamps).filter(([id, s]) => all.has(id) && s && typeof s.date === "string")
     .map(([id, s]) => ({ p: all.get(id), date: s.date }))
     .sort((a, b) => a.date.localeCompare(b.date) || a.p.name.localeCompare(b.p.name));
 }
@@ -1615,7 +1629,7 @@ function computeBadges() {
       if (kindOf(e.p) === "places") { regions.add(e.p.region); st.regions = regions.size; }
       st.sets = sets.filter(ids => ids.every(id => have.has(id))).length;
     }
-    for (const b of BADGES) if (!earned[b.id] && b.val(st) >= b.goal) earned[b.id] = e.date;
+    for (const b of BADGES) if (!(b.id in earned) && b.val(st) >= b.goal) earned[b.id] = e.date;
   }
   return { earned, st };
 }
@@ -1625,19 +1639,19 @@ function badgeSVG(b, on, cls = "") {
 }
 function badgesPanel() {
   const { earned, st } = computeBadges();
-  const n = BADGES.filter(b => earned[b.id]).length;
+  const n = BADGES.filter(b => b.id in earned).length;
   const groups = [...new Set(BADGES.map(b => b.group))];
   openPanel("Badges", `<p class="p-intro">${n} of ${BADGES.length} earned.</p>` + groups.map(g => `<h4 class="p-sub">${g}</h4><div class="badges">${BADGES.filter(b => b.group === g).map(b => {
-    const on = !!earned[b.id];
-    return `<div class="badge-cell${on ? " on" : ""}">${badgeSVG(b, on)}<span class="bc-label">${esc(b.label)}</span><span class="bc-sub">${on ? "Earned " + fmtLong(earned[b.id]) : esc(b.left(Math.max(0, b.goal - b.val(st))))}</span></div>`;
+    const on = b.id in earned;
+    return `<div class="badge-cell${on ? " on" : ""}">${badgeSVG(b, on)}<span class="bc-label">${esc(b.label)}</span><span class="bc-sub">${on ? (earned[b.id] ? "Earned " + fmtLong(earned[b.id]) : "Earned") : esc(b.left(Math.max(0, b.goal - b.val(st))))}</span></div>`;
   }).join("")}</div>`).join(""));
 }
 
 /* ---------- year in review ---------- */
-function yearsWithStamps() { return [...new Set(stampLog().map(e => +e.date.slice(0, 4)))].sort((a, b) => b - a); }
+function yearsWithStamps() { return [...new Set(stampLog().filter(e => e.date.length >= 4).map(e => +e.date.slice(0, 4)))].sort((a, b) => b - a); }
 function reviewData(y) {
   const log = stampLog().filter(e => +e.date.slice(0, 4) === y);
-  const months = Array(12).fill(0); log.forEach(e => months[+e.date.slice(5, 7) - 1]++);
+  const months = Array(12).fill(0); log.forEach(e => { if (e.date.length >= 7) months[+e.date.slice(5, 7) - 1]++; });
   const kinds = { places: 0, summits: 0, trails: 0, saunas: 0 }; log.forEach(e => kinds[kindOf(e.p)]++);
   const returns = visitLog().filter(e => e.n > 1 && +e.date.slice(0, 4) === y);
   const counts = {}; visitLog().filter(e => +e.date.slice(0, 4) === y).forEach(e => counts[e.p.id] = (counts[e.p.id] || 0) + 1);
@@ -1771,7 +1785,7 @@ function restoreSnapshot(snap) {
 function visitLog() {
   const all = new Map(allPlaces().map(p => [p.id, p])), out = [];
   for (const [id, s] of Object.entries(state.stamps)) {
-    const p = all.get(id); if (!p || !s || !s.date) continue;
+    const p = all.get(id); if (!p || !s || typeof s.date !== "string") continue;
     allVisits(id).sort((a, b) => a.date.localeCompare(b.date)).forEach((v, n) => out.push({ p, date: v.date, note: v.note, n: n + 1 }));
   }
   return out.sort((a, b) => a.date.localeCompare(b.date) || a.p.name.localeCompare(b.p.name) || a.n - b.n);
@@ -1785,7 +1799,7 @@ function journalPanel(limit = 40) {
   let html = `<p class="p-intro">${log.length} ${log.length === 1 ? "entry" : "entries"}, newest first. Tap one to open its stamp.</p>`, month = "";
   for (const e of log.slice(0, limit)) {
     const m = e.date.slice(0, 7);
-    if (m !== month) { month = m; html += `<h4 class="p-sub j-month">${MONTH_NAMES[+m.slice(5) - 1]} ${m.slice(0, 4)}</h4>`; }
+    if (m !== month) { month = m; html += `<h4 class="p-sub j-month">${!m ? "Date unknown" : m.length === 4 ? m + ", month unknown" : MONTH_NAMES[+m.slice(5) - 1] + " " + m.slice(0, 4)}</h4>`; }
     html += `<button type="button" class="jrow" data-open="${esc(e.p.id)}"><span class="j-stamp">${stampSVG(e.p, e.date, "mini")}</span><span class="j-text"><span class="j-name">${esc(e.p.name)}</span><span class="j-meta">${fmtLong(e.date)} · ${e.n > 1 ? ORD(e.n) + " visit" : TYPES[e.p.type]}</span>${e.note ? `<span class="j-note">${esc(e.note)}</span>` : ""}</span></button>`;
   }
   if (log.length > limit) html += `<div><button type="button" class="btn ghost" id="j-more">Show more</button></div>`;
@@ -1868,7 +1882,7 @@ function pickDot(x, y, s) {
   const card = $("#m-card");
   if (!best) { card.hidden = true; return; }
   const st = state.stamps[best.p.id], n = visitCount(best.p.id);
-  card.innerHTML = `<div class="mc-text"><span class="mc-name">${esc(best.p.name)}</span><span class="mc-meta">${esc(TYPES[best.p.type])} · ${esc(best.p.region)}${best.p.h || best.p.miles ? " · " + detail(best.p) : ""}</span><span class="mc-meta">${st ? `Stamped ${fmtLong(st.date)}${n > 1 ? ` · ${n} visits` : ""}` : "Not stamped yet"}${filter.near ? ` · ${fmtMi(miles(filter.near, best.p))} away` : ""}</span></div><button type="button" class="btn small" data-open="${esc(best.p.id)}">${st ? "Open" : "Stamp it"}</button>`;
+  card.innerHTML = `<div class="mc-text"><span class="mc-name">${esc(best.p.name)}</span><span class="mc-meta">${esc(TYPES[best.p.type])} · ${esc(best.p.region)}${best.p.h || best.p.miles ? " · " + detail(best.p) : ""}</span><span class="mc-meta">${st ? `Stamped${st.date ? " " + fmtLong(st.date) : ", date unknown"}${n > 1 ? ` · ${n} visits` : ""}` : "Not stamped yet"}${filter.near ? ` · ${fmtMi(miles(filter.near, best.p))} away` : ""}</span></div><button type="button" class="btn small" data-open="${esc(best.p.id)}">${st ? "Open" : "Stamp it"}</button>`;
   card.hidden = false;
 }
 
