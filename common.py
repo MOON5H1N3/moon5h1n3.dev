@@ -11,14 +11,15 @@ FAVICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><style>pa
 def links(depth, mode):
     """Page links. prod = clean URLs for GitHub Pages; preview = relative files that work anywhere."""
     if mode == "prod":
-        return {"home": "/", "unbinge": "/unbinge/", "last": "/last-showing/", "worth": "/worth-keeping/", "favicon": "/favicon.svg"}
+        return {"home": "/", "unbinge": "/unbinge/", "last": "/last-showing/", "worth": "/worth-keeping/", "home_showing": "/home-showing/", "favicon": "/favicon.svg"}
     up = "../" * depth
     return {"home": up + "index.html", "unbinge": up + "unbinge/index.html",
-            "last": up + "last-showing/index.html", "worth": up + "worth-keeping/index.html", "favicon": up + "favicon.svg"}
+            "last": up + "last-showing/index.html", "worth": up + "worth-keeping/index.html", "home_showing": up + "home-showing/index.html", "favicon": up + "favicon.svg"}
 
 
 def fill(s, L):
-    return s.replace("{home}", L["home"]).replace("{unbinge}", L["unbinge"]).replace("{last}", L["last"])
+    return (s.replace("{home_showing}", L["home_showing"]).replace("{home}", L["home"])
+             .replace("{unbinge}", L["unbinge"]).replace("{last}", L["last"]))
 
 
 def esc(s):

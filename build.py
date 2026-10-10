@@ -13,7 +13,7 @@ import sys
 
 from common import (code, esc, faq_html, fill, head, install_html, jsonld_app, jsonld_site,
                     links, table_html, COPY_JS, write_extras)
-from content import SITE, UNBINGE, LAST, WORTH
+from content import SITE, UNBINGE, LAST, WORTH, HOME
 
 
 # ---------------------------------------------------------------- marks
@@ -183,7 +183,7 @@ def ub_page(L):
     s.append("</ol>")
     t = app["table"]
     s.append(f'<h3>{t["h"]}</h3>{table_html(t["cols"], t["rows"])}</section>')
-    s.append(f'<section id="features"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{f}</li>" for f in app["features"]) + "</ul></section>")
+    s.append(f'<section id="features"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{fill(f, L)}</li>" for f in app["features"]) + "</ul></section>")
     ins = app["install"]
     s.append(f'<section id="install"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
     o = app["options"]
@@ -328,7 +328,7 @@ def ls_page(L):
              '<div class="card"><div class="tags"><span class="tag pick">Ticket pick</span><span class="tag leaving">Leaving soon</span></div>'
              '<p class="film">The Night Projectionist</p><p class="fmeta">Drama · 2h 14m · IMAX showings. Directed by someone you rate 0.6★ above your average.</p>'
              '<div class="data"><div><span class="label">For you</span><span class="v">4.4★</span></div><div><span class="label">On in a week</span><span class="v">38%</span></div><div><span class="label">Go by</span><span class="v">Thu 8 Oct</span></div></div>'
-             '<div class="fakebtns" aria-hidden="true"><span class="p">Used a ticket</span><span>I\'m seeing this</span><span class="q">Not for me</span></div></div>'
+             '<div class="fakebtns" aria-hidden="true"><span class="p">Booked: use a ticket</span><span>Want to see</span><span class="q">Hide this film</span></div></div>'
              '<div class="card"><div class="tags"><span class="tag later">Catching later</span></div>'
              '<p class="film">A Quiet Kind of Weather</p><p class="fmeta">Drama · 1h 48m. Just as good at home.</p>'
              '<div class="data"><div><span class="label">For you</span><span class="v">4.1★</span></div><div><span class="label">On in a month</span><span class="v">81%</span></div><div><span class="label">Rent from</span><span class="v">~Dec</span></div></div></div>'
@@ -348,11 +348,11 @@ def ls_page(L):
              '<li>The Night Projectionist <span class="n">· 4.4★ · go by Thu 8 Oct</span></li>'
              '<li>Harbour Lights <span class="n">· 4.2★ · go by Sun 25 Oct</span></li>'
              '<li>A Quiet Kind of Weather <span class="n">· 4.1★ · Catching later</span></li></ul></div>'
-             '<div class="fakebtns" aria-hidden="true"><span class="p">Used a ticket</span><span>I\'m seeing this</span><span class="q">Not for me</span></div>'
+             '<div class="fakebtns" aria-hidden="true"><span class="p">Want to see</span><span>Hide this film</span><span class="q">Open dashboard</span></div>'
              '</div></div></section>')
     t = app["table"]
     s.append(f'<section id="pages"><div class="wrap"><h2>{t["h"]}</h2>{table_html(t["cols"], t["rows"])}<p class="prose">{t["after"]}</p></div></section>')
-    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{f}</li>" for f in app["features"]) + "</ul></div></section>")
+    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{fill(f, L)}</li>" for f in app["features"]) + "</ul></div></section>")
     ins = app["install"]
     s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
     o = app["options"]
@@ -423,15 +423,100 @@ def wk_page(L):
     s.append("</ol></div></section>")
     t = app["table"]
     s.append(f'<section id="verdicts"><div class="wrap"><h2>{t["h"]}</h2>{table_html(t["cols"], t["rows"])}<p class="prose">{t["after"]}</p></div></section>')
-    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{f}</li>" for f in app["features"]) + "</ul></div></section>")
+    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{fill(f, L)}</li>" for f in app["features"]) + "</ul></div></section>")
     o = app["options"]
     if app.get("soon"):
         sn = app["soon"]
-        s.append(f'<section id="soon"><div class="wrap"><div class="prose"><h2>{sn["h"]}</h2>' + "".join(f"<p>{p}</p>" for p in sn["p"]))
+        s.append(f'<section id="soon"><div class="wrap"><div class="prose"><h2>{sn["h"]}</h2>' + "".join(f"<p>{fill(p, L)}</p>" for p in sn["p"]))
     else:
         ins = app["install"]
         s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
     s.append(f'<h3>{o["h"]}</h3></div>{table_html(("Service", "What it adds"), o["rows"])}<p class="prose">{o["after"]}</p></div></section>')
+    s.append(f'<section id="faq"><div class="wrap"><h2>Questions</h2><div class="prose">{faq_html(app)}</div></div></section></main>')
+    sk, sname, sdesc = app["sibling"]
+    s.append('<footer><div class="wrap">' + "".join(f"<p>{fill(f, L)}</p>" for f in app["footer"]))
+    s.append(f'<p>Also by me: <a href="{L[sk]}">{sname}</a>, which {sdesc}. More at <a href="{L["home"]}">{SITE["domain"]}</a>.</p></div></footer>')
+    s.append(f"<script>{COPY_JS}</script></body></html>")
+    return "\n".join(s)
+
+
+# ---------------------------------------------------------------- Home Showing
+# A spin-off of Last Showing: same family, a blue action colour, and Last Showing's ticket
+# stub with a house cut out where Last Showing has its three bars.
+def house_mark(height=24, uid="h"):
+    w = round(height * 1.6)
+    return (f'<svg width="{w}" height="{height}" viewBox="0 0 64 40" aria-hidden="true"><defs><mask id="hs-cut-{uid}">'
+            '<rect width="64" height="40" rx="6" fill="#fff"/><circle cx="0" cy="20" r="6" fill="#000"/><circle cx="64" cy="20" r="6" fill="#000"/>'
+            '<path d="M20 31V19.5L32 9l12 10.5V31z" fill="#000"/><rect x="28.5" y="22" width="7" height="9" rx="1" fill="#fff"/></mask></defs>'
+            f'<rect width="64" height="40" fill="var(--marquee)" mask="url(#hs-cut-{uid})"/></svg>')
+
+
+def _hs_css():
+    dark, light = LS_CSS.split("@media (prefers-color-scheme:light)", 1)
+    dark = (dark.replace("--marquee:#f2b33d;--marquee-text:#f2b33d;--on-marquee:#1a1206", "--marquee:#8fbcd4;--marquee-text:#8fbcd4;--on-marquee:#0e171c")
+                .replace("--velvet:#a32a3c", "--velvet:#25576f"))
+    light = (light.replace("--marquee:#eaa52b;--marquee-text:#8a5600;--on-marquee:#1a1206", "--marquee:#2f6a8a;--marquee-text:#2f6a8a;--on-marquee:#ffffff")
+                  .replace("--marquee:#eaa52b;--marquee-text:#8a5600", "--marquee:#2f6a8a;--marquee-text:#2f6a8a")
+                  .replace("--velvet:#8c2232", "--velvet:#25576f"))
+    extra = """
+.velvet{--on-velvet:#f3ebdc}
+.weeks{list-style:none;margin:var(--s3) 0 0;padding:0}
+.weeks li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--hairline);align-items:baseline}
+.weeks .d{font:500 .9rem var(--mono);color:var(--ink-muted);white-space:nowrap}
+.weeks .t{font-weight:600}
+.weeks .r{font:500 .9rem var(--mono);color:var(--ink-muted)}"""
+    return dark + "@media (prefers-color-scheme:light)" + light + extra
+
+
+HS_CSS = _hs_css()
+
+
+def hs_page(L):
+    app = HOME
+    s = [head(title=app["title"], description=app["description"], canonical=SITE["url"] + "home-showing/", L=L,
+              theme="#14110f", fonts="family=Big+Shoulders+Display:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;600",
+              css=HS_CSS, extra=jsonld_app(app))]
+    soon = app.get("soon")
+    s.append(f'<body><header class="top"><div class="wrap"><a class="lockup" href="{L["home_showing"]}">{house_mark(22, "top")}<b>Home Showing</b></a>'
+             f'<nav aria-label="Page"><a class="opt" href="#how">How it picks</a>'
+             + ('<a href="#soon">Coming soon</a>' if soon else '<a href="#install">Install</a>')
+             + '<a class="opt" href="#faq">Questions</a>' + ("" if soon else f'<a href="{app["repo"]}">GitHub</a>') + '</nav></div></header>')
+    s.append('<main><div class="wrap hero"><div>')
+    s.append(f'<p class="label">A spin-off of <a href="{L["last"]}" style="color:inherit">Last Showing</a>, for Plex</p><h1 class="marquee-xl">Home<br>Showing</h1>')
+    s.append(f'<p class="lede">{app["lede"]}</p><p class="intro">{app["intro"]}</p>')
+    if soon:
+        s.append('<div class="actions"><a class="btn primary" href="#soon">Coming soon</a></div>')
+    else:
+        s.append(f'<div class="actions"><a class="btn primary" href="#install">Install with Docker</a><a class="btn" href="{app["repo"]}">Source on GitHub</a></div>')
+    s.append(f'<p class="note">Vibe coded, tested by hand. {app["honesty"]}</p></div>')
+    s.append('<figure style="margin:0" aria-label="Example plan: a horror film this week in October, then three weeks pencilled in">'
+             '<div class="sechead"><p class="marquee-s">This week</p><span class="label">Fri 16 Oct to Thu 22 Oct</span></div>'
+             '<div class="card"><div class="tags"><span class="tag pick">This week</span><span class="tag later">In season</span></div>'
+             '<p class="film">The Hollow Lantern</p><p class="fmeta">Horror · 1h 52m. Directed by someone you rate 0.4★ above your average, and it\'s nearly Halloween.</p>'
+             '<div class="data"><div><span class="label">For you</span><span class="v">4.3★</span></div><div><span class="label">Favourite</span><span class="v">31%</span></div><div><span class="label">In Plex</span><span class="v">Yes</span></div></div>'
+             '<div class="fakebtns" aria-hidden="true"><span class="p">Play in Plex</span><span>Swap this week</span><span class="q">Not for me</span></div></div>'
+             '<ul class="weeks" aria-label="Pencilled in">'
+             '<li><span class="d">Fri 23 Oct</span><span class="t">A Small Inheritance</span><span class="r">4.1★</span></li>'
+             '<li><span class="d">Fri 30 Oct</span><span class="t">Night of the Long Field</span><span class="r">4.0★</span></li>'
+             '<li><span class="d">Fri 6 Nov</span><span class="t">The Signal Box</span><span class="r">4.2★</span></li></ul>'
+             '</figure></div>')
+    s.append(f'<section id="why" class="velvet"><div class="wrap"><div class="prose"><p class="label">The problem</p><h2>{app["why"]["h"]}</h2>'
+             + "".join(f"<p>{p}</p>" for p in app["why"]["p"]) + "</div></div></section>")
+    s.append(f'<section id="how"><div class="wrap"><h2>{app["how"]["h"]}</h2><p class="prose" style="color:var(--ink-muted)">{app["how"]["intro"]}</p><ol class="steps">')
+    for i, (t, d) in enumerate(app["how"]["steps"], 1):
+        s.append(f'<li><span class="label">Step {i}</span><b>{t}</b><p>{d}</p></li>')
+    s.append("</ol></div></section>")
+    t = app["table"]
+    s.append(f'<section id="where"><div class="wrap"><h2>{t["h"]}</h2>{table_html(t["cols"], t["rows"])}<p class="prose">{t["after"]}</p></div></section>')
+    s.append(f'<section id="features"><div class="wrap"><h2>{app["features_h"]}</h2><ul class="features">' + "".join(f"<li>{fill(f, L)}</li>" for f in app["features"]) + "</ul></div></section>")
+    o = app["options"]
+    if soon:
+        s.append(f'<section id="soon"><div class="wrap"><div class="prose"><h2>{soon["h"]}</h2>' + "".join(f"<p>{fill(p, L)}</p>" for p in soon["p"]))
+    else:
+        ins = app["install"]
+        s.append(f'<section id="install"><div class="wrap"><div class="prose"><h2>{ins["h"]}</h2><p>{ins["intro"]}</p>{install_html(app, numbered=True)}')
+    cols = ("Service", "What it's for")
+    s.append(f'<h3>{o["h"]}</h3></div>{table_html(cols, o["rows"])}<p class="prose">{o["after"]}</p></div></section>')
     s.append(f'<section id="faq"><div class="wrap"><h2>Questions</h2><div class="prose">{faq_html(app)}</div></div></section></main>')
     sk, sname, sdesc = app["sibling"]
     s.append('<footer><div class="wrap">' + "".join(f"<p>{fill(f, L)}</p>" for f in app["footer"]))
@@ -455,6 +540,9 @@ a{color:inherit}
 .app .mk{grid-row:span 2;width:56px;height:56px;border-radius:12px;display:grid;place-items:center;border:1px solid var(--hairline);background:var(--ground)}
 .app h2{margin:0;font-size:1.3rem;line-height:1.2}
 .app.ub h2{font:italic 600 1.55rem/1.2 "Fraunces",Georgia,serif}
+.app.hs h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
+.app .hsmk{--marquee:#8fbcd4}
+@media (prefers-color-scheme:light){.app .hsmk{--marquee:#2f6a8a}}
 .app.wk h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
 .app .wkmk{--velvet:#245442;border:0;overflow:hidden}
 .app.ls h2{font:800 1.6rem/1.1 "Big Shoulders Display",Impact,sans-serif;text-transform:uppercase}
@@ -475,6 +563,8 @@ def home_page(L):
     s.append(f'<body><main class="wrap"><h1>{SITE["domain"]}</h1><p class="intro">{SITE["intro"]} {SITE["honesty"]}</p>')
     s.append(f'<a class="app ub" href="{L["unbinge"]}"><span class="mk">{release_ring(32)}</span><h2>Unbinge</h2><p>{UNBINGE["summary"]}</p></a>')
     s.append(f'<a class="app ls" href="{L["last"]}"><span class="mk">{ticket_mark(36)}</span><h2>Last Showing</h2><p>{LAST["summary"]}</p></a>')
+    s.append(f'<a class="app hs" href="{L["home_showing"]}"><span class="mk hsmk">{house_mark(26, "card")}</span><h2>Home Showing</h2><p>{HOME["summary"]}</p>'
+             + ('<p class="cta">Coming soon</p>' if HOME.get("soon") else "") + '</a>')
     s.append(f'<a class="app wk" href="{L["worth"]}"><span class="mk wkmk">{shelf_mark(56)}</span><h2>Worth Keeping</h2><p>{WORTH["summary"]}</p></a>')
     up = "" if L["home"] == "/" else L["home"].replace("index.html", "")
     for app in EXTRA_APPS:
@@ -483,10 +573,12 @@ def home_page(L):
             icon = href.replace("index.html", "") + app["icon"]
             s.append(f'<a class="app sp" href="{href}"><span class="mk"><img src="{icon}" width="56" height="56" alt=""></span><h2>{app["name"]}</h2><p>{app["summary"]}</p><p class="cta">{app["cta"]}</p></a>')
     code = [f'<a href="{UNBINGE["repo"]}">Unbinge</a>', f'<a href="{LAST["repo"]}">Last Showing</a>'] + (
-        [] if WORTH.get("soon") else [f'<a href="{WORTH["repo"]}">Worth Keeping</a>']) + [
+        [] if WORTH.get("soon") else [f'<a href="{WORTH["repo"]}">Worth Keeping</a>']) + (
+        [] if HOME.get("soon") else [f'<a href="{HOME["repo"]}">Home Showing</a>']) + [
         f'<a href="{a["repo"]}">{a["name"]}</a>' for a in EXTRA_APPS if (APPS_DIR / a["folder"] / "index.html").exists()]
-    soon = " Worth Keeping's code isn't released yet." if WORTH.get("soon") else ""
-    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed.{soon} Unbinge, Last Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
+    pending = [a["name"] for a in (WORTH, HOME) if a.get("soon")]
+    soon = f" {' and '.join(pending)} aren't released yet." if len(pending) > 1 else (f" {pending[0]} isn't released yet." if pending else "")
+    s.append(f'<footer>The code for each app is on GitHub: {", ".join(code[:-1])} and {code[-1]}. All are MIT licensed.{soon} Unbinge, Last Showing, Home Showing and Worth Keeping run in Docker on your own computer; {EXTRA_APPS[0]["name"]} runs in your browser.</footer></main></body></html>')
     return "\n".join(s)
 
 
@@ -498,12 +590,13 @@ NOT_FOUND = """<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><me
 
 def build(out, mode):
     out = pathlib.Path(out)
-    for d in ("", "unbinge", "last-showing", "worth-keeping"):
+    for d in ("", "unbinge", "last-showing", "worth-keeping", "home-showing"):
         (out / d).mkdir(parents=True, exist_ok=True)
     (out / "index.html").write_text(home_page(links(0, mode)))
     (out / "unbinge/index.html").write_text(ub_page(links(1, mode)))
     (out / "last-showing/index.html").write_text(ls_page(links(1, mode)))
     (out / "worth-keeping/index.html").write_text(wk_page(links(1, mode)))
+    (out / "home-showing/index.html").write_text(hs_page(links(1, mode)))
     write_extras(out, mode)
     for app in EXTRA_APPS:
         src = APPS_DIR / app["folder"]

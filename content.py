@@ -2,7 +2,7 @@
 FAQs and structured data stay identical across designs.
 
 Strings may contain inline HTML (<code>, <a>, <b>). Links to other pages on the
-site use {home}, {unbinge} and {last} placeholders, filled in per build.
+site use {home}, {unbinge}, {last} and {home_showing} placeholders, filled in per build.
 """
 
 SITE = {
@@ -61,12 +61,14 @@ UNBINGE = {
         "A schedule of upcoming releases, cooldowns and graduations",
         "A calendar feed at <code>/calendar.ics</code>, so releases show up in your calendar app",
         "A queue to start the next show automatically when one finishes, or on a date",
+        "A suggested release day when you add a show, and an estimate of when it will finish",
+        "A finish-by date: pick when you want to be done and it offers release plans that get you there",
         "A preview of the next drop, plus excluding episodes and matching oddly named files by hand",
         "History, with one-click undo of the last release",
         "Dry-run mode, to see what would happen without moving any files",
         "Webhook notifications and a self-updating Discord schedule message",
         "Optional TVDB posters, genres and recommendations from your collection",
-        "Optional Sonarr connection to show real air dates",
+        "Optional Sonarr connection, with real air dates and a check that Sonarr's folders line up with Unbinge's",
         "Automatic database backups and missed-run detection",
         "Optional password login, and a <code>/health</code> endpoint for Docker",
     ],
@@ -167,7 +169,7 @@ LAST = {
             ("Taste", "What it has learned about you, and how close its past guesses were once you rated those films"),
             ("Settings", "Tickets, cinema, how to weigh favourites against urgency, Letterboxd, Discord and backups"),
         ],
-        "after": "Mark a film as <b>Want to see</b> and it's fitted into your free tickets across the next three months, soonest-leaving first. Anything that won't fit becomes a paid trip in the month you'd need to go. Used tickets are picked up from your Letterboxd diary, or you can mark them in Discord with <code>/used</code>.",
+        "after": "Mark a film as <b>Want to see</b> and it's fitted into your free tickets across every month Vue lists films for, up to a year ahead, soonest-leaving first. Anything that won't fit becomes a paid trip in the month you'd need to go. Used tickets are picked up from your Letterboxd diary, or you can mark them on the dashboard or in Discord.",
     },
     "features_h": "What else it does",
     "features": [
@@ -179,6 +181,9 @@ LAST = {
         "Early review badges from Rotten Tomatoes, Metacritic and the Guardian, if you add free keys",
         "Buzz on every film page: Letterboxd lists, early watchers and opening-week showings",
         "A record of every prediction, so you can see how close it was once you've rated the film",
+        "A record of your cinema trips, so it learns what you choose to see on the big screen",
+        "A warning when a film you're set on stops showing at your cinema, and another if it comes back",
+        "A prediction feed that other apps can use, such as <a href=\"{home_showing}\">Home Showing</a>",
         "Break alerts: a DM when a key is rejected or a step keeps failing, and another when it's fixed",
         "Settings for any UK Vue, any number of tickets, and screen types your tickets don't cover",
         "Daily backups, and an optional dashboard password",
@@ -356,4 +361,94 @@ WORTH = {
     "sibling": ("last", "Last Showing", "plans your Monzo Vue tickets around your Letterboxd taste"),
 }
 
-APPS = [UNBINGE, LAST, WORTH]
+
+HOME = {
+    "slug": "home-showing",
+    "name": "Home Showing",
+    "repo": "https://github.com/MOON5H1N3/home-showing",
+    "category": "EntertainmentApplication",
+    "keywords": "Plex, film night, what to watch, movie planner, Letterboxd, seasonal films, Christmas films, self-hosted, Docker, Discord bot",
+    "title": "Home Showing: a film a week from your Plex library",
+    "description": "Home Showing is a self-hosted Docker app that picks a film a week from your Plex library, planned four weeks ahead around your Letterboxd taste and the time of year. A spin-off of Last Showing.",
+    "lede": "A film a week from your own Plex library, picked for you.",
+    "summary": "Picks a film a week from your Plex library, four weeks ahead, around your taste and the time of year. A spin-off of Last Showing.",
+    "intro": "Most of us have a Plex library full of films we meant to watch. Home Showing picks one for each week, four weeks ahead, from the ones you haven't seen. It uses the same taste model as Last Showing, and it knows Christmas films belong in December and horror in October.",
+    "honesty": "I built Home Showing with AI coding tools and use it for my own film nights. Not affiliated with Plex.",
+    "soon": {
+        "h": "Coming soon",
+        "p": [
+            "Home Showing isn't released yet. I'm living with it for a few weeks first, to get the picks, the seasons and the phone app right.",
+            "When it's ready, the code will be on GitHub under the MIT licence. It will run in Docker on your own computer next to Plex, and it needs <a href=\"{last}\">Last Showing</a> running too, because that's where its taste predictions come from.",
+        ],
+    },
+    "why": {
+        "h": "Hundreds of films, nothing to watch",
+        "p": [
+            "A big library makes choosing harder, not easier. You scroll, give up, and put on something you've seen before.",
+            "Home Showing makes the choice ahead of time, like a cinema programme for your living room. You know what Friday's film is, it suits the time of year, and if it doesn't suit tonight you can swap it.",
+        ],
+    },
+    "how": {
+        "h": "How it picks",
+        "intro": "A new week starts each Friday. This week's film stays put; the weeks after are pencilled in.",
+        "steps": [
+            ("Only films you haven't seen", "Anything in your Letterboxd diary, ratings or watched list, or already played in Plex, is left out."),
+            ("Scored for you", "Last Showing's taste model predicts your rating for each film, with the reasons for and against."),
+            ("The time of year", "Christmas films rise from late November, horror in October, summer films in summer. Out of season they're held back, so no summer film in January."),
+            ("Variety", "Neighbouring weeks avoid the same director, overlapping genres and two very long films in a row."),
+        ],
+    },
+    "table": {
+        "h": "Where you see the plan",
+        "cols": ("Place", "What's there"),
+        "rows": [
+            ("Phone app", "A web app you install from Chrome, showing this week and the next three. It keeps the last plan it saw when you're away from home."),
+            ("Discord", "One pinned message that edits itself when the plan changes, with Swap this week, Not for me and a Play in Plex link"),
+            ("Calendar", "A feed with one event a week, which keeps its identity when you swap, so you don't get duplicates"),
+        ],
+        "after": "<b>Watched</b> is noticed by itself, from Plex or your Letterboxd diary. A film you didn't get to carries over to the next week while it's still in season. <b>Swap</b> puts a different film in that week, and <b>Not for me</b> means never again. Both can be undone.",
+    },
+    "features_h": "What else it does",
+    "features": [
+        "Plans from 1 to 8 weeks ahead",
+        "Seasonal lifts for Christmas, Halloween, summer, winter, New Year, Valentine's, Easter and Bonfire Night, with a setting to make them stronger or weaker",
+        "Best match first: a Christmas film lands in the week before Christmas, not the first free week",
+        "Extra weight for films on your Letterboxd watchlist and likely 4.5★ favourites",
+        "Limit it to some of your Plex libraries",
+        "A setup page that says whether Plex, Last Showing and Discord are working, and why not",
+        "Its own Discord bot if you want one, or shares Last Showing's",
+        "An optional password, and a JSON feed of the schedule for other apps",
+    ],
+    "options": {
+        "h": "What it needs",
+        "rows": [
+            ("Plex", "Your film library and what you've played"),
+            ("Last Showing", "Predicted ratings from your Letterboxd taste, and your diary"),
+            ("Discord (optional)", "The pinned weekly message and its buttons"),
+        ],
+        "after": "No TMDB key of its own: Last Showing looks films up for it.",
+    },
+    "faq": [
+        ("How do I decide what film to watch from my Plex library?",
+         "Home Showing decides for you, a week at a time. It picks films from your Plex library that you haven't seen, scores them against your Letterboxd taste, and plans one per week, four weeks ahead."),
+        ("Does it suggest Christmas films at Christmas?",
+         "Yes. Christmas films rise from late November and peak in December, horror in October, and summer and wintry films in their seasons. Out of season they're held back."),
+        ("Do I need Last Showing?",
+         "Yes. Home Showing gets its predicted ratings and your Letterboxd diary from Last Showing, so it needs Last Showing running on the same computer."),
+        ("What if I don't watch this week's film?",
+         "It carries over to the next week while it's still in season, up to twice, then rests for a couple of months."),
+        ("Can I change a pick?",
+         "Yes. Swap puts a different film in that week, and Not for me removes a film for good. Both can be undone."),
+        ("Does it work with Jellyfin or Emby?", "No. It reads your library from Plex."),
+        ("Can I get it?", "Not yet. It's coming soon, as free, open-source software (MIT licence) that runs on your own computer."),
+        ("Is Home Showing affiliated with Plex?", "No. It's an independent hobby project."),
+        ("Was Home Showing written with AI?",
+         "Yes, it's vibe coded: written with AI coding tools, then tested by hand on a real Plex library."),
+    ],
+    "footer": [
+        "Home Showing will be MIT licensed and is made by <a href=\"https://github.com/MOON5H1N3\">MOON5H1N3</a>. Not affiliated with Plex.",
+    ],
+    "sibling": ("last", "Last Showing", "plans your Monzo Vue tickets around your Letterboxd taste"),
+}
+
+APPS = [UNBINGE, LAST, WORTH, HOME]
